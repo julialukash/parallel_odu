@@ -1,0 +1,564 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                   Стилевой файл для студенческих отчётов                  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                 copyleft (GPL)       К.В.Воронцов,    2007                %%
+%%                 copyleft (GPL)       Н.Ю.Золотых,     2010                %%
+%%                 copyleft (GPL)       А.И.Майсурадзе,  2014                %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{fontspec}
+\usepackage{comment}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{parskip}
+\usepackage{indentfirst}
+\usepackage{algorithm}
+\usepackage[noend]{algorithmic}
+\usepackage{epstopdf}
+\usepackage[autostyle]{csquotes}
+%% Перенос знаков в формулах (по Львовскому)
+\newcommand*{\hm}[1]{#1\nobreak\discretionary{}
+	{\hbox{$\mathsurround=0pt #1$}}{}}
+
+
+\NeedsTeXFormat{LaTeX2e}
+
+%% У пакета нет опций
+\ProcessOptions
+
+%% Типичные основные пакеты
+\RequirePackage{ifthen} % a wide array of tests, \ifthenelse, \whiledo, FRAGILE, there is always a better option
+\RequirePackage{graphicx} % a key-value interface for optional arguments to the \includegraphics command
+%\RequirePackage[usenames,dvipsnames]{color} % colour control for LaTeX documents, consider using xcolor instead
+\RequirePackage[usenames,dvipsnames,table]{xcolor} % driver-independent colour extensions for LaTeX
+
+%% Работа с библиографическими ссылками
+%\RequirePackage{cite} % improved handling of numeric citations
+
+%% Математические пакеты
+\RequirePackage{amssymb} % all the symbols found in the AMS symbol fonts msam and msbm, includes `amsfonts'
+\RequirePackage{amsmath} % enhancements for mathematical formulas
+\RequirePackage{mathrsfs} % Raph Smith's Formal Script font in mathematics, provides a \mathscr command
+\RequirePackage{euscript} % Euler Script font in mathematics, provides a \EuScript command
+\RequirePackage{array} % an extended implementation of the array and tabular environments
+%\RequirePackage{theorem} % enhancements to LATEX’s theorem environments, obsolete, consider using ntheorem instead
+\RequirePackage{ntheorem} % enhancements to LATEX’s theorem environments
+\RequirePackage[all]{xy} % a special package for drawing diagrams
+\RequirePackage{pb-diagram} % the environment to create complex commutative diagrams
+
+%% Включение текстов специального вида
+\RequirePackage{algorithmic} % typesetting pseudocode, a part of the `algorithms' package
+\RequirePackage{algorithm} % a floating environment designed to work with the algorithmic style, a part of the `algorithms' package
+\RequirePackage{listings} % an environment to include the source code of any programming language, can be floating
+
+%\RequirePackage[colorlinks,urlcolor=blue]{hyperref} % the ability to create hyperlinks within the document
+
+%\RequirePackage{breakurl} % multiline urls, include AFTER hyperref
+%\RequirePackage{html} % if you want specific html sections while using LaTeX2HTML
+%\renewcommand{\baselinestretch}{1.1}% для печати с большим интервалом
+
+% Печать на стандартной части листа A4
+% INTERFACE
+\newcommand\NormalAFOURMargins{
+	\textheight=196mm
+	\textwidth=125mm
+	\oddsidemargin=16mm
+	\evensidemargin=16mm
+	\topmargin=5mm
+	\footnotesep=1.5ex
+	\marginparwidth=36pt
+	\headsep=5mm
+	\parindent=3.5ex
+}
+% Печать во весь лист A4
+% INTERFACE
+\newcommand\MinAFOURMargins{
+	\textheight=240mm
+	\textwidth=180mm
+	\oddsidemargin=-10mm
+	\evensidemargin=-5mm
+	\topmargin=-10mm
+	\footnotesep=1.5ex
+	\marginparwidth=36pt
+	\headsep=5mm
+	\parindent=3.5ex
+}
+\MinAFOURMargins
+
+% Управление разбиением на строки
+\tolerance=3000
+\hbadness=2000
+%\flushbottom
+\raggedbottom
+% подавить эффект "висячих стpок"
+\clubpenalty=10000
+\widowpenalty=10000
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Оформление заголовков статей
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Настройки заголовка статьи
+% INTERFACE
+\newlength\vskipBeforeTitle
+\setlength\vskipBeforeTitle{4.5ex}
+\newlength\vskipAfterTitle
+\setlength\vskipAfterTitle{2ex}
+\newcommand\typeTitle[1]{\color[rgb]{1,0.078,0.57}\Large\rmfamily\upshape\bfseries #1}
+\newcommand\typeAuthor[1]{\color[rgb]{1,0.078,0.57}\normalsize\rmfamily\itshape\bfseries #1}
+\newcommand\typeEmail[1]{\color[rgb]{0,0.5,0.5}\small\ttfamily #1}
+\newcommand\typeOrganization[1]{\small #1}
+\newcommand\typeDate[1]{\small #1}
+\newcommand\typeTocAuthorTitle[2]{{\unstretchspaces\itshape #1}\\ #2}
+
+% сделать неразрывные пробелы ещё и нерастяжимыми (например между фамилией и инициалами авторов)
+\newcommand\unstretchspaces{\catcode`~=\active\def~{\;}} 
+
+% Вывод заголовка
+\def\maketitle{%
+    \@BeginDocument
+    \vskip\vskipBeforeTitle\noindent
+    \parbox{\textwidth}{%
+        \vskip-1.5ex%
+        \begin{center}%
+            {\typeTitle\@title}\\
+            \vskip1ex%
+            {\typeAuthor\@author}%
+            \ifthenelse{\equal{\@email}{}}{}{\\\vskip0.5ex{\typeEmail\@email}}%
+            \ifthenelse{\equal{\@organization}{}}{}{\\\vskip0.5ex{\typeOrganization\@organization}}%
+            \ifthenelse{\equal{\@date}{}}{\\\vskip0.5ex{\typeDate\today}}{\\\vskip0.5ex{\typeDate\@date}}%
+        \end{center}%
+        \vskip-1.5ex%
+        \vskip\vskipAfterTitle%
+    }%parbox
+    % сформировать колонтитулы
+    \markboth{\@author@short}{\@title@short}%
+    \par\nobreak\@afterheading
+}
+
+%% Команды для ввода информации для титула
+\def\@clear@title{%
+    \gdef\@author@short{}%
+    \gdef\@title@short{}%
+    \gdef\@author{}%
+    \gdef\@title{}%
+    \gdef\@organization{}%
+    \gdef\@email{}%
+    \gdef\@date{}%
+}
+\renewcommand{\title}[2][]{\@clear@title
+    \gdef\@title{#2}%
+    \ifthenelse{\equal{#1}{}}%
+        {\gdef\@title@short{{\color[rgb]{1,0.078,0.57}#2}}}%
+        {\gdef\@title@short{{\color[rgb]{1,0.078,0.57}#1}}}%
+}
+\renewcommand{\author}[2][]{
+    \gdef\@author{#2}
+    \ifthenelse{\equal{#1}{}}%
+        {\gdef\@author@short{{\color[rgb]{1,0.078,0.57}#2}}}%
+        {\gdef\@author@short{{\color[rgb]{1,0.078,0.57}#1}}}%
+}
+\newcommand{\organization}[1]{\gdef\@organization{{#1}}}
+\newcommand{\email}[1]{\gdef\@email{{#1}}}
+\renewcommand{\date}[1]{\gdef\@date{{#1}}}
+
+
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+	{-0.5ex \@plus -.5ex \@minus -.2ex}%
+	{1.3ex \@plus.2ex}%
+	{\normalfont\Large\bfseries\color[rgb]{1,0.078,0.57}}}
+
+
+\renewcommand\subsection{\@startsection {subsection}{1}{\z@}%
+	{-0.4ex \@plus -1ex \@minus -.2ex}%3.5ex
+	{1.3ex \@plus.2ex}%
+	{\normalfont\bfseries\color[rgb]{1,0.078,0.57}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Переопределение колонтитулов
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\renewcommand{\ps@headings}{%
+    \renewcommand{\@oddfoot}{}%
+    \renewcommand{\@oddhead}{\parbox{\textwidth}{\footnotesize
+        \rightmark\hfill{\color[rgb]{1,0.078,0.57}Практикум БММО}\quad\thepage\\[-2ex]\hrule}}%
+    \renewcommand{\@evenfoot}{}%
+    \renewcommand{\@evenhead}{\parbox{\textwidth}{\footnotesize
+        \thepage\quad{\color[rgb]{1,0.078,0.57}Практикум БММО}\hfill\leftmark\\[-2ex]\hrule}}%
+}
+%\renewcommand{\ps@empty}{%
+%    \renewcommand{\@oddfoot}{}%
+%    \renewcommand{\@oddhead}{}%
+%    \renewcommand{\@evenfoot}{}%
+%    \renewcommand{\@evenhead}{}%
+%}
+%\let\ps@plain=\ps@empty
+\pagestyle{empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Оформление разделов
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Настройка разделов
+% INTERFACE
+%\newcommand\typeSection[1]{%
+%    \bigskip\noindent
+%    {\normalfont\large\rmfamily\bfseries #1}%
+%    \par\nobreak\medskip
+%}
+% INTERFACE
+%\newcommand\typeParagraph[1]{%
+%    \smallskip
+%    {\normalfont\rmfamily\bfseries #1}%
+%}
+
+%% Разделы
+% INTERFACE
+\let\part\@undefined
+\let\chapter\@undefined
+%\renewcommand\section[1]{\par\typeSection{#1}\@afterheading}
+%\let\subsection\@undefined
+\let\subsubsection\@undefined
+%\renewcommand\paragraph[1]{\par\typeParagraph{#1}\nobreak}
+\let\subparagraph\@undefined
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Оформление оглавления
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand\contentsname{Содержание}
+
+% переопределение команды генерации оглавления
+%\renewcommand\tableofcontents{%
+%    \if@twocolumn\@restonecoltrue\onecolumn\else\@restonecolfalse\fi
+%    \par\noindent{\normalfont\Large\rmfamily\bfseries\contentsname}\nopagebreak\par\bigskip
+%    \markboth{\contentsname}{\contentsname}%
+%    \@starttoc{toc}%
+%    \if@restonecol\twocolumn\fi
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Оформление библиографии, в каждой статье отдельно
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Оформление элементов пункта библиографии
+% INTERFACE
+\def\BibAuthor#1{\emph{#1}}
+\def\BibTitle#1{#1}
+\def\BibUrl#1{{\small\url{#1}}}
+\def\BibHttp#1{{\small\url{http://#1}}}
+\def\BibFtp#1{{\small\url{ftp://#1}}}
+\def\typeBibItem{\small\sloppy}
+
+% Переопределение горизонтальных и вертикальных промежутков в списке литературы
+\renewenvironment{thebibliography}[1]
+    {\section{\bibname}%
+        \list{\@biblabel{\@arabic\c@enumiv}}{%
+            \settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin by 1ex%
+            \topsep=0pt\parsep=3pt\itemsep=0ex%
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}%
+        }%
+        \typeBibItem
+%        \clubpenalty4000%
+%        \@clubpenalty\clubpenalty
+%        \widowpenalty4000%
+%        \sfcode`\.\@m%
+    }{%
+        \def\@noitemerr{\@latex@warning{Empty `thebibliography' environment}}%
+        \endlist
+    }
+
+% Действия, которые делаются в начале каждой статьи
+% (как в сборнике, так и при отдельной компиляции)
+\newcommand{\@BeginDocument}{
+    \pagestyle{headings}%
+    % Переопределение списков с меньшими интервалами (слегка экономим бумагу)
+    \renewcommand{\@listi}{%
+        \topsep=\smallskipamount % вокруг списка
+        \parsep=0pt% между абзацами внутри пункта
+        \parskip=0pt% между абзацами
+        \itemsep=0pt% между пунктами
+        \itemindent=0pt% абзацный выступ
+        \labelsep=1.5ex% расстояние до метки
+        \leftmargin=2.5ex% отступ слева
+        \rightmargin=0pt} % отступ справа
+    \renewcommand{\@listii}{\@listi\topsep=0pt}%
+    \renewcommand{\@listiii}{\@listii}%
+    \renewcommand{\@listiv}{\@listii}%
+    \renewcommand{\labelitemi}{---}%
+    \renewcommand{\labelitemii}{---}%
+    \renewcommand{\labelitemiii}{---}%
+    \renewcommand{\labelitemiv}{---}%
+    \renewcommand{\theenumii}{\asbuk{enumii}}%
+    \hyphenation{ммро рффи}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Для включения графиков пакетом graphicx
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\DeclareGraphicsRule{.wmf}{bmp}{}{}
+\DeclareGraphicsRule{.emf}{bmp}{}{}
+\DeclareGraphicsRule{.bmp}{bmp}{}{}
+\DeclareGraphicsRule{.png}{bmp}{}{}
+% Для подписей на рисунках, вставляемых includegraphics
+\def\XYtext(#1,#2)#3{\rlap{\kern#1\lower-#2\hbox{#3}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Плавающие иллюстрации
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{topnumber}{9}
+\setcounter{totalnumber}{9}
+\renewcommand\topfraction{1.0}
+\renewcommand\textfraction{0.0}
+\renewcommand\floatpagefraction{0.01} % float-страниц быть вообще не должно - это чтобы их лучше видеть ;)
+\setlength\floatsep{2ex}
+\setlength\textfloatsep{2.5ex}
+\setlength\intextsep{2.5ex}
+\setlength\abovecaptionskip{2ex}
+
+\def\@caption@left@right@skip{\leftskip=3.5ex\rightskip=3.5ex}
+\def\nocaptionskips{\def\@caption@left@right@skip{}}
+
+\renewcommand\@makecaption[2]{%
+    \vskip\abovecaptionskip
+    \sbox\@tempboxa{\small\textbf{#1.} #2}%
+    \ifdim\wd\@tempboxa >\hsize
+        {\@caption@left@right@skip\small\textbf{#1.} #2\par}
+    \else
+        \global\@minipagefalse
+        \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+    %\vskip\belowcaptionskip
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Некоторые переопределения для унификации математики
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\ge\geqslant
+\let\geq\geqslant
+\let\geqslant\@undefined
+\let\le\leqslant
+\let\leq\leqslant
+\let\leqslant\@undefined
+\let\emptyset\varnothing
+\let\kappa\varkappa
+\let\phi\varphi
+\let\epsilon\varepsilon
+
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\renewcommand{\complement}{\mathsf{C}}
+\providecommand{\T}{}
+\renewcommand{\T}{^\textrm{т}}
+
+\newcommand\myop[1]{\mathop{\operator@font #1}\nolimits}
+\newcommand\mylim[1]{\mathop{\operator@font #1}\limits}
+
+\renewcommand\lim{\mylim{lim}}
+\renewcommand\limsup{\mylim{lim\,sup}}
+\renewcommand\liminf{\mylim{lim\,inf}}
+\renewcommand\max{\mylim{max}}
+\renewcommand\min{\mylim{min}}
+\renewcommand\sup{\mylim{sup}}
+\renewcommand\inf{\mylim{inf}}
+\newcommand\argmin{\mylim{arg\,min}}
+\newcommand\argmax{\mylim{arg\,max}}
+\newcommand\Tr{\myop{tr}}
+\newcommand\rank{\myop{rank}}
+\newcommand\diag{\myop{diag}}
+\newcommand\sign{\mylim{sign}}
+\newcommand\const{\myop{const}}
+
+% теория вероятностей
+\newcommand{\erf}{\myop{erf}}
+\newcommand{\Expect}{\mathsf{E}}
+\newcommand{\Var}{\mathsf{D}}
+\newcommand\Normal{\mathcal{N}}
+\newcommand{\cond}{\mspace{3mu}{|}\mspace{3mu}}
+
+\def\QQ{\mathbb{Q}}
+\def\RR{\mathbb{R}}
+\def\NN{\mathbb{N}}
+\def\ZZ{\mathbb{Z}}
+\def\LL{\mathbb{L}}
+\def\II{\mathbb{I}}
+\def\DD{\mathbb{D}}
+
+\def\cL{\mathscr{L}}
+\def\cF{\mathscr{F}}
+\def\cG{\mathscr{G}}
+\def\cB{\mathscr{B}}
+\def\cK{\mathscr{K}}
+
+\def\cJ{\mathcal{J}}
+\def\cN{\mathcal{N}}
+
+\def\fF{\mathfrak{F}}
+\def\fI{\mathfrak{I}}
+\def\fM{\mathfrak{M}}
+\def\fR{\mathfrak{R}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Перечни
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Нумерованный перечень со скобками
+\newenvironment{enumerate*}
+{%
+    \begingroup
+    \renewcommand{\@listi}{%
+        \topsep=\smallskipamount % вокруг списка
+        \parsep=0pt% между абзацами внутри пункта
+        \parskip=0pt% между абзацами
+        \itemsep=0pt% между пунктами
+        \itemindent=0ex% абзацный выступ
+        \labelsep=1.5ex% расстояние до метки
+        \leftmargin=7ex% отступ слева
+        \rightmargin=0pt} % отступ справа
+    \begin{enumerate}%
+    \renewcommand\labelenumi{\theenumi)}%
+}{%
+    \end{enumerate}%
+    \endgroup
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Новые теоремоподобные окружения
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain} % Used for theorems, lemmas, propositions, etc.
+% Один набор
+\newtheorem{theorem}{Теорема}
+\newtheorem{lemma}[theorem]{Лемма}
+\newtheorem{proposition}[theorem]{Утверждение}
+\newtheorem{state}[theorem]{Утверждение}
+\newtheorem{corollary}[theorem]{Следствие}
+% Второй набор
+\newtheorem{Theorem}{Теорема}
+\newtheorem{Lemma}[Theorem]{Лемма}
+\newtheorem{Proposition}[Theorem]{Утверждение}
+\newtheorem{State}[Theorem]{Утверждение}
+\newtheorem{Corollary}[Theorem]{Следствие}
+
+\theoremstyle{definition} %	Used for definitions and examples
+\newtheorem{Defn}{Определение}
+\newtheorem{Def}{Определение}
+\newtheorem{Definition}{Определение}
+\newtheorem{defn}{Определение}
+\newtheorem{definition}{Определение}
+\newtheorem{Example}{Пример}
+\newtheorem{example}{Пример}
+\newtheorem{Axiom}{Аксиома}
+\newtheorem{axiom}{Аксиома}
+
+\theoremstyle{remark} %	Used for remarks and notes
+\newtheorem{Hypothesis}{Гипотеза}
+\newtheorem{hypothesis}{Гипотеза}
+\newtheorem{Problem}{Задача}
+\newtheorem{problem}{Задача}
+\newtheorem{Remark}{Замечание}
+\newtheorem{remark}{Замечание}
+\newtheorem{Note}{Примечание}
+\newtheorem{note}{Примечание}
+
+%\newcommand{\qedsymb}{\rule{0.2em}{0.5em}}
+%\newenvironment{proof}{\noindent{\itshape Доказательство. }}{\ \hfill\qedsymb\par\smallskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Оформление алгоритмов в пакетах algorithm, algorithmic
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% переопределения (русификация) управляющих конструкций:
+\newcommand{\algKeyword}[1]{{\bf #1}}
+\renewcommand{\algorithmicrequire}{\rule{0pt}{2.5ex}\algKeyword{Вход:}}
+\renewcommand{\algorithmicensure}{\algKeyword{Выход:}}
+\renewcommand{\algorithmicend}{\algKeyword{конец}}
+\renewcommand{\algorithmicif}{\algKeyword{если}}
+\renewcommand{\algorithmicthen}{\algKeyword{то}}
+\renewcommand{\algorithmicelse}{\algKeyword{иначе}}
+\renewcommand{\algorithmicelsif}{\algorithmicelse\ \algorithmicif}
+\renewcommand{\algorithmicendif}{\algorithmicend\ \algorithmicif}
+\renewcommand{\algorithmicfor}{\algKeyword{для}}
+\renewcommand{\algorithmicforall}{\algKeyword{для всех}}
+\renewcommand{\algorithmicdo}{}
+\renewcommand{\algorithmicendfor}{\algorithmicend\ \algorithmicfor}
+\renewcommand{\algorithmicwhile}{\algKeyword{пока}}
+\renewcommand{\algorithmicendwhile}{\algorithmicend\ \algorithmicwhile}
+\renewcommand{\algorithmicloop}{\algKeyword{цикл}}
+\renewcommand{\algorithmicendloop}{\algorithmicend\ \algorithmicloop}
+\renewcommand{\algorithmicrepeat}{\algKeyword{повторять}}
+\renewcommand{\algorithmicuntil}{\algKeyword{пока}}
+%\renewcommand{\algorithmiccomment}[1]{{\footnotesize // #1}}
+\renewcommand{\algorithmiccomment}[1]{{\quad\sl // #1}}
+
+% Мои дополнительные команды для описания алгоритмов
+\newcommand{\Procedure}[1]{{\tt #1}}
+\newcommand{\Proc}[1]{\text{\tt #1}}
+\def\BEGIN{\\[1ex]\hrule\vskip 1ex}
+\def\PARAMS{\renewcommand{\algorithmicrequire}{\algKeyword{Параметры:}}\REQUIRE}
+\def\END{\vskip 1ex\hrule\vskip 1ex}
+%\def\RETURN{\algKeyword{вернуть} }
+\def\EXIT{\algKeyword{выход}}
+\def\IFTHEN#1{\STATE\algorithmicif\ #1 {\algorithmicthen}}
+\def\PROCEDURE#1{\medskip\STATE\algKeyword{ПРОЦЕДУРА} \Procedure{#1}}
+
+% Ещё несколько переопределений для алгоритмов
+\renewcommand{\listalgorithmname}{Список алгоритмов}
+\floatname{algorithm}{Алгоритм}
+\floatplacement{algorithm}{!t}
+
+% чтобы поставить точечку после номера алгоритма в \caption:
+%\renewcommand\floatc@ruled[2]{\vskip2pt\textbf{#1.} #2\par}
+
+% чтобы можно было ссылаться на шаги алгоритма
+\newenvironment{Algorithm}[1][t]%
+    {\begin{algorithm}[#1]\begin{algorithmic}[1]%
+        \renewcommand{\ALC@it}{%
+            \refstepcounter{ALC@line}% удивительно, почему это не сделал Peter Williams?
+            \addtocounter{ALC@rem}{1}%
+            \ifthenelse{\equal{\arabic{ALC@rem}}{1}}{\setcounter{ALC@rem}{0}}{}%
+            \item}}%
+    {\end{algorithmic}\end{algorithm}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Рисование нейронных сетей и диаграмм
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{network}%
+    {\catcode`"=12\begin{xy}<1ex,0ex>:}%
+    {\end{xy}\catcode`"=13}
+\def\nnNode"#1"(#2)#3{\POS(#2)*#3="#1"}
+\def\nnLink"#1,#2"#3{\POS"#1"\ar #3 "#2"}
+\def\nnSig{%
+    \underline{{}^\sigma\:\mathstrut}\vrule%
+    \overline{\phantom{()}}}
+\def\nnTheta{%
+    \underline{{}^\theta\:\mathstrut}\vrule%
+    \overline{\phantom{()}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   П Р О Ч Е Е
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Для таблиц: невидимая вертикальная линейка немного расширяет заголовок
+\newcommand{\headline}{\hline\rule{0pt}{2.5ex}}
+
+% Перенос знака операции на следующую строку
+\newcommand\brop[1]{#1\discretionary{}{\hbox{$#1$}}{}}
+
+% Остановим шаловливые ручки
+\let\usepackage\@undefined
