@@ -23,39 +23,33 @@ colnames(skulls) <- c("w", "h", "l", "n", "y")
 
 ```{r, cache=TRUE}
 str(skulls)
-summary(skulls)
 table(skulls$y)
 ```
-
-Рассмотрим гипотизу о равенстве средних значений **максимальной ширины** черепов разных периодов.
+Видно, что распределение числа черепов по разным временным эпохам равномерно.
+Рассмотрим гипотезу о равенстве средних значений **максимальной ширины** черепов разных периодов.
 
 ```{r, cache=TRUE, warning=FALSE}
 boxplot(skulls$w ~ skulls$y)
 ```
 
-Выясним, нормальны ли распределения значения ширины черепов внутри каждого периода.
-```{r, cache=TRUE, warning=FALSE}
+Выясним, нормальны ли распределения значения ширины черепов внутри каждого периода, применим критерий Шапиро-Уилка для проверки нормальности, p-values:
+```{r, cache=TRUE, warning=FALSE, echo=FALSE}
 w <- split(skulls$w, skulls$y)
-shapiro.test(w[[1]])
-shapiro.test(w[[2]])
-shapiro.test(w[[3]])
-shapiro.test(w[[4]])
-shapiro.test(w[[5]])
+p <- NULL
+p["-4000"] <- shapiro.test(w[[1]])$p.value
+p["-3300"] <- shapiro.test(w[[2]])$p.value
+p["-1850"] <- shapiro.test(w[[3]])$p.value
+p["-200"]  <- shapiro.test(w[[4]])$p.value
+p["150"]   <- shapiro.test(w[[5]])$p.value
+p
 ```
 
-Для данных за период времени -1850 и -3300 гипотеза о нормальности не подтверждаются, попробуем удалить выброс из выборки за -3300 г.
+Для данных за период времени -1850 и -3300 гипотеза о нормальности не подтверждаются, поэтому будем использовать методы, не требующие нормальности выборок. Будем использовать критерий знаковых рангов Уилкоксона для проверки равенства медиан, данный ритери проверяет гипотезу
 
-```{r, cache=TRUE, warning=FALSE}
-qqnorm(w[[2]])
-qqline(w[[2]], col="red")
-x2 <- w[[2]][w[[2]] < 140]
-shapiro.test(x2)
+$H_0:\;med X = m_0;$ против альтернативы 
 
-qqnorm(w[[3]])
-qqline(w[[3]], col="red")
-```
+$H1:\;med X \ne m_0.$
 
-Для данных за период времени -1850 гипотеза о нормальности не подтверждается. Будем использовать критерий знаковых рангов Уилкоксона для проверки равенства медиан
 
 ```{r, cache=TRUE, warning=FALSE}
 pairwise.wilcox.test(skulls$w, skulls$y, p.adjust.method="none")
@@ -70,66 +64,57 @@ pairwise.wilcox.test(skulls$w, skulls$y, p.adjust.method="none")
 + -3300  -200
 + -3300   150
 
-Рассмотрим различные поправки на множественность:
+Так как мы рассматримаем задачу множественной проверки гипотез, рассмотрим поправку на множественность. Так как m (количество гипотез) достаточно мало, то можно применить поправку Бонферрони не беспокоясь о мощность статистической процедуры.
+
 ```{r, cache=TRUE, warning=FALSE}
-pairwise.wilcox.test(skulls$w,skulls$y, p.adjust.method="BH")
 pairwise.wilcox.test(skulls$w,skulls$y, p.adjust.method="bonferroni")
-pairwise.wilcox.test(skulls$w,skulls$y, p.adjust.method="BY")
 ```
 
-C учетом последней поправки отвергаются гипотезы о равенстве средних значений максимальной ширины черепов у пар:
+C учетом  поправки отвергаются гипотезы о равенстве средних значений максимальной ширины черепов у пар:
 
 + -4000  -200
 + -4000   150
 + -3300  -200
 + -3300   150
 
-Нормальный однофакторный дисперсионный анализ:
 
-```{r, cache=TRUE, warning=FALSE}
-a1 <- aov(skulls$w~skulls$y)
-par(mfrow=c(2,2))
-plot(a1)
-kruskal.test(skulls$w, skulls$y)
-```
+Используем Критерий Джонкхиера для проверки гипотезы равенства средних против альтернативы  их увеличения.
 
-Гипотеза о равенстве средних отвергается. Расмотрим односторонюю альтеративу: средние увеличиваются.
+$H_0:\; med X_1 = \dots = med X_m$
+
+$H_1:\; med X_1 \le \dots \le med X_m$
 
 ```{r, cache=TRUE, warning=FALSE}
 library(clinfun)
-jonckheere.test(skulls$w, skulls$y)
-jonckheere.test(skulls$w, skulls$y, alternative = "increasing") 
+jonckheere.test(skulls$w, skulls$y, alternative = "increasing")
 ```
 
-p-value свидетельствует против нулевой гипотезы в пользу односторонней альтернативы. Можно сделать вывод, что среднее значение ширины черепа увеличивалось со временем.
+p-value свидетельствует против нулевой гипотезы в пользу альтернативы. Можно сделать вывод, что среднее значение ширины черепа увеличивалось со временем.
 
-```{r, cache=TRUE, warning=FALSE}
-a2 <- aov(skulls$w~factor(skulls$y))
-TukeyHSD(a2)
-```
-
-
-Рассмотрим теперь показатели **базибрегматической высоты черепов**. Проверим подвыборки на нормальность. 
+Рассмотрим теперь показатели **базибрегматической высоты черепов**. 
 
 ```{r, cache=TRUE, warning=FALSE}
 par(mfrow=c(1,1))
 boxplot(skulls$h ~ skulls$y)
 h <- split(skulls$h, skulls$y)
-shapiro.test(h[[1]])
-shapiro.test(h[[2]])
-shapiro.test(h[[3]])
-shapiro.test(h[[4]])
-shapiro.test(h[[5]])
 ```
 
+Проверим подвыборки на нормальность. p-values критерия Шапиро-Уилка для проверки нормальности:
+
+```{r, cache=TRUE, warning=FALSE, echo=FALSE}
+p <- NULL
+p["-4000"] <- shapiro.test(h[[1]])$p.value
+p["-3300"] <- shapiro.test(h[[2]])$p.value
+p["-1850"] <- shapiro.test(h[[3]])$p.value
+p["-200"]  <- shapiro.test(h[[4]])$p.value
+p["150"]   <- shapiro.test(h[[5]])$p.value
+p
+```
 Гипотезы о нормальности не отвергаются, воспользуемся тестом Стьюдента для попарной проверки равенства средних с поправкой на множественность.
 
 
 ```{r, cache=TRUE, warning=FALSE}
 pairwise.t.test(skulls$h,skulls$y, p.adjust.method="bonferroni")
-pairwise.t.test(skulls$h,skulls$y, p.adjust.method="BY")
-library(PMCMR)
-posthoc.kruskal.nemenyi.test(x=skulls$h, g=skulls$y, method="Tukey")
 ```
 
 Из полученных результатов можно сделать вывод, что средние значения базибрегматической высоты черепов примерно равны для различных периодов.
@@ -138,52 +123,37 @@ posthoc.kruskal.nemenyi.test(x=skulls$h, g=skulls$y, method="Tukey")
 bartlett.test(h~y, data=skulls)
 ```
 
-Гипотеза о равенстве дисперсий не отклоняется. Воспользуемся для проверки равенства средних
+Гипотеза о равенстве дисперсий не отклоняется.
+
+Рассмотрим значения **базиальвеолярной длины черепов**. Проверим гипотезу о равенстве их средних для различных временных эпох. 
 
 ```{r, cache=TRUE, warning=FALSE}
-jonckheere.test(skulls$h, skulls$y)
-```
-
-Гипотеза о равенстве средних не отклоняется. 
-
-```{r, cache=TRUE, warning=FALSE}
-a2 <- aov(skulls$h~factor(skulls$y))
-TukeyHSD(a2)
-```
-
-
-Рассмотрим значения **базиальвеолярной длины черепов**. Проверим гипотезу о равенстве их средних для различных временных эпох. Проверим подвыборки на нормальность.
-
-```{r, cache=TRUE, warning=FALSE}
-par(mfrow=c(1,1))
 boxplot(skulls$l ~ skulls$y)
 l <- split(skulls$l, skulls$y)
-shapiro.test(l[[1]])
-shapiro.test(l[[2]])
-shapiro.test(l[[3]])
-shapiro.test(l[[4]])
-shapiro.test(l[[5]])
-#pairwise.wilcox.test(skulls$l,skulls$y, p.adjust.method="bonferroni")
-pairwise.t.test(skulls$l,skulls$y, p.adjust.method="bonferroni")
-pairwise.t.test(skulls$l,skulls$y, p.adjust.method="BY")
 ```
 
-Гипотеза о равенстве средних отвергается для следующих пар: 
+Проверим подвыборки на нормальность. p-values критерия Шапиро-Уилка для проверки нормальности:
 
-+ -4000  -200
-+ -4000   150
-+ -3300  -200
-+ -3300   150
+```{r, cache=TRUE, warning=FALSE, echo=FALSE}
+p <- NULL
+p["-4000"] <- shapiro.test(l[[1]])$p.value
+p["-3300"] <- shapiro.test(l[[2]])$p.value
+p["-1850"] <- shapiro.test(l[[3]])$p.value
+p["-200"]  <- shapiro.test(l[[4]])$p.value
+p["150"]   <- shapiro.test(l[[5]])$p.value
+p
+```
+
 
 ```{r, cache=TRUE, warning=FALSE}
 jonckheere.test(skulls$l, skulls$y)
 ```
 
-Гипотеза о равенстве средних отклоняется. Подвыборки -- нормальные, воспольземся LSD.
+Гипотеза о равенстве средних отклоняется. Общая гипотеза однородности отвергается, подвыборки -- нормальные, воспользуемся LSD (Least Significant Difference) Фишера, получим красивый график.
 
 ```{r, cache=TRUE, warning=FALSE}
 library(agricolae)
-a1 <- aov(skulls$l~skulls$y)
+a1   <- aov(skulls$l~skulls$y)
 LSD1 <- LSD.test(a1, "skulls$y", p.adj="none",console=TRUE)
 bar.err(LSD1$means, variation="SE", ylim = c(92, 105), bar=FALSE,col=0)
 grid()
@@ -191,49 +161,43 @@ grid()
 
 Проверим гипотезу о равенстве средних против односторонней альтернативы их уменьшения.
 
+$H_0:\; med X_1 = \dots = med X_m$
+
+$H_1:\; med X_1 \le \dots \le med X_m$
+
 ```{r, cache=TRUE, warning=FALSE}
 jonckheere.test(skulls$l, skulls$y, alternative = "decreasing")
 ```
 
-Гипотеза о равенстве отвергается  в пользу альтернативы. Средняя длина черепа уменьшалась с увеличением примерной даты формирования.
-
-
-```{r, cache=TRUE, warning=FALSE}
-bartlett.test(l~y, data=skulls)
-a2 <- aov(skulls$l~factor(skulls$y))
-TukeyHSD(a2)
-```
-
+Гипотеза о равенстве отвергается  в пользу альтернативы. Средняя длина черепа уменьшалась с увеличением примерной даты формирования. 
 
 Рассмотрим данные о **высоте носа**. 
 
 ```{r, cache=TRUE, warning=FALSE}
-par(mfrow=c(1,1))
 boxplot(skulls$n ~ skulls$y)
 n <- split(skulls$n, skulls$y)
-shapiro.test(n[[1]])
-shapiro.test(n[[2]])
-shapiro.test(n[[3]])
-shapiro.test(n[[4]])
-shapiro.test(n[[5]])
-pairwise.t.test(skulls$n,skulls$y, p.adjust.method="none")
-pairwise.t.test(skulls$n,skulls$y, p.adjust.method="bonferroni")
-pairwise.t.test(skulls$n,skulls$y, p.adjust.method="BY")
+```
+
+p-values критерия Шапиро-Уилка для проверки нормальности:
+
+```{r, cache=TRUE, warning=FALSE, echo=FALSE}
+p <- NULL
+p["-4000"] <- shapiro.test(n[[1]])$p.value
+p["-3300"] <- shapiro.test(n[[2]])$p.value
+p["-1850"] <- shapiro.test(n[[3]])$p.value
+p["-200"]  <- shapiro.test(n[[4]])$p.value
+p["150"]   <- shapiro.test(n[[5]])$p.value
+p
 ```
 
 ```{r, cache=TRUE, warning=FALSE}
-jonckheere.test(skulls$n, skulls$y)
+pairwise.t.test(skulls$n,skulls$y, p.adjust.method="bonferroni")
 ```
 
 Гипотеза о равенстве средних не отвергается. Можно сделать вывод, что длина носа не зависит от периода формирования черепа.
 
-```{r, cache=TRUE, warning=FALSE}
-bartlett.test(n~y, data=skulls)
-a2 <- aov(skulls$n~factor(skulls$y))
-TukeyHSD(a2)
-```
 
-По результатам полученным выше можно предположить, что все черепа можно примерно разделить на 2 группы: -4000, -3300 и -1850,-200, 150. Проверим данное предположение, исследуем значения ширины и длины черепов.
+По результатам полученным выше можно предположить, что все черепа можно примерно разделить на 2 группы: -4000, -3300 и -1850,-200, 150. Проверим данное предположение, исследуем значения ширины и длины черепов для двух данных групп.
 
 ```{r, cache=TRUE, warning=FALSE}
 f <- factor(skulls$y == "-4000" | skulls$y == "-3300")
@@ -243,11 +207,11 @@ skulls_young <- tmp[[1]]
 
 shapiro.test(skulls_old$w)
 shapiro.test(skulls_young$w)
-t.test(skulls_old$w, skulls_young$w)
+bartlett.test(w~f, data=skulls)
 t.test(skulls_old$w, skulls_young$w, alternative="less")
 ```
-
-Гипотеза о равенстве отвергается в пользу односторонней альтернативы. Проверим, что внутри групп средние совпадпют. 
+95% доверительный интервал для разности: $(-\infty,\; -2.207582)$
+Гипотеза о равенстве отвергается в пользу односторонней альтернативы. Проверим, что внутри групп средние совпадают. 
 
 ```{r, cache=TRUE, warning=FALSE}
 w <- split(skulls_old$w, skulls_old$y)
@@ -255,16 +219,15 @@ wilcox.test(w[[1]], w[[2]])
 
 w <- split(skulls_young$w, skulls_young$y)
 pairwise.wilcox.test(skulls_young$w,skulls_young$y, p.adjust.method="bonferroni")
-pairwise.wilcox.test(skulls_young$w,skulls_young$y, p.adjust.method="BH")
 
 ```
-
+p-value большие, гипотеза о равенстве средних внутри групп принимается.
 Рассмотрим длину черепов.
 
 ```{r, cache=TRUE, warning=FALSE}
 shapiro.test(skulls_old$l)
 shapiro.test(skulls_young$l)
-t.test(skulls_old$l, skulls_young$l)
+
 t.test(skulls_old$l, skulls_young$l, alternative="greater")
 
 l <- split(skulls_old$l, skulls_old$y)
@@ -272,14 +235,13 @@ wilcox.test(l[[1]], l[[2]])
 
 l <- split(skulls_young$l, skulls_young$y)
 pairwise.wilcox.test(skulls_young$w,skulls_young$y, p.adjust.method="bonferroni")
-pairwise.wilcox.test(skulls_young$w,skulls_young$y, p.adjust.method="BH")
 ```
 
 
 Выводы:
 
-+ все черепа можно примерно разделить на 2 группы по временному периоду: -4000, -3300 и -1850,-200, 150.  В первой группе средняя ширина черепа меньше, чем во второй. Однако, средняя длина черепа больше в первой группе.
++ все черепа можно примерно разделить на 2 группы по временному периоду: -4000, -3300 и -1850,-200, 150.  В первой группе средняя ширина черепа меньше, чем во второй. 95% доверительный интервал для разности средних: $(-\infty,\; -2.207582)$. Однако, средняя длина черепа больше в первой группе. 95% доверительный интервал для разности в длине черепа: $(3.046352,\;\infty)$.
 + среднее значение ширины черепа увеличивалось со временем,
 + средние значения базибрегматической высоты черепов примерно равны для различных периодов,
-+ длина черепа уменьшалась с увеличением примерной даты формирования,
-+ длина носа не зависит от периода формирования черепа.
++ длина черепа уменьшалась с увеличением примерной даты формирования, 
++ длина носа не зависит от периода формирования черепа
