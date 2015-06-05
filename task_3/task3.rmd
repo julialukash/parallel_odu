@@ -1,0 +1,383 @@
+---
+title: "Статистический анализ данных (задание 3)."
+subtitle: "Работа с реальными данными. Проверка гипотез."
+author: "Юлия Лукашкина, 417 группа"
+output: html_document
+---
+Требуется подобрать и применить наилучший статистический метод, позволяющий ответить на вопрос прикладной задачи; обосновать выбор метода, его применимость и оптимальность. Помимо выводов, касающихся математических особенностей решения, необходимо в терминах предметной области сформулировать выводы, которые могли бы быть понятны гипотетическому заказчику-нематематику.
+
+```
+1055 химических молекул описаны с помощью 41 признака (число атомов кислорода, нитратных групп, донорных связей с водородом, потенциал ионизации и т.д.); 355 из них биоразложимы. 
+```
+
+Задание: *какие свойства молекул влияют на их биоразлогаемость?*
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(mfp)
+library(lattice)
+library(AUC)
+library(plyr)
+library(lmtest)
+```
+
+
+Загрузка данных:
+```{r, cache=TRUE, warning=FALSE}
+data <- read.table("Q:/PSAD/task3/biodeg2.csv", sep=";", dec=",", quote="\"")
+colnames(data)[42] <- "class"
+levels(data$class) <- c(1, 0)
+#nepr <- c(1, 2, 8, 12, 13, 14, 15, 17, 18, 22, 27, 28, 30, 31, 36,37,39)
+```
+
+Визуализируем некоторые непрерывные признаки.
+
+```{r, cache=TRUE, warning=FALSE, echo=FALSE, comment=F}
+par(mfrow=c(3,6))
+x1 <- data[data$class==0, 1]
+x2 <- data[data$class==1, 1]
+plot(density(x1), col="red", xlab="1", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 2]
+x2 <- data[data$class==1, 2]
+plot(density(x1), col="red", xlab="2", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 8]
+x2 <- data[data$class==1, 8]
+plot(density(x1), col="red", xlab="8", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 12]
+x2 <- data[data$class==1, 12]
+plot(density(x1), col="red", xlab="12", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 13]
+x2 <- data[data$class==1, 13]
+plot(density(x1), col="red", xlab="13", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 14]
+x2 <- data[data$class==1, 14]
+plot(density(x1), col="red", xlab="14", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 15]
+x2 <- data[data$class==1, 15]
+plot(density(x1), col="red", xlab="15", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 17]
+x2 <- data[data$class==1, 17]
+plot(density(x1), col="red", xlab="17", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 18]
+x2 <- data[data$class==1, 18]
+plot(density(x1), col="red", xlab="18", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 22]
+x2 <- data[data$class==1, 22]
+plot(density(x1), col="red", xlab="22", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 27]
+x2 <- data[data$class==1, 27]
+plot(density(x1), col="red", xlab="27", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 28]
+x2 <- data[data$class==1, 28]
+plot(density(x1), col="red", xlab="28", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 30]
+x2 <- data[data$class==1, 30]
+plot(density(x1), col="red", xlab="30", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 31]
+x2 <- data[data$class==1, 31]
+plot(density(x1), col="red", xlab="31", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 36]
+x2 <- data[data$class==1, 36]
+plot(density(x1), col="red", xlab="36", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 37]
+x2 <- data[data$class==1, 37]
+plot(density(x1), col="red", xlab="37", main="")
+lines(density(x2), col="blue")
+
+x1 <- data[data$class==0, 39]
+x2 <- data[data$class==1, 39]
+plot(density(x1), col="red", xlab="39", main="")
+lines(density(x2), col="blue")
+
+```
+
+Посмотрим на распределение по бинарным признакам.
+
+```{r, cache=TRUE, warning=FALSE}
+table(data[, 24], data$class)
+table(data[, 25], data$class)
+table(data[, 29], data$class)
+```
+
+Для предварительного отбора признаков построим одномерные модели по каждому фактору и оценим их значимость:
+
+```{r, echo=FALSE, warning=FALSE}
+m0 <- glm(class~1, family=binomial(), data=data, maxit=30)
+add1(m0, scope = as.formula(paste("~", paste(colnames(data[,-42]), collapse= " + "))), test="LRT")
+```
+
+
+Так как признаков много, первым шагом отбросим те признаки, значимость которых меньше, чем 0.25:
+
+```{r, echo=FALSE, warning=FALSE}
+features1 <- paste0("V", setdiff(1:41, c(2, 16, 28, 35)))
+f  <- paste("class ~ ", paste(features1, collapse=" + "))
+m1 <- glm(as.formula(f), family=binomial(), data=data)
+summary(m1)
+```
+
+Критерий отношения правдоподобия считает модель существенно лучше константы:
+
+```{r, echo=FALSE, warning=FALSE}
+library(lmtest)
+lrtest(m0, m1)
+```
+
+Попробуем удалить группу незначимых признаков:
+
+```{r, echo=FALSE, warning=FALSE}
+t <- drop1(m1)
+print(t)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+features2 <- setdiff(features1, features1[t$AIC[-1] < 690])
+f  <- paste("class ~ ", paste(features2, collapse=" + "))
+m2 <- glm(as.formula(f), family=binomial(), data=data)
+lrtest(m1, m2)
+```
+
+p-value большой, разница в моделях незначимая, оставим ту модель, в которой меньше признаков.
+
+```{r, echo=FALSE, warning=FALSE}
+#summary(m2)
+```
+
+
+Теперь попробуем возвращать в модель удалённые признаки, применяя критерий отношения правдоподобия и вычисляя $\Delta\hat{\beta}\%$:
+
+```{r, echo=FALSE, warning=FALSE}
+deleted   <- setdiff(features1, features2)
+kept      <- features2
+deltabeta <- matrix(rep(NA, length(deleted) * length(kept) ), ncol = length(deleted))
+row.names(deltabeta) <- kept
+colnames(deltabeta)  <- deleted
+p_values <- rep(0, length(deleted))
+
+for(i in 1:length(deleted)){
+  mtmp <- glm(as.formula(paste("class ~ ", paste(c(kept, deleted[i]), collapse=" + "))),
+              family = binomial(), data = data)
+  p_values[i] <- lrtest(mtmp,m2)[2, 5]
+  deltabeta[,i] <- 100*(coefficients(mtmp)[kept] - coefficients(m2)[kept]) / coefficients(m2)[kept]
+}
+colMax <- function(i)  max(abs(deltabeta[,i]))
+tmp <- sapply(1:ncol(deltabeta), colMax)
+print(tmp)
+back_features <- colnames(deltabeta)[tmp > 20 & p_values < 0.1]
+print(back_features)
+```
+
+Вернем 3, 8, 17 признаки -- это признаки, добавление которых значимо влияет на модель.
+
+```{r, echo=FALSE, warning=FALSE}
+features3 <- c(features2, back_features)
+f  <- paste("class ~ ", paste(features3, collapse=" + "))
+m3 <- glm(as.formula(f), family=binomial(), data=data)
+summary(m3)
+lrtest(m1, m3)
+```
+
+Построим модель  с признаками, значимыми на уровне не менее 0.15 в предыдущей модели:
+
+```{r, echo=FALSE, warning=FALSE}
+features4 <- names(which(summary(m3)$coefficients[-1,4] <= 0.15))
+#features4 <- setdiff(features3, c("V4", "V12","V13", "V14", "V19","V29","V30", "V8", "V17"))
+f  <- paste("class ~ ", paste(features4, collapse=" + "))
+m4 <- glm(as.formula(f), family=binomial(), data=data)
+lrtest(m3, m4)
+```
+
+Эта модель не хуже предыдущей, её и оставим, проверим линейность логита по непрерывным признакам. Сглаженные диаграммы рассеяния:
+```{r, echo=FALSE, fig.height=5.5, fig.width=10}
+par(mfrow=c(3,4))
+lw  <- ksmooth(data[,1], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,1]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="1", ylab ="Log-odds",col="red", lwd=2)
+
+lw  <- ksmooth(data[,12], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,12]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="12", ylab ="Log-odds",col="red", lwd=2)
+
+
+lw  <- ksmooth(data[,15], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,15]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="15", ylab ="Log-odds",col="red", lwd=2)
+
+lw  <- ksmooth(data[,18], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,18]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="18", ylab ="Log-odds",col="red", lwd=2)
+
+lw  <- ksmooth(data[,31], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,31]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="31", ylab ="Log-odds",col="red", lwd=2)
+
+lw  <- ksmooth(data[,36], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,36]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="36", ylab ="Log-odds",col="red", lwd=2)
+
+lw  <- ksmooth(data[,37], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,37]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="37", ylab ="Log-odds",col="red", lwd=2)
+
+lw  <- ksmooth(data[,39], 1 * (data$class == 1), kernel = "normal", bandwidth=sd(data[,39]))
+lsm <- log(lw$y / (1-lw$y))
+plot(lw$x, lsm, type="l", xlab="39", ylab ="Log-odds",col="red", lwd=2)
+```
+
+На линейные не похожи, попробуем подобрать дробные полиномы:
+```{r, echo=FALSE, warning=FALSE, cache=TRUE}
+library(mfp)
+fm <- mfp(class ~  fp(V1) + V6 + V7 + V10 + fp(V12) + fp(V13) + fp(V14) + fp(V15) + fp(V18) + V20 + V24 + V30 + fp(V31) + V32 + V34 + fp(V36) + fp(V37) + fp(V39) + V40 + V3, family = binomial, data=data)
+print(fm)
+```
+
+Лучше линейной модели не нашли. Рассмотрим теперь все модели, в которые добавлено одно межфакторное взаимодействие:
+
+```{r, echo=FALSE, warning=FALSE}
+tmp <- add1(m4, scope = ~ .^2, test="LRT")
+print(tmp)
+```
+
+Добавим все межфакторные взаимодействия, значимые на уровне 0.001:
+```{r, echo=FALSE, warning=FALSE}
+m_factors <- row.names(tmp[-1,])[which(tmp[-1,5] < 0.001)]
+m_factors <- gsub(":", " * ", m_factors)
+features5 <- c(features4, m_factors)
+f  <- paste("class ~ ", paste(features5, collapse=" + "))
+m5 <- glm(as.formula(f), family=binomial(), data=data)
+summary(m5)
+lrtest(m4,m5)
+```
+
+
+Модель с  межфакторными взаимодействиями значимо лучше предыдущей, возьмем её и удалим группу незначимых признаков:
+
+```{r, echo=FALSE, warning=FALSE}
+features6 <- names(which(summary(m5)$coefficients[-1,4] <= 0.05))
+f  <- paste("class ~ ", paste(features6, collapse=" + "))
+f <- gsub(":", " * ", f)
+m6 <- glm(as.formula(f), family=binomial(), data=data)
+summary(m6)
+lrtest(m5,m6)
+```
+
+Получили ухудшение модели, попробуем вернуть некоторые признаки:
+
+```{r, echo=FALSE, warning=FALSE}
+deleted   <- setdiff(features5, features6)
+kept      <- features6
+deltabeta <- matrix(rep(NA, length(deleted) * length(kept) ), ncol = length(deleted))
+row.names(deltabeta) <- kept
+colnames(deltabeta)  <- deleted
+p_values <- rep(0, length(deleted))
+
+for(i in 1:length(deleted)){
+  mtmp <- glm(as.formula(paste("class ~ ", paste(c(kept, deleted[i]), collapse=" + "))),
+              family = binomial(), data = data)
+  p_values[i] <- lrtest(mtmp,m6)[2, 5]
+  deltabeta[,i] <- 100*(coefficients(mtmp)[kept] - coefficients(m6)[kept]) / coefficients(m6)[kept]
+}
+colMax <- function(i)  max(abs(deltabeta[,i]))
+tmp <- sapply(1:ncol(deltabeta), colMax)
+print(tmp)
+back_features <- colnames(deltabeta)[tmp > 20 & p_values < 0.1]
+print(back_features)
+```
+
+Вернем V14, V32, и V1 * V32 признаки.
+
+```{r, echo=FALSE, warning=FALSE}
+features7 <- c(features6, back_features)
+f  <- paste("class ~ ", paste(features7, collapse=" + "))
+f <- gsub(":", " * ", f)
+m7 <- glm(as.formula(f), family=binomial(), data=data)
+summary(m7)
+lrtest(m5, m7)
+```
+
+Возьмем модель с возвращенными признаками  и попробум еще раз сократить число признаков.
+
+```{r, echo=FALSE, warning=FALSE}
+features8 <- names(which(summary(m7)$coefficients[-1,4] <= 0.06))
+f  <- paste("class ~ ", paste(features8, collapse=" + "))
+f <- gsub(":", " * ", f)
+m8 <- glm(as.formula(f), family=binomial(), data=data)
+summary(m8)
+lrtest(m7,m8)
+```
+
+Получилось не хуже, рассмотрим последнюю модель, посмотрим на качество классификации:
+```{r, echo=FALSE, fig.height=5.5, fig.width=10, warning=FALSE}
+library(AUC)
+phat <- predict(m8, type="response")
+r <- roc(phat, factor(1 * (data$class == 0)))
+plot(r)
+```
+
+Итоговая модель:
+```{r, echo=FALSE, fig.height=5.5, fig.width=10, warning=FALSE}
+summary(m8)
+```
+
+Площадь под ROC-кривой составляет `r auc(r)`. Значимость модели по критерию отношения правдоподобия равна `r lrtest(m8,m0)$"Pr(>Chisq)"[2]`.
+Выводы:
+
+
+* увеличение числа SpMax_L уменьшает вероятность биоразлогаемости молекулы в  `r round(1/exp(coefficients(m8)["V1"]), 2)` раз, доверительный интервал (`r round(1/exp(confint(m8))["V1",c(2,1)], 2)`);
+
+* уменьшение на 10 числа NssssC уменьшает вероятность биоразлогаемости молекулы в  `r round(1/exp(coefficients(m8)["V6"]/10), 2)` раз, доверительный интервал (`r round(1/exp(confint(m8)["V6",c(2,1)]/10), 2)`);
+* увеличение числа  C(sp2) уменьшает вероятность биоразлогаемости молекулы в  `r round(1/exp(coefficients(m8)["V7"]), 2)` раз, доверительный интервал (`r round(1/exp(confint(m8)["V7",c(2,1)]), 2)`);
+
+* увеличение числа атомов кислорода повышает вероятность биоразлогаемости молекулы в  `r round(exp(coefficients(m8)["V10"]), 2)` раз, доверительный интервал (`r round(exp(confint(m8)["V10",]), 2)`);
+
+* увеличение числа SdssC повышает шансы  молекулы на биоразлогаемость в  `r round(exp(coefficients(m8)["V12"]), 2)` раз, доверительный интервал (`r round(exp(confint(m8)["V12",]), 2)`);
+
+* уменьшение спектрального момента 6ого порядка Лаплассовой матрицы на 10 увеличивает шансы  молекулы на биоразлогаемость в `r round(exp(coefficients(m8)["V15"]/10),2)` раз (`r round(exp(confint(m8)["V15", ]/10),2)`);
+
+* уменьшение количества нитро групп  увеличивает вероятность биоразлогаемости молекулы в  `r round(1/exp(coefficients(m8)["V20"]), 2)` (`r round(1/exp(confint(m8))["V20",c(2,1)], 2)`);
+
+* уменьшение на 10 числа HyWi_B(m) уменьшает  вероятность биоразлогаемости молекулы в  `r round(1/exp(coefficients(m8)["V13"]/10), 2)` раз, доверительный интервал (`r round(1/exp(confint(m8)["V13",c(2,1)])/10, 2)`);
+
+* повышение индекса TI  увеличивает вероятность биоразлогаемости молекулы в `r round(exp(coefficients(m6)["V31"]), 2)` раз (`r round(exp(confint(m6)["V31",]), 2)`);
+
+* увеличение частоты встречаемости C-N уменьшает вероятность биоразлогаемости молекулы в `r round(1/exp(coefficients(m8)["V34"]), 2)` раз (`r round(1/exp(confint(m8)["V34",c(2,1)]), 2)`);
+
+* увеличение Psi_i_A увеличивает вероятность биоразлогаемости молекулы в `r round(exp(coefficients(m8)["V37"]), 2)` раз (`r round(exp(confint(m8)["V37",]), 2)`);
+
+* увеличение числа SpMax_L и NssssC увеличивает вероятность биоразлогаемости молекулы в  `r round(exp((coefficients(m8)["V1"] + coefficients(m8)["V1:V6"])/10), 2)` раз (`r round(exp((confint(m8)["V1",] + confint(m8)["V1:V6",])/10), 2)`);
+
+* уменьшение NssssC  и числа тяжелых атомов уменьшает  вероятность биоразлогаемости молекулы в   `r round(1/exp((coefficients(m8)["V6"] + coefficients(m8)["V6:V37"])/10), 2)` раз (`r round(exp(1/(confint(m8)["V6",c(2,1)] + confint(m8)["V6:V37",c(2,1)])/10), 2)`);
+
+
+```{r, echo=FALSE, warning=FALSE, cache=TRUE}
+```
