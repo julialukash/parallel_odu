@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <stdlib.h>   
+
 int main(int argc, char *argv[])
 {
 	if (argc < 2)
@@ -13,9 +15,18 @@ int main(int argc, char *argv[])
 	if (input_file.is_open())
 	{
 		std::string word;
-		while (input_file >> word)
+		// read number of dots
+		input_file >> word;
+		long dots_count = stol(word);
+				
+		long dot_index = 0;
+		while (dot_index++ < dots_count)
 		{
-			std::cout << word << '\n';
+			input_file >> word;
+			double x_value = std::atof(word.c_str());
+			input_file >> word;
+			double y_value = std::atof(word.c_str());
+			std::cout << x_value << ", " << y_value << '\n';
 		}
 	}
 	else
