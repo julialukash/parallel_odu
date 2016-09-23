@@ -8,7 +8,7 @@
 
 std::vector<Point> read_data_from_file(std::string filename);
 
-PointsPair find_min_distance(std::vector<Point> points, MergeSorter* sorter);
+PointsPair find_min_distance(std::vector<Point> points);
 
 
 int main(int argc, char *argv[])
@@ -22,14 +22,30 @@ int main(int argc, char *argv[])
 	std::cout << input_filename << std::endl;
 	std::vector<Point> input_points = read_data_from_file(input_filename);
 	MergeSorter sorter = MergeSorter(true);
-	PointsPair min_dist_points_pair = find_min_distance(input_points, &sorter);
-	std::cout << min_dist_points_pair << std::endl;
+	std::vector<double> xs, ys;
+	for each (Point point in input_points)
+	{
+		xs.push_back(point.x());
+		ys.push_back(point.y());
+	}
+	//sorter.sort_recursive(xs, 0, xs.size(), );
+	sorter.sort_recursive<Point>(input_points, 0, input_points.size(), &less_by_x);
+	//PointsPair min_dist_points_pair = find_min_distance(input_points);
+	//std::cout << min_dist_points_pair << std::endl;
 	return 0;
 }
 
-PointsPair find_min_distance(std::vector<Point> points, MergeSorter* sorter)
+PointsPair find_min_distance(std::vector<Point> points)
 {
-	std::vector<Point*> points_sorted_by_x;
+	std::vector<Point*> points_sorted_by_x(points.size());
+	std::vector<Point*> points_sorted_by_y(points.size());
+	for (size_t i = 0; i < points.size(); i++)
+	{
+		points_sorted_by_x[i] = &points[i];
+		points_sorted_by_y[i] = &points[i];
+	}
+	MergeSorter sorter = MergeSorter(true);
+	//sorter.sort_recursive(points_sorted_by_x, )
 	return PointsPair(points[0], points[1], -2);
 }
 

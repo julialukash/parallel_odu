@@ -23,7 +23,7 @@ public:
 		return std::sqrt(dx * dx + dy * dy);
 	}
 
-	friend bool less_by_x(const Point& point, const Point& other_point)
+	friend bool less_by_x(Point point, Point other_point)
 	{
 		return point.x() < other_point.x() || point.x() == other_point.x() && point.y() < other_point.y();
 	}
