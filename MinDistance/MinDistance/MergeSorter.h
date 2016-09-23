@@ -14,7 +14,7 @@ public:
 	}
 
 	template<typename data>
-	void sort_recursive(std::vector<data>& input, long left, long right, bool(*less_comparer)(data, data))
+	void sort_recursive(std::vector<data>& input, long left, long right, bool(*less_comparer)(const data, const data))
 	{
 		if (left < 0 || right > input.size())
 		{
@@ -32,7 +32,7 @@ public:
 	}
 
 	template<typename data>
-	void merge(std::vector<data>& input, long left, long middle, long right, bool (*less_comparer)(data, data))
+	void merge(std::vector<data>& input, long left, long middle, long right, bool (*less_comparer)(const data, const data))
 	{
 		long left_index = 0;
 		long right_index = 0;

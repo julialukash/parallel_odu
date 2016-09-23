@@ -9,6 +9,7 @@
 std::vector<Point> read_data_from_file(std::string filename);
 
 PointsPair find_min_distance(std::vector<Point> points);
+PointsPair find_closest_points(std::vector<const Point*> points_sorted_by_x, std::vector<const Point*> points_sorted_by_y);
 
 
 int main(int argc, char *argv[])
@@ -21,34 +22,32 @@ int main(int argc, char *argv[])
 	char* input_filename = argv[1];
 	std::cout << input_filename << std::endl;
 	std::vector<Point> input_points = read_data_from_file(input_filename);
-	MergeSorter sorter = MergeSorter(true);
-	std::vector<double> xs, ys;
-	for each (Point point in input_points)
-	{
-		xs.push_back(point.x());
-		ys.push_back(point.y());
-	}
-	//sorter.sort_recursive(xs, 0, xs.size(), );
-	sorter.sort_recursive<Point>(input_points, 0, input_points.size(), &less_by_x);
-	//PointsPair min_dist_points_pair = find_min_distance(input_points);
-	//std::cout << min_dist_points_pair << std::endl;
+	//MergeSorter sorter = MergeSorter(true);
+	//sorter.sort_recursive(input_points, 0, input_points.size(), less_by_x);
+	PointsPair min_dist_points_pair = find_min_distance(input_points);
+	std::cout << min_dist_points_pair << std::endl;
 	return 0;
 }
 
 PointsPair find_min_distance(std::vector<Point> points)
 {
-	std::vector<Point*> points_sorted_by_x(points.size());
-	std::vector<Point*> points_sorted_by_y(points.size());
+	std::vector<const Point*> points_sorted_by_x(points.size());
+	std::vector<const Point*> points_sorted_by_y(points.size());
 	for (size_t i = 0; i < points.size(); i++)
 	{
 		points_sorted_by_x[i] = &points[i];
 		points_sorted_by_y[i] = &points[i];
 	}
 	MergeSorter sorter = MergeSorter(true);
-	//sorter.sort_recursive(points_sorted_by_x, )
-	return PointsPair(points[0], points[1], -2);
+	sorter.sort_recursive(points_sorted_by_x, 0, points_sorted_by_x.size(), less_by_x);
+	sorter.sort_recursive(points_sorted_by_y, 0, points_sorted_by_x.size(), less_by_y);
+	return find_closest_points(points_sorted_by_x, points_sorted_by_y);
 }
 
+PointsPair find_closest_points(std::vector<const Point*> points_sorted_by_x, std::vector<const Point*> points_sorted_by_y)
+{
+	return PointsPair(*(points_sorted_by_x[0]), *(points_sorted_by_x[1]), -2);
+}
 
 std::vector<Point> read_data_from_file(std::string filename)
 {
