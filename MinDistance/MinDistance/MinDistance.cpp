@@ -1,8 +1,15 @@
 #include "stdafx.h"
 #include "Point.h"
+#include "PointsPair.h"
 #include "MergeSorter.h"
 
 #include <stdlib.h>   
+
+
+std::vector<Point> read_data_from_file(std::string filename);
+
+PointsPair find_min_distance(std::vector<Point> points, MergeSorter* sorter);
+
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +20,23 @@ int main(int argc, char *argv[])
 	}
 	char* input_filename = argv[1];
 	std::cout << input_filename << std::endl;
-	std::ifstream input_file(input_filename, std::ifstream::in);
+	std::vector<Point> input_points = read_data_from_file(input_filename);
+	MergeSorter sorter = MergeSorter(true);
+	PointsPair min_dist_points_pair = find_min_distance(input_points, &sorter);
+	std::cout << min_dist_points_pair << std::endl;
+	return 0;
+}
+
+PointsPair find_min_distance(std::vector<Point> points, MergeSorter* sorter)
+{
+	std::vector<Point*> points_sorted_by_x;
+	return PointsPair(points[0], points[1], -2);
+}
+
+
+std::vector<Point> read_data_from_file(std::string filename)
+{
+	std::ifstream input_file(filename, std::ifstream::in);
 	std::vector<Point> input_points;
 	if (input_file.is_open())
 	{
@@ -37,16 +60,8 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		std::cerr << "Incorrect filename " << input_filename << std::endl;
+		std::cerr << "Incorrect filename " << filename << std::endl;
 		exit(1);
-	}
-	MergeSorter sorter = MergeSorter(true);
-	std::vector<double> xs, ys;
-	for each (Point point in input_points)
-	{
-		xs.push_back(point.x());
-		ys.push_back(point.y());
-	}
-	sorter.SortByAscending(xs, 0, xs.size());
-    return 0;
+	}	
+	return input_points;
 }
