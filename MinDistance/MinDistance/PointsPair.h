@@ -1,22 +1,45 @@
 #pragma once
 #include "Point.h"
 
-class PointsPair
+class ClosestPoints
 {
 public:
-	Point point;
-	Point other_point;
+	std::vector<std::shared_ptr<const Point>> first_points;
+	std::vector<std::shared_ptr<const Point>> second_points;
 	double distance;
-	PointsPair(Point fist_point=Point(), Point second_point=Point(), double dist = -1)
+
+	ClosestPoints()
 	{
-		point = fist_point;
-		other_point = second_point;
-		distance = dist;
+		distance = -1;
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const PointsPair& points_pair)
+	void set_new_distance(std::shared_ptr<const Point> point, std::shared_ptr<const Point> other_point, double new_distance)
 	{
-		os << "dist between point " << points_pair.point << " and point " << points_pair.other_point << "\n = " << points_pair.distance;
+		distance = new_distance;
+		clear_same_distance_pairs();
+		add_same_distance_pair(point, other_point);
+	}
+
+	void add_same_distance_pair(std::shared_ptr<const Point> point, std::shared_ptr<const Point> other_point)
+	{
+		first_points.push_back(point);
+		second_points.push_back(other_point);
+	}
+
+	void clear_same_distance_pairs()
+	{
+		first_points.clear();
+		second_points.clear();
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const ClosestPoints& points)
+	{
+		os << "min distance = " << points.distance << std::endl;
+		os << "the closest points are: " << std::endl;
+		for (size_t i = 0; i < points.first_points.size(); i++)
+		{
+			os << *points.first_points[i] << " and " << *points.second_points[i] << std::endl;
+		}
 		return os;
 	}
 };
