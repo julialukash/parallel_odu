@@ -7,7 +7,7 @@ public:
 	Point point;
 	Point other_point;
 	double distance;
-	PointsPair(Point fist_point, Point second_point, double dist = -1)
+	PointsPair(Point fist_point=Point(), Point second_point=Point(), double dist = -1)
 	{
 		point = fist_point;
 		other_point = second_point;

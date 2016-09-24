@@ -16,10 +16,10 @@ public:
 	double x() const { return _x; }
 	double y() const { return _y; }
 
-	double distance(Point point)
+	double distance (const Point* point) const
 	{
-		double dx = _x - point.x();
-		double dy = _y - point.y();
+		double dx = _x - point->x();
+		double dy = _y - point->y();
 		return std::sqrt(dx * dx + dy * dy);
 	}
 
@@ -27,6 +27,7 @@ public:
 	{
 		return point->x() < other_point->x() || point->x() == other_point->x() && point->y() < other_point->y();
 	}
+
 
 	friend bool less_by_y(const Point* point, const Point* other_point)
 	{
