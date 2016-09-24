@@ -5,16 +5,19 @@ class Point
 {
 private:
 	double _x, _y;
+	long _position;
 public:
 
-	Point(double x_value=0.0, double y_value=0.0)
+	Point(double x_value = 0.0, double y_value = 0.0, long pos=0)
 	{
 		_x = x_value;
 		_y = y_value;
+		_position = pos;
 	}
 
 	double x() const { return _x; }
 	double y() const { return _y; }
+	long index() const { return _position; }
 
 	double distance (const Point* point) const
 	{
@@ -36,7 +39,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const Point& point)
 	{
-		os << "(" << point.x() << ", " << point.y() << ")";
+		os << "(" << point.x() << ", " << point.y() << "), " << point.index() << " position";
 		return os;
 	}
 };

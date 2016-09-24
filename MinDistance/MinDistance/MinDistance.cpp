@@ -26,10 +26,14 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	auto input_filename = argv[1];
-	std::cout << input_filename << std::endl;
 	auto input_points = read_data_from_file(input_filename);
 	auto min_dist_points_pair = find_min_distance(input_points);
 	std::cout << min_dist_points_pair << std::endl;
+
+	std::cout << input_filename << std::endl;	
+	std::cout << min_dist_points_pair.point << std::endl;
+	std::cout << min_dist_points_pair.other_point << std::endl;
+	std::cout << min_dist_points_pair.distance << std::endl;
 	return 0;
 }
 
@@ -144,10 +148,6 @@ PointsPair find_closest_poinst_in_delta_line(std::vector<const Point*> points_so
 				min_distance_points.other_point = *delta_line_points[i];
 				min_distance_points.distance = dist;
 			}
-			else
-			{
-				dist = dist;
-			}
 		}
 	}
 	return min_distance_points;
@@ -177,8 +177,8 @@ std::vector<Point> read_data_from_file(std::string filename)
 			double x_value = std::atof(word.c_str());
 			input_file >> word;
 			double y_value = std::atof(word.c_str());
-			Point point = Point(x_value, y_value);
-			std::cout << point << '\n';
+			Point point = Point(x_value, y_value, dot_index);
+			//std::cout << point << '\n';
 			input_points[dot_index] = point;
 			++dot_index;
 		}

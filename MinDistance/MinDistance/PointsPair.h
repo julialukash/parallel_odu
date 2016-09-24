@@ -16,7 +16,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const PointsPair& points_pair)
 	{
-		os << "dist between " << points_pair.point << " and " << points_pair.other_point << " = " << points_pair.distance;
+		os << "dist between point " << points_pair.point << " and point " << points_pair.other_point << "\n = " << points_pair.distance;
 		return os;
 	}
 };
