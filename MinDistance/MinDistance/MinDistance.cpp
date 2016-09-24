@@ -10,13 +10,17 @@ const int number_of_closest_points = 7;
 std::vector<Point> read_data_from_file(std::string filename);
 
 PointsPair find_min_distance(std::vector<Point> points);
-PointsPair find_closest_points(std::vector<const Point*> points_sorted_by_x, std::vector<const Point*> points_sorted_by_y);
+PointsPair find_closest_points(std::vector<std::shared_ptr<const Point>> points_sorted_by_x, 
+							   std::vector<std::shared_ptr<const Point>> points_sorted_by_y);
 
-void split_by_y(std::vector<const Point*> points, const Point* border_point, std::vector<const Point*>& left_points_sorted_by_y,
-	std::vector<const Point*>& right_points_sorted_by_y);
+void split_by_y(std::vector<std::shared_ptr<const Point>> points, 
+				std::shared_ptr<const Point> border_point, 
+				std::vector<std::shared_ptr<const Point>>& left_points_sorted_by_y, 
+			    std::vector<std::shared_ptr<const Point>>& right_points_sorted_by_y);
 
-PointsPair find_closest_poinst_in_delta_line(std::vector<const Point*> points_sorted_by_y, Point* delta_line_left_border, 
-	Point* delta_line_right_border, PointsPair lef_right_min_distance_pair);
+PointsPair find_closest_poinst_in_delta_line(std::vector<std::shared_ptr<const Point>> points_sorted_by_y, 
+	std::shared_ptr<const Point> delta_line_left_border, std::shared_ptr<const Point> delta_line_right_border, 
+	PointsPair lef_right_min_distance_pair);
 
 int main(int argc, char *argv[])
 {
@@ -39,11 +43,11 @@ int main(int argc, char *argv[])
 
 PointsPair find_min_distance(std::vector<Point> points)
 {
-	std::vector<const Point*> points_sorted_by_x(points.size()), points_sorted_by_y(points.size());
+	std::vector<std::shared_ptr<const Point>> points_sorted_by_x(points.size()), points_sorted_by_y(points.size());
 	for (size_t i = 0; i < points.size(); i++)
 	{
-		points_sorted_by_x[i] = &points[i];
-		points_sorted_by_y[i] = &points[i];
+		points_sorted_by_x[i] = std::make_shared<const Point>(points[i]);
+		points_sorted_by_y[i] = std::make_shared<const Point>(points[i]);
 	}
 	auto sorter = MergeSorter(true);
 	sorter.sort_recursive(points_sorted_by_x, 0, points_sorted_by_x.size(), less_by_x);
@@ -56,15 +60,16 @@ PointsPair take_closest_pair(PointsPair left_pair, PointsPair right_pair)
 	return left_pair.distance < right_pair.distance ? left_pair : right_pair;
 }
 
-PointsPair find_closest_points(std::vector<const Point*> points_sorted_by_x, std::vector<const Point*> points_sorted_by_y)
+PointsPair find_closest_points(std::vector<std::shared_ptr<const Point>> points_sorted_by_x, 
+	std::vector<std::shared_ptr<const Point>> points_sorted_by_y)
 {
 	PointsPair closest_points;
 	long n_points = points_sorted_by_x.size();
 	if (n_points == 2 || n_points == 3)
 	{
 		closest_points.distance = points_sorted_by_x[0]->distance(points_sorted_by_x[1]);
-		closest_points.point = *points_sorted_by_x[0];
-		closest_points.other_point = *points_sorted_by_x[1];
+		closest_points.point = *(points_sorted_by_x[0]);
+		closest_points.other_point = *(points_sorted_by_x[1]);
 		if (n_points == 3)
 		{
 			double new_dist_first_last = points_sorted_by_x[0]->distance(points_sorted_by_x[2]);
@@ -85,17 +90,17 @@ PointsPair find_closest_points(std::vector<const Point*> points_sorted_by_x, std
 	{
 		long middle_point_index = n_points / 2;
 		auto middle_point = points_sorted_by_x[middle_point_index];
-		std::vector<const Point*> left_points_sorted_by_x(points_sorted_by_x.begin(), points_sorted_by_x.begin() + middle_point_index);
-		std::vector<const Point*> right_points_sorted_by_x(points_sorted_by_x.begin() + middle_point_index, points_sorted_by_x.end());
-		std::vector<const Point*> left_points_sorted_by_y(middle_point_index), right_points_sorted_by_y(n_points - middle_point_index);
+		std::vector<std::shared_ptr<const Point>> left_points_sorted_by_x(points_sorted_by_x.begin(), points_sorted_by_x.begin() + middle_point_index);
+		std::vector<std::shared_ptr<const Point>> right_points_sorted_by_x(points_sorted_by_x.begin() + middle_point_index, points_sorted_by_x.end());
+		std::vector<std::shared_ptr<const Point>> left_points_sorted_by_y(middle_point_index), right_points_sorted_by_y(n_points - middle_point_index);
 		split_by_y(points_sorted_by_y, middle_point, left_points_sorted_by_y, right_points_sorted_by_y);
 		auto left_closest_points = find_closest_points(left_points_sorted_by_x, left_points_sorted_by_y);
 		auto right_closest_points = find_closest_points(right_points_sorted_by_x, right_points_sorted_by_y);
 		auto left_right_closest_points = take_closest_pair(left_closest_points, right_closest_points);
 		auto delta = left_right_closest_points.distance;
-		auto delta_line_left_border = new Point(middle_point->x() - delta);
-		auto delta_line_right_border = new Point(middle_point->x() + delta);
-		// merge part
+		auto delta_line_left_border = std::make_shared<const Point>(Point(middle_point->x() - delta));
+		auto delta_line_right_border = std::make_shared<const Point>(Point(middle_point->x() + delta));
+		//merge part
 		closest_points = find_closest_poinst_in_delta_line(points_sorted_by_y, delta_line_left_border, delta_line_right_border, left_right_closest_points);
 	}
 	return closest_points;
@@ -103,7 +108,9 @@ PointsPair find_closest_points(std::vector<const Point*> points_sorted_by_x, std
 
 
 
-void split_by_y(std::vector<const Point*> points, const Point* border_point, std::vector<const Point*>& left_points_sorted_by_y, std::vector<const Point*>& right_points_sorted_by_y)
+void split_by_y(std::vector<std::shared_ptr<const Point>> points, std::shared_ptr<const Point> border_point, 
+	std::vector<std::shared_ptr<const Point>>& left_points_sorted_by_y, 
+	std::vector<std::shared_ptr<const Point>>& right_points_sorted_by_y)
 {
 	long down_points_index = 0, up_points_index = 0;
 	for (size_t i = 0; i < points.size(); i++)
@@ -121,11 +128,12 @@ void split_by_y(std::vector<const Point*> points, const Point* border_point, std
 }
 
 
-PointsPair find_closest_poinst_in_delta_line(std::vector<const Point*> points_sorted_by_y, Point* delta_line_left_border, 
-	Point* delta_line_right_border, PointsPair lef_right_min_distance_pair)
+PointsPair find_closest_poinst_in_delta_line(std::vector<std::shared_ptr<const Point>> points_sorted_by_y, 
+	std::shared_ptr<const Point> delta_line_left_border, std::shared_ptr<const Point> delta_line_right_border, 
+	PointsPair lef_right_min_distance_pair)
 {
 	auto min_distance_points = PointsPair(lef_right_min_distance_pair.point, lef_right_min_distance_pair.other_point, lef_right_min_distance_pair.distance);
-	std::vector<const Point*> delta_line_points;
+	std::vector<std::shared_ptr<const Point>> delta_line_points;
 	for each (auto point in points_sorted_by_y)
 	{
 		if (less_by_x(point, delta_line_right_border) && !less_by_x(point, delta_line_left_border))
@@ -161,7 +169,7 @@ std::vector<Point> read_data_from_file(std::string filename)
 	if (input_file.is_open())
 	{
 		std::string word;
-		// read number of dots
+		//read number of dots
 		input_file >> word;
 		long dots_count = stol(word);
 		if (dots_count <= 1)
@@ -178,7 +186,6 @@ std::vector<Point> read_data_from_file(std::string filename)
 			input_file >> word;
 			double y_value = std::atof(word.c_str());
 			Point point = Point(x_value, y_value, dot_index);
-			//std::cout << point << '\n';
 			input_points[dot_index] = point;
 			++dot_index;
 		}

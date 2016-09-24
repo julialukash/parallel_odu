@@ -19,20 +19,20 @@ public:
 	double y() const { return _y; }
 	long index() const { return _position; }
 
-	double distance (const Point* point) const
+	double distance (std::shared_ptr<const Point> point) const
 	{
 		double dx = _x - point->x();
 		double dy = _y - point->y();
 		return std::sqrt(dx * dx + dy * dy);
 	}
 
-	friend bool less_by_x(const Point* point, const Point* other_point)
+	friend bool less_by_x(std::shared_ptr<const Point> point, std::shared_ptr<const Point> other_point)
 	{
 		return point->x() < other_point->x() || point->x() == other_point->x() && point->y() < other_point->y();
 	}
 
 
-	friend bool less_by_y(const Point* point, const Point* other_point)
+	friend bool less_by_y(std::shared_ptr<const Point> point, std::shared_ptr<const Point> other_point)
 	{
 		return point->y() < other_point->y() || point->y() == other_point->y() && point->x() < other_point->x();
 	}
