@@ -23,7 +23,7 @@ public:
 	void add_same_distance_pair(std::shared_ptr<const Point> point, std::shared_ptr<const Point> other_point)
 	{
 		first_points.push_back(point);
-		second_points.push_back(other_point);
+		second_points.push_back(other_point);		
 	}
 
 	void clear_same_distance_pairs()
