@@ -6,7 +6,7 @@
 #include <stdlib.h>   
 
 const int number_of_closest_points = 7;
-const double eps = 1e-5;
+const double eps = 1e-10;
 
 bool is_equal(double value, double other_value)
 {
@@ -49,14 +49,11 @@ ClosestPoints find_closest_poinst_in_delta_line(std::vector<std::shared_ptr<cons
 	std::shared_ptr<const Point> border_point, double delta,
 	ClosestPoints lef_right_min_distance_pair)
 {
-	auto delta_line_left_border = std::make_shared<const Point>(Point(border_point->x() - delta));
-	auto delta_line_right_border = std::make_shared<const Point>(Point(border_point->x() + delta));
-
 	auto min_distance_points = lef_right_min_distance_pair;
 	std::vector<std::shared_ptr<const Point>> delta_line_points;
 	for each (auto point in points_sorted_by_y)
 	{
-		if (less_by_x(point, delta_line_right_border) && !less_by_x(point, delta_line_left_border))
+		if (fabs(point->x() - border_point->x()) <= delta)
 		{
 			delta_line_points.push_back(point);
 		}
