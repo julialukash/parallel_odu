@@ -5,6 +5,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <omp.h>
+#include "DifferentialEquationModel.h"
+#include "NetModel.h"
 
 #define NUM_EVENTS 2
 

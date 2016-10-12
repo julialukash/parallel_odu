@@ -26,5 +26,9 @@ QMAKE_LFLAGS += -fopenmp
 CONFIG += c++11
 
 HEADERS += \
-    src/interface.h
+    src/interface.h \
+    src/derivator.h \
+    src/NetModel.h \
+    src/ConjugateGradientAlgo.h \
+    src/DifferentialEquationModel.h
 
