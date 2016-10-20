@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     auto netModel = new NetModel(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, pointsCount, pointsCount);
     auto netModelPtr = std::make_shared<NetModel>(*netModel);
     auto diffEquationPtr = std::make_shared<DifferentialEquationModel>(*diffEquation);
-    auto gradient = new ConjugateGradient(netModelPtr, diffEquationPtr);
     auto derivator = new Derivator(netModelPtr);
+    auto derivatorPtr = std::make_shared<Derivator>(*derivator);
+    auto gradient = new ConjugateGradient(netModelPtr, diffEquationPtr, derivatorPtr);
 }
