@@ -8,7 +8,6 @@
 
 #include <memory.h>
 
-#include "DifferentialEquationModel.h"
 #include "NetModel.h"
 
 #define NUM_EVENTS 2

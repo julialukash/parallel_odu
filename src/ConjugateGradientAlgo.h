@@ -3,6 +3,8 @@
 
 #include "Interface.h"
 #include "ApproximateOperations.h"
+#include "DifferentialEquationModel.h"
+
 
 #include <boost/algorithm/minmax_element.hpp>
 #include <boost/generator_iterator.hpp>
@@ -15,7 +17,7 @@ typedef boost::minstd_rand base_generator_type;
 
 //#define DEBUG_MODE = 1
 
-class ConjugateGradient
+class ConjugateGradientAlgo
 {
 private:
     const double eps = 10e-4;
@@ -24,7 +26,7 @@ private:
     std::shared_ptr<DifferentialEquationModel> diffModel;
     std::shared_ptr<ApproximateOperations> approximateOperations;
 public:
-    ConjugateGradient(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
+    ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                       std::shared_ptr<ApproximateOperations> approximateOperationsPtr)
     {
         netModel = model;
@@ -126,16 +128,9 @@ public:
         return p - tau * grad;
     }
 
-    double CalculateError(double_matrix p)
+    double CalculateError(double_matrix uValues, double_matrix p)
     {
-        auto psi = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
-        for (size_t i = 0; i < psi.size1(); ++i)
-        {
-            for (size_t j = 0; j < psi.size2(); ++j)
-            {
-                psi(i, j) = diffModel->CalculateUValue(netModel->xValue(i), netModel->yValue(j)) - p(i, j);
-            }
-        }
+        auto psi = uValues - p;
         auto error = approximateOperations->NormValue(psi);
         return error;
     }
@@ -153,15 +148,14 @@ public:
         return pDiffNorm < eps;
     }
 
-    void Process()
+    double_matrix Process(double_matrix uValues)
     {
         double_matrix previousP, grad, laplassGrad, laplassPreviousGrad;
-//        grad = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
 
         auto p = Init();
 
 //#ifdef DEBUG_MODE
-        std::cout << "error = " << CalculateError(p) << std::endl;
+        std::cout << "init error = " << CalculateError(p, uValues) << std::endl;
 //#endif
         int iteration = 0;
         while (iteration == 0 || !IsStopCondition(p, previousP))
@@ -201,10 +195,11 @@ public:
             p = CalculateNewP(p, grad, tau);
 
 //#ifdef DEBUG_MODE
-            std::cout << "error = " << CalculateError(p) << std::endl;
+            std::cout << "error = " << CalculateError(p, uValues) << std::endl;
 //#endif
             ++iteration;
         }
+        return p;
     }
 
 };
