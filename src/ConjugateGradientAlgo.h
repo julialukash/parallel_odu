@@ -32,6 +32,7 @@ public:
         derivator = derivatorPtr;
     }
 
+
     double_matrix Init()
     {
         base_generator_type generator(198);
@@ -45,7 +46,7 @@ public:
         {
             for (size_t j = 0; j < values.size2(); ++j)
             {
-                if ((i == 0 || i == values.size1()) && (j == 0 || j == values.size2()))
+                if (netModel->IsInnerPoint(i, j))
                 {
                     values(i, j) = diffModel->CalculateBoundaryValue(netModel->xValue(i), netModel->yValue(j));
                 }
@@ -66,15 +67,15 @@ public:
     double CalculateTauValue(double_matrix residuals, double_matrix grad, double_matrix laplassGrad)
     {
         auto numerator = derivator->ScalarProduct(residuals, grad);
-        auto denominator = derivator->ScalarProduct(-laplassGrad, grad);
+        auto denominator = derivator->ScalarProduct(laplassGrad, grad);
         auto tau = numerator / denominator;
         return tau;
     }
 
     double CalculateAlphaValue(double_matrix laplassResiduals, double_matrix previousGrad, double_matrix laplassPreviousGrad)
     {
-        auto numerator = derivator->ScalarProduct(-laplassResiduals, previousGrad);
-        auto denominator = derivator->ScalarProduct(-laplassPreviousGrad, previousGrad);
+        auto numerator = derivator->ScalarProduct(laplassResiduals, previousGrad);
+        auto denominator = derivator->ScalarProduct(laplassPreviousGrad, previousGrad);
         auto alpha = numerator / denominator;
         return alpha;
     }
@@ -87,13 +88,13 @@ public:
         {
             for (size_t j = 0; j < residuals.size2(); ++j)
             {
-                if ((i == 0 || i == residuals.size1()) && (j == 0 || j == residuals.size2()))
+                if (netModel->IsInnerPoint(i, j))
                 {
                     residuals(i, j) = 0;
                 }
                 else
                 {
-                    residuals(i, j) = -laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
+                    residuals(i, j) = laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
                 }
             }
         }

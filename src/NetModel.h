@@ -10,7 +10,7 @@ private:
     double xAverageStepValue, yAverageStepValue;
 public:
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
-    long xPointsCount, yPointsCount;
+    int xPointsCount, yPointsCount;
 
     inline double xValue(int i) { return xMinBoundary + i * xStepValue; }
     inline double yValue(int i) { return yMinBoundary + i * yStepValue; }
@@ -27,19 +27,25 @@ public:
     }
 
     NetModel(double xMinBoundaryValue, double xMaxBoundaryValue, double yMinBoundaryValue, double yMaxBoundaryValue,
-             long xPointsCountValue, long yPointsCountValue)
+             int xPointsCountValue, int yPointsCountValue)
     {
         xMinBoundary = xMinBoundaryValue;
         xMaxBoundary = xMaxBoundaryValue;
         yMinBoundary = yMinBoundaryValue;
         yMaxBoundary = yMaxBoundaryValue;
-        xPointsCount = xPointsCountValue;
-        yPointsCount = yPointsCountValue;
-        xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCount;
-        yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCount;
+        xPointsCount = xPointsCountValue + 1;
+        yPointsCount = yPointsCountValue + 1;
+        xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCountValue;
+        yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCountValue;
         xAverageStepValue = xStepValue;
         yAverageStepValue = yStepValue;
     }
+
+    bool IsInnerPoint(int i, int j)
+    {
+        return i == 0 || i == xPointsCount - 1 || j == 0 || j == yPointsCount - 1;
+    }
+
 };
 
 #endif // NETMODEL_H

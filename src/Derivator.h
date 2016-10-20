@@ -13,6 +13,7 @@ public:
         netModel = model;
     }
 
+    // note: calculates -laplass(currentValues)
     double_matrix CalculateLaplassApproximately(double_matrix currentValues)
     {
         auto laplassValues = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
@@ -20,10 +21,11 @@ public:
         {
             for (auto j = 1; j < laplassValues.size2() - 1; ++j)
             {
-                laplassValues(i, j) = - (2 * currentValues(i, j) - currentValues(i - 1, j) - currentValues(i + 1, j)) /
-                                        (netModel->xAverageStep(i) * netModel->xStep(i)) +
-                                        (2 * currentValues(i, j) - currentValues(i, j - 1) - currentValues(i, j + 1))  /
-                                        (netModel->yAverageStep(j) * netModel->yStep(j));
+                auto xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel->xStep(i - 1) -
+                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel->xStep(i);
+                auto yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel->yStep(i - 1) -
+                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel->yStep(i);
+                laplassValues(i, j) = xPart / netModel->xAverageStep(i) + yPart / netModel->yAverageStep(j);
             }
         }
         return laplassValues;
