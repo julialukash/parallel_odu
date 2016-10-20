@@ -1,1 +1,3 @@
 /build-task2-Desktop-Debug/
+/output/
+*.pro.user
