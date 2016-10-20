@@ -10,10 +10,10 @@ private:
     double xAverageStepValue, yAverageStepValue;
 public:
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
-    double xPointsCount, yPointsCount;
+    long xPointsCount, yPointsCount;
 
-    inline double xValue(int i) { return i * xStepValue; }
-    inline double yValue(int i) { return i * yStepValue; }
+    inline double xValue(int i) { return xMinBoundary + i * xStepValue; }
+    inline double yValue(int i) { return yMinBoundary + i * yStepValue; }
 
     inline double xStep(int i) { return xStepValue; }
     inline double yStep(int i) { return yStepValue; }
@@ -27,18 +27,18 @@ public:
     }
 
     NetModel(double xMinBoundaryValue, double xMaxBoundaryValue, double yMinBoundaryValue, double yMaxBoundaryValue,
-             long xPointsCount, long yPointsCount)
+             long xPointsCountValue, long yPointsCountValue)
     {
         xMinBoundary = xMinBoundaryValue;
         xMaxBoundary = xMaxBoundaryValue;
         yMinBoundary = yMinBoundaryValue;
         yMaxBoundary = yMaxBoundaryValue;
+        xPointsCount = xPointsCountValue;
+        yPointsCount = yPointsCountValue;
         xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCount;
         yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCount;
         xAverageStepValue = xStepValue;
         yAverageStepValue = yStepValue;
-        xPointsCount = xPointsCount;
-        yPointsCount = yPointsCount;
     }
 };
 

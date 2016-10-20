@@ -13,9 +13,13 @@
 
 typedef boost::minstd_rand base_generator_type;
 
+//#define DEBUG_MODE = 1
+
 class ConjugateGradient
 {
 private:
+    const double eps = 10e-4;
+
     std::shared_ptr<NetModel> netModel;
     std::shared_ptr<DifferentialEquationModel> diffModel;
     std::shared_ptr<Derivator> derivator;
@@ -28,7 +32,7 @@ public:
         derivator = derivatorPtr;
     }
 
-    void Init(double_matrix values)
+    double_matrix Init()
     {
         base_generator_type generator(198);
         boost::uniform_real<> xUniDistribution(netModel->xMinBoundary, netModel->xMaxBoundary);
@@ -36,6 +40,7 @@ public:
         boost::variate_generator<base_generator_type&, boost::uniform_real<> > xUniform(generator, xUniDistribution);
         boost::variate_generator<base_generator_type&, boost::uniform_real<> > yUniform(generator, yUniDistribution);
 
+        auto values = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
         for (size_t i = 0; i < values.size1(); ++i)
         {
             for (size_t j = 0; j < values.size2(); ++j)
@@ -51,6 +56,10 @@ public:
                 }
             }
         }
+#ifdef DEBUG_MODE
+        std::cout <<values<< std::endl;
+#endif
+        return values;
     }
 
 
@@ -103,28 +112,77 @@ public:
         else
         {
             auto alpha = CalculateAlphaValue(laplassResiduals, previousGrad, laplassPreviousGrad);
+#ifdef DEBUG_MODE
+            std::cout << "Alpha = " << alpha << std::endl;
+#endif
             gradient = residuals - alpha * laplassResiduals;
         }
         return gradient;
     }
 
-    bool CheckStopCondition()
+    double_matrix CalculateNewP(double_matrix p, double_matrix grad, double tau)
     {
-        return true;
+        return p - tau * grad;
+    }
+
+    bool IsStopCondition(double_matrix p, double_matrix previousP)
+    {
+        auto pDiff = p - previousP;
+        auto pDiffNorm = derivator->NormValue(pDiff);
+        std::cout << "pDiffNorm = " << pDiffNorm << std::endl;
+
+#ifdef DEBUG_MODE
+        auto stop = pDiffNorm < eps;
+        std::cout << "CheckStopCondition = " << stop << std::endl;
+#endif
+        return pDiffNorm < eps;
     }
 
     void Process()
     {
-        auto p = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
-        Init(p);
-        auto grad = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
+        double_matrix previousP, grad, laplassGrad, laplassPreviousGrad;
+//        grad = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
+
+        auto p = Init();
+
         int iteration = 0;
-        while (CheckStopCondition())
+        while (iteration == 0 || !IsStopCondition(p, previousP))
         {
             std::cout << "iteration = " << iteration << std::endl;
-            ++iteration;
+
+#ifdef DEBUG_MODE
+            std::cout << "p = " << p << std::endl;
+#endif
+
+            laplassPreviousGrad = laplassGrad;
+
             auto residuals = CalculateResidual(p);
             auto laplassResiduals = derivator->CalculateLaplassApproximately(residuals);
+
+#ifdef DEBUG_MODE
+            std::cout << "Residuals = " << residuals << std::endl;
+            std::cout << "Laplass Residuals = " << laplassResiduals << std::endl;
+            std::cout << "grad = " << grad << std::endl;
+            std::cout << "laplassPreviousGrad = " << laplassPreviousGrad << std::endl;
+#endif
+
+            grad = CalculateGradient(residuals, laplassResiduals, grad, laplassPreviousGrad, iteration);
+
+            laplassGrad = derivator->CalculateLaplassApproximately(grad);
+
+            auto tau = CalculateTauValue(residuals, grad, laplassGrad);
+
+#ifdef DEBUG_MODE
+            std::cout << "grad = " << grad << std::endl;
+            std::cout << "laplassGrad = " << laplassGrad << std::endl;
+            std::cout << "tau = " << tau << std::endl;
+            std::cout << "previousP = " << previousP << std::endl;
+#endif
+
+            previousP = p;
+            p = CalculateNewP(p, grad, tau);
+
+            ++iteration;
         }
     }
 
