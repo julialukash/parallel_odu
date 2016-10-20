@@ -45,18 +45,16 @@ int main(int argc, char *argv[])
     auto groundValuesFilename = argv[1];
     auto approximateValuesFilename = argv[2];
 
-    auto diffEquation = new DifferentialEquationModel();
-    auto netModel = new NetModel(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, pointsCount, pointsCount);
-    auto netModelPtr = std::make_shared<NetModel>(*netModel);
+    auto netModelPtr = std::make_shared<NetModel>(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, pointsCount, pointsCount);
 //    std::cout << netModelPtr->xValue(0) << " " << netModelPtr->yValue(0) << std::endl;
 //    std::cout << netModelPtr->xValue(pointsCount) << " " << netModelPtr->yValue(pointsCount) << std::endl;
-    auto diffEquationPtr = std::make_shared<DifferentialEquationModel>(*diffEquation);
-    auto approximateOperations = new ApproximateOperations(netModelPtr);
-    auto approximateOperationsPtr = std::make_shared<ApproximateOperations>(*approximateOperations);
+    auto diffEquationPtr = std::make_shared<DifferentialEquationModel>();
+    auto approximateOperationsPtr = std::make_shared<ApproximateOperations>(netModelPtr);
     auto optimizationAlgo = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr);
 
     auto uValues = diffEquationPtr->CalculateUValues(netModelPtr);
-    auto uValuesApproximate = optimizationAlgo->Process(uValues);
+    auto initP = optimizationAlgo->Init();
+    auto uValuesApproximate = optimizationAlgo->Process(initP, uValues);
     writeValues(groundValuesFilename, uValues);
     writeValues(approximateValuesFilename, uValuesApproximate);
 }

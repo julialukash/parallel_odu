@@ -16,7 +16,8 @@ TEMPLATE = app
 
 
 SOURCES += \
-    src/main.cpp
+    src/main.cpp \
+    src/ConjugateGradientAlgo.cpp
 core
 
 
