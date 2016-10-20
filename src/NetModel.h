@@ -1,7 +1,7 @@
 #ifndef NETMODEL_H
 #define NETMODEL_H
 
-#include "interface.h"
+#include "Interface.h"
 
 class NetModel
 {

@@ -19,6 +19,11 @@ public:
     {
           return 1 + sin(x * y);
     }
+
+    double CalculateUValue(double x, double y)
+    {
+        return 1 + sin(x * y);
+    }
 };
 
 #endif // MODEL_H

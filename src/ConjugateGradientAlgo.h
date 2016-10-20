@@ -1,8 +1,8 @@
 #ifndef CONJUGATEGRADIENTALGO_H
 #define CONJUGATEGRADIENTALGO_H
 
-#include "interface.h"
-#include "Derivator.h"
+#include "Interface.h"
+#include "ApproximateOperations.h"
 
 #include <boost/algorithm/minmax_element.hpp>
 #include <boost/generator_iterator.hpp>
@@ -22,14 +22,14 @@ private:
 
     std::shared_ptr<NetModel> netModel;
     std::shared_ptr<DifferentialEquationModel> diffModel;
-    std::shared_ptr<Derivator> derivator;
+    std::shared_ptr<ApproximateOperations> approximateOperations;
 public:
     ConjugateGradient(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
-                      std::shared_ptr<Derivator> derivatorPtr)
+                      std::shared_ptr<ApproximateOperations> approximateOperationsPtr)
     {
         netModel = model;
         diffModel = modelDiff;
-        derivator = derivatorPtr;
+        approximateOperations = approximateOperationsPtr;
     }
 
 
@@ -66,23 +66,23 @@ public:
 
     double CalculateTauValue(double_matrix residuals, double_matrix grad, double_matrix laplassGrad)
     {
-        auto numerator = derivator->ScalarProduct(residuals, grad);
-        auto denominator = derivator->ScalarProduct(laplassGrad, grad);
+        auto numerator = approximateOperations->ScalarProduct(residuals, grad);
+        auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad);
         auto tau = numerator / denominator;
         return tau;
     }
 
     double CalculateAlphaValue(double_matrix laplassResiduals, double_matrix previousGrad, double_matrix laplassPreviousGrad)
     {
-        auto numerator = derivator->ScalarProduct(laplassResiduals, previousGrad);
-        auto denominator = derivator->ScalarProduct(laplassPreviousGrad, previousGrad);
+        auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad);
+        auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);
         auto alpha = numerator / denominator;
         return alpha;
     }
 
     double_matrix CalculateResidual(double_matrix p)
     {
-        auto laplassP = derivator->CalculateLaplassApproximately(p);
+        auto laplassP = approximateOperations->CalculateLaplass(p);
         auto residuals = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
         for (size_t i = 0; i < residuals.size1(); ++i)
         {
@@ -126,10 +126,24 @@ public:
         return p - tau * grad;
     }
 
+    double CalculateError(double_matrix p)
+    {
+        auto psi = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
+        for (size_t i = 0; i < psi.size1(); ++i)
+        {
+            for (size_t j = 0; j < psi.size2(); ++j)
+            {
+                psi(i, j) = diffModel->CalculateUValue(netModel->xValue(i), netModel->yValue(j)) - p(i, j);
+            }
+        }
+        auto error = approximateOperations->NormValue(psi);
+        return error;
+    }
+
     bool IsStopCondition(double_matrix p, double_matrix previousP)
     {
         auto pDiff = p - previousP;
-        auto pDiffNorm = derivator->NormValue(pDiff);
+        auto pDiffNorm = approximateOperations->NormValue(pDiff);
         std::cout << "pDiffNorm = " << pDiffNorm << std::endl;
 
 #ifdef DEBUG_MODE
@@ -146,6 +160,9 @@ public:
 
         auto p = Init();
 
+//#ifdef DEBUG_MODE
+        std::cout << "error = " << CalculateError(p) << std::endl;
+//#endif
         int iteration = 0;
         while (iteration == 0 || !IsStopCondition(p, previousP))
         {
@@ -158,7 +175,7 @@ public:
             laplassPreviousGrad = laplassGrad;
 
             auto residuals = CalculateResidual(p);
-            auto laplassResiduals = derivator->CalculateLaplassApproximately(residuals);
+            auto laplassResiduals = approximateOperations->CalculateLaplass(residuals);
 
 #ifdef DEBUG_MODE
             std::cout << "Residuals = " << residuals << std::endl;
@@ -169,7 +186,7 @@ public:
 
             grad = CalculateGradient(residuals, laplassResiduals, grad, laplassPreviousGrad, iteration);
 
-            laplassGrad = derivator->CalculateLaplassApproximately(grad);
+            laplassGrad = approximateOperations->CalculateLaplass(grad);
 
             auto tau = CalculateTauValue(residuals, grad, laplassGrad);
 
@@ -183,6 +200,9 @@ public:
             previousP = p;
             p = CalculateNewP(p, grad, tau);
 
+//#ifdef DEBUG_MODE
+            std::cout << "error = " << CalculateError(p) << std::endl;
+//#endif
             ++iteration;
         }
     }
