@@ -7,7 +7,7 @@ const double xMinBoundary = 0;
 const double xMaxBoundary = 2;
 const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
-const long pointsCount = 1000;
+const long pointsCount = 10;
 
 int main(int argc, char *argv[])
 {
