@@ -3,7 +3,6 @@
 
 #include "interface.h"
 
-
 #include <boost/algorithm/minmax_element.hpp>
 #include <boost/generator_iterator.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
@@ -15,27 +14,36 @@ typedef boost::minstd_rand base_generator_type;
 
 class ConjugateGradient
 {
+private:
+    std::shared_ptr<NetModel> netModel;
+    std::shared_ptr<DifferentialEquationModel> diffModel;
 public:
-    void Init(DifferentialEquationModel model, NetModel netModel)
+    ConjugateGradient(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff)
+    {
+        netModel = model;
+        diffModel = modelDiff;
+    }
+
+    void Init(double_matrix values)
     {
         base_generator_type generator(198);
-        boost::uniform_real<> xUniDistribution(netModel.xMinBoundary, netModel.xMaxBoundary);
-        boost::uniform_real<> yUniDistribution(netModel.yMinBoundary, netModel.yMaxBoundary);
+        boost::uniform_real<> xUniDistribution(netModel->xMinBoundary, netModel->xMaxBoundary);
+        boost::uniform_real<> yUniDistribution(netModel->yMinBoundary, netModel->yMaxBoundary);
         boost::variate_generator<base_generator_type&, boost::uniform_real<> > xUniform(generator, xUniDistribution);
         boost::variate_generator<base_generator_type&, boost::uniform_real<> > yUniform(generator, yUniDistribution);
 
-        for (auto i = 0; i < netModel.xSize(); ++i)
+        for (size_t i = 0; i < values.size1(); ++i)
         {
-            for (auto j = 0; j < netModel.ySize(); ++j)
+            for (size_t j = 0; j < values.size2(); ++j)
             {
-                if ((i == 0 || i == netModel.xSize()) && (j == 0 || j == netModel.ySize()))
+                if ((i == 0 || i == values.size1()) && (j == 0 || j == values.size2()))
                 {
-                    netModel[i, j] = model.CalculateBoundaryValue(netModel.xValue(i), netModel.yValue(j));
+                    values(i, j) = diffModel->CalculateBoundaryValue(netModel->xValue(i), netModel->yValue(j));
                 }
                 else
                 {
                     // random init
-                    netModel[i, j] = model.CalculateFunctionValue(xUniform(), yUniform());
+                    values(i, j) = diffModel->CalculateFunctionValue(xUniform(), yUniform());
                 }
             }
         }

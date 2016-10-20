@@ -27,8 +27,8 @@ CONFIG += c++11
 
 HEADERS += \
     src/interface.h \
-    src/derivator.h \
     src/NetModel.h \
     src/ConjugateGradientAlgo.h \
-    src/DifferentialEquationModel.h
+    src/DifferentialEquationModel.h \
+    src/Derivator.h
 

@@ -5,14 +5,19 @@ class DifferentialEquationModel
 {
 private:
 public:
+    DifferentialEquationModel()
+    {
+
+    }
+
     double CalculateFunctionValue(double x, double y)
     {
-        return 1 + x * y == 0 ? 0 : ((x * x + y * y) / (1 + x * y)^2);
+        return (x * x + y * y) * sin(x * y);
     }
 
     double CalculateBoundaryValue(double x, double y)
     {
-        return 1 + x * y > 0 ? 0 : ln(1 + x * y);
+          return 1 + sin(x * y);
     }
 };
 

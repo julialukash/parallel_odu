@@ -5,36 +5,40 @@
 
 class NetModel
 {
+private:
+    double xStepValue, yStepValue;
+    double xAverageStepValue, yAverageStepValue;
 public:
-    double_matrix values;
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
-    double xStep, yStep;
-    double xAverageStep, yAverageStep;
+    double xPointsCount, yPointsCount;
 
-    inline size_t xSize() { return values.size1(); }
-    inline size_t ySize() { return values.size2(); }
+    inline double xValue(int i) { return i * xStepValue; }
+    inline double yValue(int i) { return i * yStepValue; }
 
-    inline double xValue(int i) { return i * xStep; }
-    inline double yValue(int i) { return i * yStep; }
+    inline double xStep(int i) { return xStepValue; }
+    inline double yStep(int i) { return yStepValue; }
 
+    inline double xAverageStep(int i) { return xAverageStepValue; }
+    inline double yAverageStep(int i) { return yAverageStepValue; }
 
-    NetModel(double xMinBoundary, double xMaxBoundary, double yMinBoundary, double yMaxBoundary,
-             int xPointsCount, int yPointsCount)
+    NetModel()
     {
-        xStep = (xMaxBoundary - xMinBoundary) / xPointsCount;
-        yStep = (yMaxBoundary - yMinBoundary) / yPointsCount;
-        xAverageStep = xStep;
-        yAverageStep = yStep;
-        values = double_matrix(xPointsCount + 1, yPointsCount + 1, 0);
+
     }
 
-    NetModel(NetModel otherModel)
+    NetModel(double xMinBoundaryValue, double xMaxBoundaryValue, double yMinBoundaryValue, double yMaxBoundaryValue,
+             long xPointsCount, long yPointsCount)
     {
-        xStep = otherModel.xStep;
-        yStep = otherModel.yStep;
-        xAverageStep = otherModel.xAverageStep;
-        yAverageStep = otherModel.yAverageStep;
-        values = double_matrix(otherModel.values.size1(), otherModel.values.size2(), 0);
+        xMinBoundary = xMinBoundaryValue;
+        xMaxBoundary = xMaxBoundaryValue;
+        yMinBoundary = yMinBoundaryValue;
+        yMaxBoundary = yMaxBoundaryValue;
+        xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCount;
+        yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCount;
+        xAverageStepValue = xStepValue;
+        yAverageStepValue = yStepValue;
+        xPointsCount = xPointsCount;
+        yPointsCount = yPointsCount;
     }
 };
 

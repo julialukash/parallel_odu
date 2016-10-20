@@ -271,7 +271,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/task21.0.0 || mkdir -p .tmp/task21.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/task21.0.0/ && $(COPY_FILE) --parents ../src/interface.h ../src/model.h ../src/derivator.h ../src/NetModel.h .tmp/task21.0.0/ && $(COPY_FILE) --parents ../src/main.cpp .tmp/task21.0.0/ && (cd `dirname .tmp/task21.0.0` && $(TAR) task21.0.0.tar task21.0.0 && $(COMPRESS) task21.0.0.tar) && $(MOVE) `dirname .tmp/task21.0.0`/task21.0.0.tar.gz . && $(DEL_FILE) -r .tmp/task21.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/task21.0.0/ && $(COPY_FILE) --parents ../src/interface.h ../src/NetModel.h ../src/ConjugateGradientAlgo.h ../src/DifferentialEquationModel.h ../src/Derivator.h .tmp/task21.0.0/ && $(COPY_FILE) --parents ../src/main.cpp .tmp/task21.0.0/ && (cd `dirname .tmp/task21.0.0` && $(TAR) task21.0.0.tar task21.0.0 && $(COMPRESS) task21.0.0.tar) && $(MOVE) `dirname .tmp/task21.0.0`/task21.0.0.tar.gz . && $(DEL_FILE) -r .tmp/task21.0.0
 
 
 clean:compiler_clean 
@@ -308,7 +308,11 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../src/main.cpp 
+main.o: ../src/main.cpp ../src/interface.h \
+		../src/DifferentialEquationModel.h \
+		../src/NetModel.h \
+		../src/ConjugateGradientAlgo.h \
+		../src/Derivator.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../src/main.cpp
 
 ####### Install
