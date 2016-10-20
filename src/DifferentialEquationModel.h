@@ -7,10 +7,7 @@ class DifferentialEquationModel
 {
 private:
 public:
-    DifferentialEquationModel()
-    {
-
-    }
+    DifferentialEquationModel() {}
 
     double CalculateFunctionValue(double x, double y)
     {
@@ -26,7 +23,6 @@ public:
     {
         return 1 + sin(x * y);
     }
-
 
     double_matrix CalculateUValues(std::shared_ptr<NetModel> netModel)
     {

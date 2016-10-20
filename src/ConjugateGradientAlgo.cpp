@@ -22,7 +22,6 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, st
     approximateOperations = approximateOperationsPtr;
 }
 
-
 double_matrix ConjugateGradientAlgo::Init()
 {
     base_generator_type generator(198);
@@ -53,21 +52,16 @@ double_matrix ConjugateGradientAlgo::Init()
     return values;
 }
 
-
-
 double_matrix ConjugateGradientAlgo::Process(double_matrix initP, double_matrix uValues)
 {
     double_matrix previousP, grad, laplassGrad, laplassPreviousGrad;
 
     auto p = initP;
 
-//#ifdef DEBUG_MODE
-    std::cout << "init error = " << CalculateError(p, uValues) << std::endl;
-//#endif
     int iteration = 0;
     while (iteration == 0 || !IsStopCondition(p, previousP))
     {
-        std::cout << "iteration = " << iteration << std::endl;
+        std::cout << "iteration = " << iteration << ", error = " << CalculateError(p, uValues) << std::endl;
 
 #ifdef DEBUG_MODE
         std::cout << "p = " << p << std::endl;
@@ -101,17 +95,10 @@ double_matrix ConjugateGradientAlgo::Process(double_matrix initP, double_matrix 
         previousP = p;
         p = CalculateNewP(p, grad, tau);
 
-//#ifdef DEBUG_MODE
-        std::cout << "error = " << CalculateError(p, uValues) << std::endl;
-//#endif
         ++iteration;
     }
     return p;
 }
-
-
-
-
 
 double ConjugateGradientAlgo::CalculateTauValue(double_matrix residuals, double_matrix grad, double_matrix laplassGrad)
 {
