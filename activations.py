@@ -40,8 +40,14 @@ class LinearActivationFunction(BaseActivationFunction):
 
 
 class SigmoidActivationFunction(BaseActivationFunction):
-    pass
+    def val(self, inputs):
+        return 1 / (1 + np.exp(-inputs))
 
+    def deriv(self, inputs):
+        return self.val(inputs) * (1 - self.val(inputs))
+
+    def second_deriv(self, inputs):
+        return self.deriv(inputs) * (1 - 2 * self.val(inputs))
 
 class ReluActivationFunction(BaseActivationFunction):
     pass
