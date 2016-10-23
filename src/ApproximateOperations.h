@@ -14,12 +14,12 @@ public:
     }
 
     // note: calculates -laplass(currentValues)
-    double_matrix CalculateLaplass(double_matrix currentValues)
+    DoubleMatrix CalculateLaplass(const DoubleMatrix& currentValues)
     {
-        auto laplassValues = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
-        for (size_t i = 1; i < laplassValues.size1() - 1; ++i)
+        auto laplassValues = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
+        for (auto i = 1; i < laplassValues.size1() - 1; ++i)
         {
-            for (size_t j = 1; j < laplassValues.size2() - 1; ++j)
+            for (auto j = 1; j < laplassValues.size2() - 1; ++j)
             {
                 auto xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel->xStep(i - 1) -
                              (currentValues(i + 1, j) - currentValues(i, j)) / netModel->xStep(i);
@@ -31,12 +31,12 @@ public:
         return laplassValues;
     }
 
-    double ScalarProduct(double_matrix currentValues, double_matrix otherValues)
+    double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues)
     {
         double prodValue = 0;
-        for (size_t i = 1; i < currentValues.size1() - 1; ++i)
+        for (auto i = 1; i < currentValues.size1() - 1; ++i)
         {
-            for (size_t j = 1; j < currentValues.size2() - 1; ++j)
+            for (auto j = 1; j < currentValues.size2() - 1; ++j)
             {
                 prodValue = prodValue + netModel->xAverageStep(i) * netModel->yAverageStep(j) *
                                         currentValues(i, j) * otherValues(i, j);
@@ -45,7 +45,7 @@ public:
         return prodValue;
     }
 
-    double NormValue(double_matrix currentValues)
+    double NormValue(const DoubleMatrix& currentValues)
     {
         return sqrt(ScalarProduct(currentValues, currentValues));
     }

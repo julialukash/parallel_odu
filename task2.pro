@@ -31,5 +31,6 @@ HEADERS += \
     src/ConjugateGradientAlgo.h \
     src/DifferentialEquationModel.h \
     src/ApproximateOperations.h \
-    src/Interface.h
+    src/Interface.h \
+    src/DoubleMatrix.h
 

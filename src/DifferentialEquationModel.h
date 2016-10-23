@@ -24,12 +24,12 @@ public:
         return 1 + sin(x * y);
     }
 
-    double_matrix CalculateUValues(std::shared_ptr<NetModel> netModel)
+    DoubleMatrix CalculateUValues(std::shared_ptr<NetModel> netModel)
     {
-        auto values = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
-        for (size_t i = 0; i < values.size1(); ++i)
+        auto values = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
+        for (auto i = 0; i < values.size1(); ++i)
         {
-            for (size_t j = 0; j < values.size2(); ++j)
+            for (auto j = 0; j < values.size2(); ++j)
             {
                 values(i, j) = CalculateUValue(netModel->xValue(i), netModel->yValue(j));
             }

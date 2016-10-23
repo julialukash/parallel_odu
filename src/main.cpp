@@ -12,7 +12,7 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 
 
-void writeValues(char* filename, double_matrix values)
+void writeValues(char* filename, const DoubleMatrix& values)
 {
     std::ofstream outputFile(filename);
     if (!outputFile.is_open())
@@ -21,9 +21,9 @@ void writeValues(char* filename, double_matrix values)
         exit(1);
     }
 
-    for (size_t i = 0; i < values.size1(); ++i)
+    for (auto i = 0; i < values.size1(); ++i)
     {
-        for (size_t j = 0; j < values.size2(); ++j)
+        for (auto j = 0; j < values.size2(); ++j)
         {
             outputFile << values(i,j) << " ";
         }
@@ -54,11 +54,11 @@ int main(int argc, char *argv[])
     //    std::cout << netModelPtr->xValue(pointsCount) << " " << netModelPtr->yValue(pointsCount) << std::endl;
 
     auto uValues = diffEquationPtr->CalculateUValues(netModelPtr);
-    auto initP = optimizationAlgo->Init();
+    auto uValuesApproximate = optimizationAlgo->Init();
 
     auto begin = omp_get_wtime();
 
-    auto uValuesApproximate = optimizationAlgo->Process(initP, uValues);
+    optimizationAlgo->Process(uValuesApproximate, uValues);
 
     auto time_elapsed = omp_get_wtime() - begin;
     std::cout << "Elapsed time is " << time_elapsed << " sec" << std::endl;

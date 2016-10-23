@@ -1,9 +1,7 @@
 #include "ConjugateGradientAlgo.h"
 
 
-#include <boost/algorithm/minmax_element.hpp>
 #include <boost/generator_iterator.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -11,7 +9,6 @@
 typedef boost::minstd_rand base_generator_type;
 
 //#define DEBUG_MODE = 1
-
 
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
@@ -22,7 +19,7 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, st
     approximateOperations = approximateOperationsPtr;
 }
 
-double_matrix ConjugateGradientAlgo::Init()
+DoubleMatrix ConjugateGradientAlgo::Init()
 {
     base_generator_type generator(198);
     boost::uniform_real<> xUniDistribution(netModel->xMinBoundary, netModel->xMaxBoundary);
@@ -30,10 +27,10 @@ double_matrix ConjugateGradientAlgo::Init()
     boost::variate_generator<base_generator_type&, boost::uniform_real<> > xUniform(generator, xUniDistribution);
     boost::variate_generator<base_generator_type&, boost::uniform_real<> > yUniform(generator, yUniDistribution);
 
-    auto values = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
-    for (size_t i = 0; i < values.size1(); ++i)
+    auto values = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
+    for (auto i = 0; i < values.size1(); ++i)
     {
-        for (size_t j = 0; j < values.size2(); ++j)
+        for (auto j = 0; j < values.size2(); ++j)
         {
             if (netModel->IsInnerPoint(i, j))
             {
@@ -52,11 +49,9 @@ double_matrix ConjugateGradientAlgo::Init()
     return values;
 }
 
-double_matrix ConjugateGradientAlgo::Process(double_matrix initP, double_matrix uValues)
+void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
 {
-    double_matrix previousP, grad, laplassGrad, laplassPreviousGrad;
-
-    auto p = initP;
+    DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
 
     int iteration = 0;
     while (iteration == 0 || !IsStopCondition(p, previousP))
@@ -97,10 +92,9 @@ double_matrix ConjugateGradientAlgo::Process(double_matrix initP, double_matrix 
 
         ++iteration;
     }
-    return p;
 }
 
-double ConjugateGradientAlgo::CalculateTauValue(double_matrix residuals, double_matrix grad, double_matrix laplassGrad)
+double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
 {
     auto numerator = approximateOperations->ScalarProduct(residuals, grad);
     auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad);
@@ -108,7 +102,7 @@ double ConjugateGradientAlgo::CalculateTauValue(double_matrix residuals, double_
     return tau;
 }
 
-double ConjugateGradientAlgo::CalculateAlphaValue(double_matrix laplassResiduals, double_matrix previousGrad, double_matrix laplassPreviousGrad)
+double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassResiduals, const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad)
 {
     auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad);
     auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);
@@ -116,13 +110,13 @@ double ConjugateGradientAlgo::CalculateAlphaValue(double_matrix laplassResiduals
     return alpha;
 }
 
-double_matrix ConjugateGradientAlgo::CalculateResidual(double_matrix p)
+DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
 {
     auto laplassP = approximateOperations->CalculateLaplass(p);
-    auto residuals = double_matrix(netModel->xPointsCount, netModel->yPointsCount);
-    for (size_t i = 0; i < residuals.size1(); ++i)
+    auto residuals = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
+    for (auto i = 0; i < residuals.size1(); ++i)
     {
-        for (size_t j = 0; j < residuals.size2(); ++j)
+        for (auto j = 0; j < residuals.size2(); ++j)
         {
             if (netModel->IsInnerPoint(i, j))
             {
@@ -137,11 +131,11 @@ double_matrix ConjugateGradientAlgo::CalculateResidual(double_matrix p)
     return residuals;
 }
 
-double_matrix ConjugateGradientAlgo::CalculateGradient(double_matrix residuals, double_matrix laplassResiduals,
-                                double_matrix previousGrad, double_matrix laplassPreviousGrad,
+DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
+                                const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
                                 int k)
 {
-    double_matrix gradient;
+    DoubleMatrix gradient;
     if (k == 0)
     {
         gradient = residuals;
@@ -157,19 +151,19 @@ double_matrix ConjugateGradientAlgo::CalculateGradient(double_matrix residuals, 
     return gradient;
 }
 
-double_matrix ConjugateGradientAlgo::CalculateNewP(double_matrix p, double_matrix grad, double tau)
+DoubleMatrix ConjugateGradientAlgo::CalculateNewP(const DoubleMatrix& p, const DoubleMatrix& grad, double tau)
 {
     return p - tau * grad;
 }
 
-double ConjugateGradientAlgo::CalculateError(double_matrix uValues, double_matrix p)
+double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const DoubleMatrix& p)
 {
     auto psi = uValues - p;
     auto error = approximateOperations->NormValue(psi);
     return error;
 }
 
-bool ConjugateGradientAlgo::IsStopCondition(double_matrix p, double_matrix previousP)
+bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleMatrix& previousP)
 {
     auto pDiff = p - previousP;
     auto pDiffNorm = approximateOperations->NormValue(pDiff);

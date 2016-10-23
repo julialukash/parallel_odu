@@ -1,9 +1,9 @@
 #ifndef CONJUGATEGRADIENTALGO_H
 #define CONJUGATEGRADIENTALGO_H
 
-#include "Interface.h"
 #include "ApproximateOperations.h"
 #include "DifferentialEquationModel.h"
+#include "Interface.h"
 
 class ConjugateGradientAlgo
 {
@@ -14,21 +14,21 @@ private:
     std::shared_ptr<DifferentialEquationModel> diffModel;
     std::shared_ptr<ApproximateOperations> approximateOperations;
 
-    double CalculateTauValue(double_matrix residuals, double_matrix grad, double_matrix laplassGrad);
-    double CalculateAlphaValue(double_matrix laplassResiduals, double_matrix previousGrad, double_matrix laplassPreviousGrad);
-    double_matrix CalculateResidual(double_matrix p);
-    double_matrix CalculateGradient(double_matrix residuals, double_matrix laplassResiduals,
-                                    double_matrix previousGrad, double_matrix laplassPreviousGrad,
-                                    int k);
-    double_matrix CalculateNewP(double_matrix p, double_matrix grad, double tau);
-    double CalculateError(double_matrix uValues, double_matrix p);
-    bool IsStopCondition(double_matrix p, double_matrix previousP);
+    double CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad);
+    double CalculateAlphaValue(const DoubleMatrix& laplassResiduals, const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad);
+    DoubleMatrix CalculateResidual(const DoubleMatrix &p);
+    DoubleMatrix CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
+                                   const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
+                                   int k);
+    DoubleMatrix CalculateNewP(const DoubleMatrix &p, const DoubleMatrix &grad, double tau);
+    double CalculateError(const DoubleMatrix &uValues, const DoubleMatrix &p);
+    bool IsStopCondition(const DoubleMatrix &p, const DoubleMatrix &previousP);
 
 public:
     ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                       std::shared_ptr<ApproximateOperations> approximateOperationsPtr);
-    double_matrix Init();
-    double_matrix Process(double_matrix initP, double_matrix uValues);
+    DoubleMatrix Init();
+    void Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
 };
 
 #endif // CONJUGATEGRADIENTALGO_H
