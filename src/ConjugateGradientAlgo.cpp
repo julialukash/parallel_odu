@@ -93,7 +93,10 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
 {
     auto numerator = approximateOperations->ScalarProduct(residuals, grad);
-    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad);
+    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad); 
+#ifdef DEBUG_MODE
+    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator << std::endl;
+#endif
     auto tau = numerator / denominator;
     return tau;
 }
@@ -102,13 +105,22 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
 {
     auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad);
     auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);
+#ifdef DEBUG_MODE
+    std::cout << "CalculateAlphaValue num  = " << numerator << ", " << denominator << std::endl;
+#endif
     auto alpha = numerator / denominator;
     return alpha;
 }
 
 DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
-{
-    auto laplassP = approximateOperations->CalculateLaplass(p);
+{    
+#ifdef DEBUG_MODE
+    std::cout << "CalculateResidual p = \n" << p << std::endl;
+#endif
+    auto laplassP = approximateOperations->CalculateLaplass(p);    
+#ifdef DEBUG_MODE
+    std::cout << "CalculateResidual laplassP = \n" << laplassP << std::endl;
+#endif
     auto residuals = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
     for (auto i = 0; i < residuals.size1(); ++i)
     {
@@ -122,8 +134,19 @@ DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
             {
                 residuals(i, j) = laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
             }
+
+#ifdef DEBUG_MODE
+        std::cout << "i = " << i << ", j = " << j << " " << netModel->IsInnerPoint(i, j)
+                  << ", laplassP(i, j) = " << laplassP(i, j)
+                  << ", value = " << diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(i))
+                  << ", residuals(i, j) = " << residuals(i, j) << std::endl;
+#endif
         }
     }
+
+#ifdef DEBUG_MODE
+    std::cout << "CalculateResidual residuals = \n" << residuals << std::endl;
+#endif
     return residuals;
 }
 

@@ -162,13 +162,13 @@ int main(int argc, char *argv[])
                                                               processorInfoPtr);
             auto uValuesApproximate = optimizationAlgo->Init();
             auto uValues = optimizationAlgo->CalculateU();
-#ifdef DEBUG_MAIN
-            std::cout << "uValues  = " << std::endl << uValues << std::endl;
-#endif
-//    processorData->u = CalculateU();
-#ifdef DEBUG_MAIN
-            std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
-#endif
+//#ifdef DEBUG_MAIN
+//            std::cout << "uValues  = " << std::endl << uValues << std::endl;
+//#endif
+////    processorData->u = CalculateU();
+//#ifdef DEBUG_MAIN
+//            std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
+//#endif
 
 #ifdef DEBUG_MAIN
             std::cout << "Created ConjugateGradientAlgo." << std::endl;

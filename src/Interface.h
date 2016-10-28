@@ -14,6 +14,4 @@
 #include "DoubleMatrix.h"
 #include "NetModel.h"
 
-
-
 #endif // INTERFACE_H

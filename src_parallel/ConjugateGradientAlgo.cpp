@@ -79,9 +79,9 @@ DoubleMatrix ConjugateGradientAlgo::Init()
 
 void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
 {
-#ifdef DEBUG_MODE
-    std::cout << "RenewBoundRows \n" << values << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//    std::cout << "RenewBoundRows \n" << values << std::endl;
+//#endif
     MPI_Status status;
     int nextProcessorRank = processorData->IsLastProcessor() ? MPI_PROC_NULL : processorData->rank + 1;
     int previousProcessorRank = processorData->IsFirstProcessor() ? MPI_PROC_NULL : processorData->rank - 1;
@@ -112,11 +112,11 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
     int iteration = 0;
     double error = .0;
-#ifdef DEBUG_MODE
-    std::cout << "rank = " << processorData->rank << " starting..." << std::endl;
-    std::cout << "p = " << p << std::endl;
-    std::cout << "uValues = " << uValues << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//    std::cout << "rank = " << processorData->rank << " starting..." << std::endl;
+//    std::cout << "p = " << p << std::endl;
+//    std::cout << "uValues = " << uValues << std::endl;
+//#endif
     while (true)
     {        
         ++iteration;
@@ -144,10 +144,10 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 
         RenewBoundRows(p);
 #ifdef DEBUG_MODE
-        std::cout << "renewed p = " << p << std::endl;
+        std::cout << "renewed p = \n" << p << std::endl;
 #endif
         auto residuals = CalculateResidual(p);
-        auto laplassResiduals = approximateOperations->CalculateLaplass(residuals);
+        auto laplassResiduals = approximateOperations->CalculateLaplass(residuals, processorData);
 
 #ifdef DEBUG_MODE
         std::cout << "Residuals = " << residuals << std::endl;
@@ -159,7 +159,7 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
         grad = CalculateGradient(residuals, laplassResiduals, grad, laplassPreviousGrad, iteration);
 
         laplassPreviousGrad = laplassGrad;
-        laplassGrad = approximateOperations->CalculateLaplass(grad);
+        laplassGrad = approximateOperations->CalculateLaplass(grad, processorData);
 
         auto tau = CalculateTauValue(residuals, grad, laplassGrad);
 
@@ -195,23 +195,42 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
 
 DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
 {
-    auto laplassP = approximateOperations->CalculateLaplass(p);
-    auto residuals = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
-    for (auto i = 0; i < residuals.rowsCount(); ++i)
+#ifdef DEBUG_MODE
+        std::cout << "CalculateResidual ..." << std::endl;
+#endif
+    auto laplassP = approximateOperations->CalculateLaplass(p, processorData);
+#ifdef DEBUG_MODE
+        std::cout << "laplassP \n" << laplassP << std::endl;
+#endif
+    auto residuals = DoubleMatrix(laplassP.rowsCount(), laplassP.colsCount());
+    auto startIndex = 1;
+    auto endIndex = processorData->RowsCountWithBorders() - 2;
+    for (auto i = startIndex; i <= endIndex; ++i)
     {
-        auto iNetIndex = i + processorData->FirstRowIndex();
+        auto iNetIndex = i - startIndex + processorData->FirstRowIndex();
         for (auto j = 0; j < residuals.colsCount(); ++j)
         {
+
             if (netModel->IsInnerPoint(iNetIndex, j))
             {
                 residuals(i, j) = 0;
             }
             else
             {
-                residuals(i, j) = laplassP(iNetIndex, j) - diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                residuals(i, j) = laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(iNetIndex));
             }
+//#ifdef DEBUG_MODE
+//        std::cout << "i = " << i << ", j = " << j << ", iNet = "
+//                  << iNetIndex << " " << netModel->IsInnerPoint(iNetIndex, j)
+//                  << ", laplassP(i, j) = " << laplassP(i, j)
+//                  << ", value = " << diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(iNetIndex))
+//                  << ", residuals(i, j) = " << residuals(i, j) << std::endl;
+//#endif
         }
     }
+//#ifdef DEBUG_MODE
+//        std::cout << "residuals \n" << residuals << std::endl;
+//#endif
     return residuals;
 }
 
