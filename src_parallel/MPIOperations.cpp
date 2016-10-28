@@ -5,29 +5,24 @@
 
 void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
 {
-//    int rowsCount = values.size1();
-//    int colsCount = values.size2();
-//    MPI_Send(&rowsCount , 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
-//    MPI_Send(&colsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
-//    for (int i = 0; i < rowsCount; ++i)
-//    {
-//        send_vector(values.getRow(i), receiverRank, tag);
-//    }
+    int rowsCount = values.rowsCount();
+    int colsCount = values.colsCount();
+    MPI_Send(&rowsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
+    MPI_Send(&colsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
+
+    MPI_Send(&(values.matrix[0][0]), rowsCount * colsCount, MPI_DOUBLE, receiverRank, tag, MPI_COMM_WORLD);
 }
 
 std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag)
 {
-//    MPI_Status status;
-//    int rowsCount;
-//    int colsCount;
-//    MPI_Recv(&rowsCount, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, &status);
-//    MPI_Recv(&colsCount, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, &status);
+    MPI_Status status;
+    int rowsCount;
+    int colsCount;
+    MPI_Recv(&rowsCount, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, &status);
+    MPI_Recv(&colsCount, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, &status);
 
-//    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
-//    for (int i = 0; i < rowsCount; ++i) {
-//        receiveVector(&(values->getRowNotConst(i)), senderRank, tag);
-//    }
-//    return values;
+    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
+    MPI_Recv(&(values->matrix[0][0]), rowsCount * colsCount, MPI_DOUBLE, senderRank, tag, MPI_COMM_WORLD, &status);
 }
 
 void sendVector(const double *values, int size, int receiverRank, int tag)

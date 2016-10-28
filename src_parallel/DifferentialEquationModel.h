@@ -27,9 +27,9 @@ public:
     DoubleMatrix CalculateUValues(std::shared_ptr<NetModel> netModel)
     {
         auto values = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
-        for (auto i = 0; i < values.size1(); ++i)
+        for (auto i = 0; i < values.rowsCount(); ++i)
         {
-            for (auto j = 0; j < values.size2(); ++j)
+            for (auto j = 0; j < values.colsCount(); ++j)
             {
                 values(i, j) = CalculateUValue(netModel->xValue(i), netModel->yValue(j));
             }

@@ -2,32 +2,34 @@
 #define DOUBLEMATRIX_H
 
 
+#include <iostream>
+
 class DoubleMatrix
 {
 private:
-    int rowsCount, colsCount;
-    double **matrix;
+    int rowsCountValue, colsCountValue;
 public:
+    double **matrix;
 
     DoubleMatrix()
     {
         matrix = NULL;
-        rowsCount = 0;
-        colsCount = 0;
+        rowsCountValue = 0;
+        colsCountValue = 0;
     }
 
 
     DoubleMatrix(const int rowCount, const int colCount)
     {
       matrix = NULL;
-      rowsCount = rowCount;
-      colsCount = colCount;
+      rowsCountValue = rowCount;
+      colsCountValue = colCount;
 
-      matrix = new double*[rowsCount];
-      for (auto i = 0; i < rowsCount; i++)
+      matrix = new double*[rowsCountValue];
+      for (auto i = 0; i < rowsCountValue; i++)
       {
-          matrix[i] = new double[colsCount];
-          for (auto j = 0; j < colsCount; j++)
+          matrix[i] = new double[colsCountValue];
+          for (auto j = 0; j < colsCountValue; j++)
           {
               matrix[i][j] = 0;
           }
@@ -36,13 +38,13 @@ public:
 
     DoubleMatrix(const DoubleMatrix& otherMatrix)
     {
-        rowsCount = otherMatrix.rowsCount;
-        colsCount = otherMatrix.colsCount;
-        matrix = new double*[otherMatrix.rowsCount];
-        for (auto i = 0; i < rowsCount; i++)
+        rowsCountValue = otherMatrix.rowsCountValue;
+        colsCountValue = otherMatrix.colsCountValue;
+        matrix = new double*[otherMatrix.rowsCountValue];
+        for (auto i = 0; i < rowsCountValue; i++)
         {
-            matrix[i] = new double[colsCount];
-            for (auto j = 0; j < colsCount; j++)
+            matrix[i] = new double[colsCountValue];
+            for (auto j = 0; j < colsCountValue; j++)
             {
                 matrix[i][j] = otherMatrix.matrix[i][j];
             }
@@ -62,7 +64,7 @@ public:
 
     double& operator()(const int i, const int j) const
     {
-        if (matrix != NULL && i >= 0 && i < rowsCount && j >= 0 && j < colsCount)
+        if (matrix != NULL && i >= 0 && i < rowsCountValue && j >= 0 && j < colsCountValue)
         {
           return matrix[i][j];
         }
@@ -76,13 +78,13 @@ public:
     // assignment operator
     DoubleMatrix& operator= (const DoubleMatrix& otherMatrix)
     {
-        rowsCount = otherMatrix.rowsCount;
-        colsCount = otherMatrix.colsCount;
-        matrix = new double*[otherMatrix.rowsCount];
-        for (auto i = 0; i < rowsCount; i++)
+        rowsCountValue = otherMatrix.rowsCountValue;
+        colsCountValue = otherMatrix.colsCountValue;
+        matrix = new double*[otherMatrix.rowsCountValue];
+        for (auto i = 0; i < rowsCountValue; i++)
         {
-            matrix[i] = new double[colsCount];
-            for (auto j = 0; j < colsCount; j++)
+            matrix[i] = new double[colsCountValue];
+            for (auto j = 0; j < colsCountValue; j++)
             {
                 matrix[i][j] = otherMatrix.matrix[i][j];
             }
@@ -92,13 +94,13 @@ public:
 
     friend DoubleMatrix operator+(const DoubleMatrix& a, const DoubleMatrix& b)
     {
-        if (a.rowsCount == b.rowsCount && a.colsCount == b.colsCount)
+        if (a.rowsCountValue == b.rowsCountValue && a.colsCountValue == b.colsCountValue)
         {
-            DoubleMatrix res(a.rowsCount, a.colsCount);
+            DoubleMatrix res(a.rowsCountValue, a.colsCountValue);
 
-            for (auto i = 0; i < a.rowsCount; i++)
+            for (auto i = 0; i < a.rowsCountValue; i++)
             {
-                for (auto j = 0; j < a.colsCount; j++)
+                for (auto j = 0; j < a.colsCountValue; j++)
                 {
                     res.matrix[i][j] = a.matrix[i][j] + b.matrix[i][j];
                 }
@@ -113,13 +115,13 @@ public:
 
     friend DoubleMatrix operator-(const DoubleMatrix& a, const DoubleMatrix& b)
     {
-        if (a.rowsCount == b.rowsCount && a.colsCount == b.colsCount)
+        if (a.rowsCountValue == b.rowsCountValue && a.colsCountValue == b.colsCountValue)
         {
-            DoubleMatrix res(a.rowsCount, a.colsCount);
+            DoubleMatrix res(a.rowsCountValue, a.colsCountValue);
 
-            for (auto i = 0; i < a.rowsCount; i++)
+            for (auto i = 0; i < a.rowsCountValue; i++)
             {
-                for (auto j = 0; j < a.colsCount; j++)
+                for (auto j = 0; j < a.colsCountValue; j++)
                 {
                     res.matrix[i][j] = a.matrix[i][j] - b.matrix[i][j];
                 }
@@ -134,9 +136,9 @@ public:
 
     DoubleMatrix& MultiplyByValue(const double value)
     {
-        for (auto i = 0; i < rowsCount; i++)
+        for (auto i = 0; i < rowsCountValue; i++)
         {
-            for (auto j = 0; j < colsCount; j++)
+            for (auto j = 0; j < colsCountValue; j++)
             {
                 matrix[i][j] *= value;
             }
@@ -158,17 +160,43 @@ public:
         return res;
     }
 
-    int size1() const
+    int rowsCount() const
     {
-        return rowsCount;
+        return rowsCountValue;
     }
 
-    int size2() const
+    int colsCount() const
     {
-        return colsCount;
+        return colsCountValue;
     }
 
+    DoubleMatrix CropMatrix(const DoubleMatrix& a, int startRow, int rowsCount) const
+    {
+        DoubleMatrix res(rowsCount, a.colsCountValue);
+        for (auto i = startRow; i < startRow + rowsCount; i++)
+        {
+            auto iIndex = i - startRow;
+            for (auto j = 0; j < a.colsCountValue; j++)
+            {
+                res.matrix[iIndex][j] = a.matrix[i][j];
+            }
+        }
+        return res;
+    }
+
+
+    friend std::ostream& operator<<(std::ostream& os, const DoubleMatrix& dt)
+    {
+        for (auto i = 0; i < dt.rowsCount(); ++i)
+        {
+            for (auto j = 0; j < dt.colsCount(); ++j)
+            {
+                os << dt(i, j) << " ";
+            }
+            os << std::endl;
+        }
+        return os;
+    }
 };
-
 
 #endif // DOUBLEMATRIX_H

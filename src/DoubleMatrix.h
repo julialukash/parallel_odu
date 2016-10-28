@@ -1,13 +1,15 @@
 #ifndef DOUBLEMATRIX_H
 #define DOUBLEMATRIX_H
 
+#include <iostream>
 
 class DoubleMatrix
 {
 private:
     int rowsCount, colsCount;
-    double **matrix;
+
 public:
+    double **matrix;
 
     DoubleMatrix()
     {
@@ -155,6 +157,20 @@ public:
     int size2() const
     {
         return colsCount;
+    }
+
+
+    friend std::ostream& operator<<(std::ostream& os, const DoubleMatrix& dt)
+    {
+        for (auto i = 0; i < dt.size1(); ++i)
+        {
+            for (auto j = 0; j < dt.size2(); ++j)
+            {
+                os << dt(i, j) << " ";
+            }
+            os << std::endl;
+        }
+        return os;
     }
 
 };

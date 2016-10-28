@@ -25,13 +25,14 @@ private:
     DoubleMatrix CalculateNewP(const DoubleMatrix &p, const DoubleMatrix &grad, double tau);
     double CalculateError(const DoubleMatrix &uValues, const DoubleMatrix &p);
     bool IsStopCondition(const DoubleMatrix &p, const DoubleMatrix &previousP);
-    DoubleMatrix CalculateU();
 public:
     ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                           std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
                           std::shared_ptr<ProcessorsData> processorDataPtr);
-    DoubleMatrix Init();
+    DoubleMatrix Init();    
+    DoubleMatrix CalculateU();
     void Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
+    void RenewBoundRows(DoubleMatrix &values);
 };
 
 #endif // CONJUGATEGRADIENTALGO_H

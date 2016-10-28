@@ -3,6 +3,8 @@
 
 #include "Interface.h"
 
+#include <algorithm>
+
 class ApproximateOperations
 {
 private:
@@ -47,7 +49,8 @@ public:
 
     double NormValue(const DoubleMatrix& currentValues)
     {
-        return sqrt(ScalarProduct(currentValues, currentValues));
+        return fabs(*std::max_element(&(currentValues.matrix[0][0]),
+                &(currentValues.matrix[0][0]) + currentValues.size1() * currentValues.size2()));
     }
 };
 

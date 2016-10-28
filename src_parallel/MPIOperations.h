@@ -4,6 +4,12 @@
 
 #include "Interface.h"
 
+enum MessageTag
+{
+    UP,
+    DOWN
+};
+
 
 enum FlagType
 {
@@ -26,5 +32,6 @@ void receiveFlag(FlagType* flag, int senderRank, int tag);
 double collectValueFromAll(int processorsCount);
 void sendValueToAll(int processorsCount, double value);
 void sendFlagToAll(int processorsCount, FlagType flag);
+
 
 #endif // MPIOPERATIONS_H

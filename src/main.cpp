@@ -41,6 +41,11 @@ int main(int argc, char *argv[])
         std::cerr << "Not enough input arguments\n";
         exit(1);
     }
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    auto fileName = "out_main.txt";
+    std::ofstream out(fileName);
+    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+
     auto groundValuesFilename = argv[1];
     auto approximateValuesFilename = argv[2];
     auto pointsCount = std::stoi(argv[3]);
@@ -54,13 +59,17 @@ int main(int argc, char *argv[])
     //    std::cout << netModelPtr->xValue(pointsCount) << " " << netModelPtr->yValue(pointsCount) << std::endl;
 
     auto uValues = diffEquationPtr->CalculateUValues(netModelPtr);
+    std::cout << "u = \n" << uValues << std::endl;
     auto uValuesApproximate = optimizationAlgo->Init();
-
+    std::cout << "p init = \n" << uValuesApproximate << std::endl;
     auto begin = omp_get_wtime();
 
     optimizationAlgo->Process(uValuesApproximate, uValues);
 
     auto time_elapsed = omp_get_wtime() - begin;
+
+
+    std::cout.rdbuf(coutbuf); //reset to standard output again
     std::cout << "Elapsed time is " << time_elapsed << " sec" << std::endl;
 
     writeValues(groundValuesFilename, uValues);
