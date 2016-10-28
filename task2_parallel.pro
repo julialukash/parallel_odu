@@ -8,7 +8,7 @@ QT       += core
 
 QT       -= gui
 
-TARGET = task2
+TARGET = task2_parallel
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -16,8 +16,8 @@ TEMPLATE = app
 
 
 SOURCES += \
-    src/main.cpp \
-    src/ConjugateGradientAlgo.cpp
+    src_parallel/main.cpp \
+    src_parallel/ConjugateGradientAlgo.cpp
 core
 
 
@@ -35,10 +35,10 @@ QMAKE_CXXFLAGS += -Bsymbolic-functions
 
 
 HEADERS += \
-    src/NetModel.h \
-    src/ConjugateGradientAlgo.h \
-    src/DifferentialEquationModel.h \
-    src/ApproximateOperations.h \
-    src/Interface.h \
-    src/DoubleMatrix.h
+    src_parallel/NetModel.h \
+    src_parallel/ConjugateGradientAlgo.h \
+    src_parallel/DifferentialEquationModel.h \
+    src_parallel/ApproximateOperations.h \
+    src_parallel/Interface.h \
+    src_parallel/DoubleMatrix.h
 

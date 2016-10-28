@@ -1,3 +1,6 @@
 /build-task2-Desktop-Debug/
 /output/
 *.pro.user
+/parallel/
+/build-task2_parallel-Desktop-Debug/
+*.pro~
