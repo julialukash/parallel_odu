@@ -86,25 +86,10 @@ void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
     int nextProcessorRank = processorData->IsLastProcessor() ? MPI_PROC_NULL : processorData->rank + 1;
     int previousProcessorRank = processorData->IsFirstProcessor() ? MPI_PROC_NULL : processorData->rank - 1;
 
-#ifdef DEBUG_MODE
-    std::cout << "nextProcessorRank = " << nextProcessorRank << ", previousProcessorRank = " << previousProcessorRank << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//    std::cout << "nextProcessorRank = " << nextProcessorRank << ", previousProcessorRank = " << previousProcessorRank << std::endl;
+//#endif
 
-//#ifdef DEBUG_MODE
-//        std::cout << "ex values.matrix[0][0] = " << values.matrix[0][0] << std::endl;
-//#endif
-//for (auto i = 0; i < 2; ++i)
-//{
-//    for (auto j = 0; j < netModel->yPointsCount; ++j)
-//    {
-//#ifdef DEBUG_MODE
-//        std::cout << *(&(values.matrix[i][0]) + j) << " ";
-//#endif
-//    }
-//#ifdef DEBUG_MODE
-//        std::cout << std::endl;
-//#endif
-//}
     // send to next processor last "no border" line
     // receive from prev processor first "border" line
     MPI_Sendrecv(&(values.matrix[processorData->RowsCountWithBorders() - 2][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
@@ -116,9 +101,9 @@ void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
                  &(values.matrix[processorData->RowsCountWithBorders() - 1][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
                  MPI_COMM_WORLD, &status);
 
-#ifdef DEBUG_MODE
-    std::cout << "Finished RenewBoundRows \n" << values << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//    std::cout << "Finished RenewBoundRows \n" << values << std::endl;
+//#endif
 }
 
 
