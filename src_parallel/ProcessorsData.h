@@ -20,6 +20,7 @@ public:
     }
 
     inline bool IsMainProcessor() { return rank == mainProcessorRank; }
+    inline bool IsFirstProcessor() { return rank == 1; }
     inline bool IsLastProcessor() { return rank == processorsCount - 1; }
 
     inline int RowsCount() { return rowsCountValue; }

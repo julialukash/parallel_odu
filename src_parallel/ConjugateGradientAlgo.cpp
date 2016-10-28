@@ -47,9 +47,10 @@ DoubleMatrix ConjugateGradientAlgo::CalculateU()
 
 DoubleMatrix ConjugateGradientAlgo::Init()
 {
-    auto values = DoubleMatrix(processorData->RowsCountWithBorders(), netModel->yPointsCount);
+    auto values = DoubleMatrix(processorData->RowsCountWithBorders(), netModel->xPointsCount);
     for (auto i = 0; i < values.rowsCount(); ++i)
     {
+        auto iValueIndex = processorData->IsFirstProcessor() ? i + 1 : i;
         auto iNetIndex = i + processorData->FirstRowWithBordersIndex();
         if (iNetIndex  >= processorData->FirstRowIndex() && iNetIndex <= processorData->LastRowIndex())
         {
@@ -57,11 +58,11 @@ DoubleMatrix ConjugateGradientAlgo::Init()
             {
                 if (netModel->IsInnerPoint(iNetIndex, j))
                 {
-                    values(i, j) = diffModel->CalculateBoundaryValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                    values(iValueIndex, j) = diffModel->CalculateBoundaryValue(netModel->xValue(iNetIndex), netModel->yValue(j));
                 }
                 else
                 {
-                    values(i, j) = diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                    values(iValueIndex, j) = diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
                 }
 //#ifdef DEBUG_MODE
 //            std::cout << "i = " << i << ", j = " << j << ", iNetIndex = " << iNetIndex << std::endl;
@@ -78,15 +79,46 @@ DoubleMatrix ConjugateGradientAlgo::Init()
 
 void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
 {
+#ifdef DEBUG_MODE
+    std::cout << "RenewBoundRows \n" << values << std::endl;
+#endif
     MPI_Status status;
     int nextProcessorRank = processorData->IsLastProcessor() ? MPI_PROC_NULL : processorData->rank + 1;
-    int previousProcessorRank = processorData->IsMainProcessor() ? MPI_PROC_NULL : processorData->rank - 1;
-    // send to next processor its last "no border" line
-    // receive from prev processor its first "border" line
-    MPI_Sendrecv(&(values.matrix[0][0]) + processorData->LastRowIndex() * netModel->xPointsCount, netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
+    int previousProcessorRank = processorData->IsFirstProcessor() ? MPI_PROC_NULL : processorData->rank - 1;
+
+#ifdef DEBUG_MODE
+    std::cout << "nextProcessorRank = " << nextProcessorRank << ", previousProcessorRank = " << previousProcessorRank << std::endl;
+#endif
+
+//#ifdef DEBUG_MODE
+//        std::cout << "ex values.matrix[0][0] = " << values.matrix[0][0] << std::endl;
+//#endif
+//for (auto i = 0; i < 2; ++i)
+//{
+//    for (auto j = 0; j < netModel->yPointsCount; ++j)
+//    {
+//#ifdef DEBUG_MODE
+//        std::cout << *(&(values.matrix[i][0]) + j) << " ";
+//#endif
+//    }
+//#ifdef DEBUG_MODE
+//        std::cout << std::endl;
+//#endif
+//}
+    // send to next processor last "no border" line
+    // receive from prev processor first "border" line
+    MPI_Sendrecv(&(values.matrix[processorData->RowsCountWithBorders() - 2][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
                  &(values.matrix[0][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, UP,
                  MPI_COMM_WORLD, &status);
+    // send to prev processor first "no border" line
+    // receive from next processor last "border" line
+    MPI_Sendrecv(&(values.matrix[1][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
+                 &(values.matrix[processorData->RowsCountWithBorders() - 1][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
+                 MPI_COMM_WORLD, &status);
 
+#ifdef DEBUG_MODE
+    std::cout << "Finished RenewBoundRows \n" << values << std::endl;
+#endif
 }
 
 
@@ -94,10 +126,10 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 {
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
     int iteration = 0;
+    double error = .0;
 #ifdef DEBUG_MODE
     std::cout << "rank = " << processorData->rank << " starting..." << std::endl;
-    auto error = CalculateError(uValues, p);
-    std::cout << "p = " << p << ", error = " << error << std::endl;
+    std::cout << "p = " << p << std::endl;
     std::cout << "uValues = " << uValues << std::endl;
 #endif
     while (true)
@@ -119,13 +151,16 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
             sendMatrix(processorData->p, 0, processorData->rank);
             break;
         }
-        error = CalculateError(p, uValues);
+        error = CalculateError(uValues, p);
 #ifdef DEBUG_MODE
         std::cout << "iteration = " << iteration << ", error = " << error << std::endl;
         std::cout << "p = " << p << std::endl;
 #endif
 
         RenewBoundRows(p);
+#ifdef DEBUG_MODE
+        std::cout << "renewed p = " << p << std::endl;
+#endif
         auto residuals = CalculateResidual(p);
         auto laplassResiduals = approximateOperations->CalculateLaplass(residuals);
 
@@ -232,9 +267,9 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 //#endif
     auto psi = uValues - pCropped;
 
-#ifdef DEBUG_MODE
-    std::cout << "psi = \n" << psi << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//    std::cout << "psi = \n" << psi << std::endl;
+//#endif
 
     auto error = approximateOperations->NormValue(psi);
 

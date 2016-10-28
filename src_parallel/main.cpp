@@ -150,8 +150,8 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
             std::cout << "Finished" << std::endl;
             std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
-                      << "startRowIndex = " << processorInfoPtr->FirstRowIndex()
-                      << ", endRowIndex = " << processorInfoPtr->LastRowIndex()
+                      << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
+                      << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
                       << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
                       << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
                       << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
