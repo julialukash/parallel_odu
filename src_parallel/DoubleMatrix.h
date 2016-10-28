@@ -49,6 +49,17 @@ public:
         }
      }
 
+    const double* getRow(const int i) const
+    {
+        return matrix[i];
+    }
+
+
+    double* getRowNotConst(const int i)
+    {
+        return matrix[i];
+    }
+
     double& operator()(const int i, const int j) const
     {
         if (matrix != NULL && i >= 0 && i < rowsCount && j >= 0 && j < colsCount)

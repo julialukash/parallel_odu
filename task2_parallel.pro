@@ -17,7 +17,8 @@ TEMPLATE = app
 
 SOURCES += \
     src_parallel/main.cpp \
-    src_parallel/ConjugateGradientAlgo.cpp
+    src_parallel/ConjugateGradientAlgo.cpp \
+    src_parallel/MPIOperations.cpp
 core
 
 
@@ -40,5 +41,7 @@ HEADERS += \
     src_parallel/DifferentialEquationModel.h \
     src_parallel/ApproximateOperations.h \
     src_parallel/Interface.h \
-    src_parallel/DoubleMatrix.h
+    src_parallel/DoubleMatrix.h \
+    src_parallel/ProcessorsData.h \
+    src_parallel/MPIOperations.h
 

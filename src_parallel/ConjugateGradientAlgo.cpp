@@ -1,50 +1,64 @@
+#include <iostream>
+
 #include "ConjugateGradientAlgo.h"
 
-
-#include <boost/generator_iterator.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
-
-typedef boost::minstd_rand base_generator_type;
-
+#include "MPIOperations.h"
 //#define DEBUG_MODE = 1
 
-
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
-                  std::shared_ptr<ApproximateOperations> approximateOperationsPtr)
+                  std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
+                  std::shared_ptr<ProcessorsData> processorDataPtr)
 {
     netModel = model;
     diffModel = modelDiff;
     approximateOperations = approximateOperationsPtr;
+    processorData = processorDataPtr;
+    processorData->p = Init();
+    processorData->u = CalculateU();
 }
 
-DoubleMatrix ConjugateGradientAlgo::Init()
+DoubleMatrix ConjugateGradientAlgo::CalculateU()
 {
-    base_generator_type generator(198);
-    boost::uniform_real<> xUniDistribution(netModel->xMinBoundary, netModel->xMaxBoundary);
-    boost::uniform_real<> yUniDistribution(netModel->yMinBoundary, netModel->yMaxBoundary);
-    boost::variate_generator<base_generator_type&, boost::uniform_real<> > xUniform(generator, xUniDistribution);
-    boost::variate_generator<base_generator_type&, boost::uniform_real<> > yUniform(generator, yUniDistribution);
-
-    auto values = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
+    auto values = DoubleMatrix(processorData->RowsCount(), netModel->yPointsCount);
     for (auto i = 0; i < values.size1(); ++i)
     {
         for (auto j = 0; j < values.size2(); ++j)
         {
-            if (netModel->IsInnerPoint(i, j))
+            auto jNetIndex = j + processorData->FirstRowIndex();
+            if (netModel->IsInnerPoint(i, jNetIndex))
             {
-                values(i, j) = diffModel->CalculateBoundaryValue(netModel->xValue(i), netModel->yValue(j));
-            }
-            else
-            {
-                // random init
-                values(i, j) = diffModel->CalculateFunctionValue(xUniform(), yUniform());
+                values(i, j) = diffModel->CalculateUValue(netModel->xValue(i), netModel->yValue(jNetIndex));
             }
         }
     }
 #ifdef DEBUG_MODE
-    std::cout <<values<< std::endl;
+    std::cout << values << std::endl;
+#endif
+    return values;
+}
+
+
+DoubleMatrix ConjugateGradientAlgo::Init()
+{
+    auto values = DoubleMatrix(processorData->RowsCountWithBorders(), netModel->yPointsCount);
+    for (auto i = 0; i < values.size1(); ++i)
+    {
+        for (auto j = 0; j < values.size2(); ++j)
+        {
+            auto jNetIndex = j + processorData->FirstRowWithBordersIndex();
+            if (netModel->IsInnerPoint(i, jNetIndex))
+            {
+                values(i, j) = diffModel->CalculateBoundaryValue(netModel->xValue(i), netModel->yValue(jNetIndex));
+            }
+            else
+            {
+                // random init
+                values(i, j) = diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(jNetIndex));
+            }
+        }
+    }
+#ifdef DEBUG_MODE
+    std::cout << values << std::endl;
 #endif
     return values;
 }
@@ -52,13 +66,11 @@ DoubleMatrix ConjugateGradientAlgo::Init()
 void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
 {
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
-
     int iteration = 0;
-    while (iteration == 0 || !IsStopCondition(p, previousP))
+    while (true)
     {
-        std::cout << "iteration = " << iteration << ", error = " << CalculateError(p, uValues) << std::endl;
-
 #ifdef DEBUG_MODE
+        std::cout << "iteration = " << iteration << ", error = " << CalculateError(p, uValues) << std::endl;
         std::cout << "p = " << p << std::endl;
 #endif
 
