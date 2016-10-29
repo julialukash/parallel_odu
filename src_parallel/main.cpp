@@ -76,118 +76,42 @@ int main(int argc, char *argv[])
         std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
         std::cout << "(+)Processor with rank = " << processorInfoPtr->rank << std::endl;
-        if (processorInfoPtr->IsMainProcessor())
+        // init processors with their part of data
+        processorInfoPtr->rowsCountValue = (netModelPtr->yPointsCount) / (processorInfoPtr->processorsCount);
+        auto leftRowsCount = netModelPtr->yPointsCount - processorInfoPtr->rowsCountValue  * (processorInfoPtr->processorsCount);
+
+        processorInfoPtr->startRowIndex = (processorInfoPtr->rank) * processorInfoPtr->rowsCountValue;
+        if (leftRowsCount != 0 & processorInfoPtr->IsLastProcessor())
         {
-            auto error = .0;
-            auto iteration = 0;
-            while (true)
-            {
-#ifdef DEBUG_MAIN
-                std::cout << "Main processor, iteration = " << iteration << std::endl;
-#endif
-                ++iteration;
-                sendFlagToAll(processorInfoPtr->processorsCount, START_ITER);
-#ifdef DEBUG_MAIN
-                std::cout << "Sent flag to start" << std::endl;
-#endif
-//                // wait for parts of alpha, sum them and send back
-//                double alphaDen = collectValueFromAll(processorInfoPtr->processorsCount);
-//                double alphaNom = collectValueFromAll(processorInfoPtr->processorsCount);
-//                double alpha = alphaNom / alphaDen;
-//#ifdef DEBUG_MAIN
-//                std::cout << "Got alphaDen = " << alphaDen << ", nom  = " << alphaNom << ", alpha = " << alpha << std::endl;
-//#endif
-//                sendValueToAll(processorInfoPtr->processorsCount, alpha);
-//#ifdef DEBUG_MAIN
-//                std::cout << "Alpha sent" << std::endl;
-//#endif
-//                // wait for parts of tau, sum them and send back
-//                double tauDen = collectValueFromAll(processorInfoPtr->processorsCount);
-//                double tauNom = collectValueFromAll(processorInfoPtr->processorsCount);
-//                double tau = tauNom / tauDen;
-//#ifdef DEBUG_MAIN
-//                std::cout << "Got tauDen = " << tauDen << ", nom  = " << tauNom << ", alpha = " << tau << std::endl;
-//#endif
-//                sendValueToAll(processorInfoPtr->processorsCount, tau);
-//#ifdef DEBUG_MAIN
-//                std::cout << "Tau sent" << std::endl;
-//#endif
-                // wait for the end of the iteration and collect errors
-                double notFinished = collectValueFromAll(processorInfoPtr->processorsCount);
-#ifdef DEBUG_MAIN
-                std::cout << "Collected error = " << notFinished << std::endl;
-#endif
-
-//                if (notFinished < eps)
-//                {
-#ifdef DEBUG_MAIN
-                std::cout << "Finished" << std::endl;
-#endif
-                    sendFlagToAll(processorInfoPtr->processorsCount, TERMINATE);
-                    // receive results
-                    error = sqrt(collectValueFromAll(processorInfoPtr->processorsCount));
-                    break;
-//                }
-            }
-
-            std::cout << processorInfoPtr->rank  << ": Finished! Elapsed time: "
-                      << float(clock() - beginTime) / CLOCKS_PER_SEC << " sec." << std::endl
-                      << "Num iters processed: " << iteration << std::endl
-                      << "Error = " << error << std::endl;
-
+            processorInfoPtr->rowsCountValue = processorInfoPtr->rowsCountValue + leftRowsCount;
         }
-        else
-        {
-            // init processors with their part of data
-            processorInfoPtr->rowsCountValue = (netModelPtr->yPointsCount) / (processorInfoPtr->processorsCount - 1);
-            auto leftRowsCount = netModelPtr->yPointsCount - processorInfoPtr->rowsCountValue  * (processorInfoPtr->processorsCount - 1);
-
-            processorInfoPtr->startRowIndex = (processorInfoPtr->rank - 1) * processorInfoPtr->rowsCountValue;
-            if (leftRowsCount != 0 & processorInfoPtr->IsLastProcessor())
-            {
-                processorInfoPtr->rowsCountValue = processorInfoPtr->rowsCountValue + leftRowsCount;
-            }
 #ifdef DEBUG_MAIN
-            std::cout << "Finished" << std::endl;
-            std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
-                      << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
-                      << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
-                      << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
-                      << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
-                      << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
-                      << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
-            std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
+        std::cout << "Finished" << std::endl;
+        std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
+                  << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
+                  << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
+                  << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
+                  << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
+                  << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
+                  << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
+        std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
-            auto optimizationAlgo = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
-                                                              processorInfoPtr);
-            auto uValuesApproximate = optimizationAlgo->Init();
-            auto uValues = optimizationAlgo->CalculateU();
-//#ifdef DEBUG_MAIN
-//            std::cout << "uValues  = " << std::endl << uValues << std::endl;
-//#endif
-////    processorData->u = CalculateU();
-//#ifdef DEBUG_MAIN
-//            std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
-//#endif
+        auto optimizationAlgo = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
+                                                          processorInfoPtr);
+        auto uValuesApproximate = optimizationAlgo->Init();
+        auto uValues = optimizationAlgo->CalculateU();
+        #ifdef DEBUG_MAIN
+                    std::cout << "uValues  = " << std::endl << uValues << std::endl;
+                    std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
+        #endif
 
 #ifdef DEBUG_MAIN
-            std::cout << "Created ConjugateGradientAlgo." << std::endl;
+        std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-            optimizationAlgo->Process(uValuesApproximate, uValues);
-        }
-//        auto optimizationAlgo = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr);
+        optimizationAlgo->Process(uValuesApproximate, uValues);
 
-//        //    std::cout << netModelPtr->xValue(0) << " " << netModelPtr->yValue(0) << std::endl;
-//        //    std::cout << netModelPtr->xValue(pointsCount) << " " << netModelPtr->yValue(pointsCount) << std::endl;
-
-//        auto uValues = diffEquationPtr->CalculateUValues(netModelPtr);
-
-//        auto begin = omp_get_wtime();
-
-//        optimizationAlgo->Process(uValuesApproximate, uValues);
-
-//        auto time_elapsed = omp_get_wtime() - begin;
-//        std::cout << "Elapsed time is " << time_elapsed << " sec" << std::endl;
+    //        //    std::cout << netModelPtr->xValue(0) << " " << netModelPtr->yValue(0) << std::endl;
+    //        //    std::cout << netModelPtr->xValue(pointsCount) << " " << netModelPtr->yValue(pointsCount) << std::endl;
 
 //        writeValues(groundValuesFilename, uValues);
 //        writeValues(approximateValuesFilename, uValuesApproximate);

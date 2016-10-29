@@ -14,14 +14,6 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, st
     diffModel = modelDiff;
     approximateOperations = approximateOperationsPtr;
     processorData = processorDataPtr;
-//    processorData->p = Init();
-//#ifdef DEBUG_MODE
-//    std::cout << "p  = " << std::endl << processorData->p << std::endl;
-//#endif
-////    processorData->u = CalculateU();
-//#ifdef DEBUG_MODE
-//    std::cout << "u = " << std::endl << processorData->u << std::endl;
-//#endif
 }
 
 DoubleMatrix ConjugateGradientAlgo::CalculateU()
@@ -39,9 +31,9 @@ DoubleMatrix ConjugateGradientAlgo::CalculateU()
         }
     }
 
-#ifdef DEBUG_MODE
-    std::cout << values << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//    std::cout << values << std::endl;
+//#endif
     return values;
 }
 
@@ -120,21 +112,21 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
     while (iteration < 1)
     {
         FlagType flag;
-        receiveFlag(&flag, 0, processorData->rank);        
+//        receiveFlag(&flag, 0, processorData->rank);
 #ifdef DEBUG_MODE
         std::cout << "rank = " << processorData->rank << " iteration = " << iteration << std::endl;
         std::cout << "flag = " << flag << std::endl;
 #endif
-        if (flag == TERMINATE)
-        {
-#ifdef DEBUG_MODE
-            std::cout << "rank = " << processorData->rank << " terminated" << std::endl;
-#endif
-            auto error = CalculateError(uValues, p);
-            sendValue(error, 0, processorData->rank);
-            sendMatrix(processorData->p, 0, processorData->rank);
-            break;
-        }
+//        if (flag == TERMINATE)
+//        {
+//#ifdef DEBUG_MODE
+//            std::cout << "rank = " << processorData->rank << " terminated" << std::endl;
+//#endif
+//            auto error = CalculateError(uValues, p);
+//            sendValue(error, 0, processorData->rank);
+//            sendMatrix(processorData->p, 0, processorData->rank);
+//            break;
+//        }
         error = CalculateError(uValues, p);
 #ifdef DEBUG_MODE
         std::cout << "iteration = " << iteration << ", error = " << error << std::endl;
@@ -187,18 +179,21 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
 #ifdef DEBUG_MODE
     std::cout << "CalculateTauValue" << std::endl;
 #endif
-    auto numerator = approximateOperations->ScalarProduct(residuals, grad);
-    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad);    
+    auto numerator = approximateOperations->ScalarProduct(residuals, grad, processorData);
+    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad, processorData);
     double localTau[2] = {numerator, denominator};
     double globalTau[2] = {0, 0};
 #ifdef DEBUG_MODE
-    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
-              << ", local tau = " << *localTau << ", global = " << *globalTau << std::endl;
+    std::cout << "(before reduce) CalculateTauValue num  = " << numerator << ", " << denominator
+              << ", local tau = " << *localTau  << " " << *(localTau + 1)
+              << ", global = " << *globalTau << " " <<  *(globalTau + 1) << std::endl;
 #endif
     MPI_Allreduce(localTau, globalTau, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #ifdef DEBUG_MODE
-    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator << std::endl;
-    std::cout << ", local tau = " << localTau << ", global = " << globalTau << std::endl;
+    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
+              << ", local tau = " << *localTau  << " " << *(localTau + 1)
+              << ", global = " << *globalTau << " " <<  *(globalTau + 1) << std::endl
+              << "tau = " << globalTau[0] / globalTau[1] << std::endl;
 #endif
     auto tauValue = globalTau[0] / globalTau[1];
     return tauValue;
@@ -209,15 +204,18 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
 #ifdef DEBUG_MODE
     std::cout << "CalculateAlphaValue" << std::endl;
 #endif
-    auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad);
-    auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);        
-    double alpha[2] = {numerator, denominator};
-    MPI_Allreduce(alpha, alpha, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad, processorData);
+    auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad, processorData);
+    double localAlpha[2] = {numerator, denominator};
+    double globalAlpha[2] = {0, 0};
+    MPI_Allreduce(localAlpha, globalAlpha, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #ifdef DEBUG_MODE
-    std::cout << "CalculateAlphaValue num  = " << numerator << ", "
-              << denominator << ", alpha = " << alpha << std::endl;
+    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
+              << ", localAlpha = " << *localAlpha  << " " << *(localAlpha + 1)
+              << ", globalAlpha = " << *globalAlpha << " " <<  *(globalAlpha + 1) << std::endl
+              << "alpha = " << globalAlpha[0] / globalAlpha[1] << std::endl;
 #endif
-    auto alphaValue = alpha[0] / alpha[1];
+    auto alphaValue = globalAlpha[0] / globalAlpha[1];
     return alphaValue;
 }
 
