@@ -74,6 +74,18 @@ public:
         }
     }
 
+    double* PlainArray()
+    {
+        double array[rowsCountValue * colsCountValue];
+        for (auto i = 0; i < rowsCountValue; i++)
+        {
+            for (auto j = 0; j < colsCountValue; j++)
+            {
+                array[i * colsCountValue + j] = matrix[i][j];
+            }
+        }
+        return array;
+    }
 
     // assignment operator
     DoubleMatrix& operator= (const DoubleMatrix& otherMatrix)

@@ -104,31 +104,14 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
     int iteration = 0;
     double error = .0;
-//#ifdef DEBUG_MODE
-//    std::cout << "rank = " << processorData->rank << " starting..." << std::endl;
-//    std::cout << "p = " << p << std::endl;
-//    std::cout << "uValues = " << uValues << std::endl;
-//#endif
-    while (iteration < 1)
+    while (true)
     {
-        FlagType flag;
-//        receiveFlag(&flag, 0, processorData->rank);
 #ifdef DEBUG_MODE
         std::cout << "rank = " << processorData->rank << " iteration = " << iteration << std::endl;
-        std::cout << "flag = " << flag << std::endl;
 #endif
-//        if (flag == TERMINATE)
-//        {
-//#ifdef DEBUG_MODE
-//            std::cout << "rank = " << processorData->rank << " terminated" << std::endl;
-//#endif
-//            auto error = CalculateError(uValues, p);
-//            sendValue(error, 0, processorData->rank);
-//            sendMatrix(processorData->p, 0, processorData->rank);
-//            break;
-//        }
         error = CalculateError(uValues, p);
 #ifdef DEBUG_MODE
+        std::cout << "===================================================================" << std::endl;
         std::cout << "iteration = " << iteration << ", error = " << error << std::endl;
         std::cout << "p = " << p << std::endl;
 #endif
@@ -137,11 +120,24 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 #ifdef DEBUG_MODE
         std::cout << "renewed p = \n" << p << std::endl;
 #endif
+
+        // check stop condition
+        auto stopCondition = iteration != 0 && IsStopCondition(p, previousP);
+        if (stopCondition)
+        {
+            p = p.CropMatrix(p, 1, p.rowsCount() - 2);
+            break;
+        }
+
+        laplassPreviousGrad = laplassGrad;
+
+#ifdef DEBUG_MODE
+        std::cout << "//laplassPreviousGrad = \n" << laplassPreviousGrad << std::endl;
+#endif
+
         auto residuals = CalculateResidual(p);
         RenewBoundRows(residuals);
-#ifdef DEBUG_MODE
-        std::cout << "renewed residuals (before calc) = \n" << residuals << std::endl;
-#endif
+
         auto laplassResiduals = approximateOperations->CalculateLaplass(residuals, processorData);
         RenewBoundRows(laplassResiduals);
 
@@ -154,25 +150,27 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 
         grad = CalculateGradient(residuals, laplassResiduals, grad, laplassPreviousGrad, iteration);
 
-        laplassPreviousGrad = laplassGrad;
         laplassGrad = approximateOperations->CalculateLaplass(grad, processorData);
         RenewBoundRows(laplassGrad);
 
         auto tau = CalculateTauValue(residuals, grad, laplassGrad);
 
 #ifdef DEBUG_MODE
-        std::cout << "grad = " << grad << std::endl;
-        std::cout << "laplassGrad = " << laplassGrad << std::endl;
+        std::cout << "p = \n" << p << std::endl;
+        std::cout << "grad = \n" << grad << std::endl;
+        std::cout << "laplassGrad = \n" << laplassGrad << std::endl;
         std::cout << "tau = " << tau << std::endl;
-        std::cout << "previousP = " << previousP << std::endl;
+        std::cout << "previousP = \n" << previousP << std::endl;
 #endif
 
         previousP = p;
         p = CalculateNewP(p, grad, tau);
 
-        ++iteration;
+        ++iteration;        
     }
+    return;
 }
+
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
 {    
@@ -183,17 +181,12 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
     auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad, processorData);
     double localTau[2] = {numerator, denominator};
     double globalTau[2] = {0, 0};
-#ifdef DEBUG_MODE
-    std::cout << "(before reduce) CalculateTauValue num  = " << numerator << ", " << denominator
-              << ", local tau = " << *localTau  << " " << *(localTau + 1)
-              << ", global = " << *globalTau << " " <<  *(globalTau + 1) << std::endl;
-#endif
     MPI_Allreduce(localTau, globalTau, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #ifdef DEBUG_MODE
     std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
               << ", local tau = " << *localTau  << " " << *(localTau + 1)
-              << ", global = " << *globalTau << " " <<  *(globalTau + 1) << std::endl
-              << "tau = " << globalTau[0] / globalTau[1] << std::endl;
+              << ", global = " << *globalTau << " " <<  *(globalTau + 1) << std::endl;
+//              << "tau = " << globalTau[0] / globalTau[1] << std::endl;
 #endif
     auto tauValue = globalTau[0] / globalTau[1];
     return tauValue;
@@ -210,10 +203,10 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
     double globalAlpha[2] = {0, 0};
     MPI_Allreduce(localAlpha, globalAlpha, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #ifdef DEBUG_MODE
-    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
+    std::cout << "CalculateAlphaValue num  = " << numerator << ", " << denominator
               << ", localAlpha = " << *localAlpha  << " " << *(localAlpha + 1)
-              << ", globalAlpha = " << *globalAlpha << " " <<  *(globalAlpha + 1) << std::endl
-              << "alpha = " << globalAlpha[0] / globalAlpha[1] << std::endl;
+              << ", globalAlpha = " << *globalAlpha << " " <<  *(globalAlpha + 1) << std::endl;
+//              << "alpha = " << globalAlpha[0] / globalAlpha[1] << std::endl;
 #endif
     auto alphaValue = globalAlpha[0] / globalAlpha[1];
     return alphaValue;
@@ -285,6 +278,11 @@ DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residu
 
 DoubleMatrix ConjugateGradientAlgo::CalculateNewP(const DoubleMatrix& p, const DoubleMatrix& grad, double tau)
 {
+
+#ifdef DEBUG_MODE
+        std::cout << "CalculateNewP..." << std::endl;
+#endif
+
     return p - tau * grad;
 }
 
@@ -304,7 +302,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 //    std::cout << "psi = \n" << psi << std::endl;
 //#endif
 
-    auto error = approximateOperations->NormValue(psi);
+    auto error = approximateOperations->MaxNormValue(psi);
 
 #ifdef DEBUG_MODE
     std::cout << "error = \n" << error << std::endl;
@@ -315,12 +313,16 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleMatrix& previousP)
 {
     auto pDiff = p - previousP;
-    auto pDiffNorm = approximateOperations->NormValue(pDiff);
-    std::cout << "pDiffNorm = " << pDiffNorm << std::endl;
+    auto pDiffCropped = pDiff.CropMatrix(pDiff, 1, pDiff.rowsCount() - 2);
+    double pDiffNormLocal, pDiffNormGlobal;
+    pDiffNormLocal = approximateOperations->MaxNormValue(pDiffCropped);
+    MPI_Allreduce(&pDiffNormLocal, &pDiffNormGlobal, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
 #ifdef DEBUG_MODE
-    auto stop = pDiffNorm < eps;
+    std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;
+
+    auto stop = pDiffNormGlobal < eps;
     std::cout << "CheckStopCondition = " << stop << std::endl;
 #endif
-    return pDiffNorm < eps;
+    return pDiffNormGlobal < eps;
 }

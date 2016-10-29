@@ -71,7 +71,7 @@ public:
 //    }
 
 
-    double NormValue(const DoubleMatrix& currentValues)
+    double MaxNormValue(const DoubleMatrix& currentValues)
     {
         return fabs(*std::max_element(&(currentValues.matrix[0][0]),
                 &(currentValues.matrix[0][0]) + currentValues.rowsCount() * currentValues.colsCount()));

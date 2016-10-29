@@ -40,6 +40,32 @@ void writeValues(char* filename, const DoubleMatrix& values)
 
 
 
+void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > globalValues)
+{
+    std::ofstream outputFile(filename);
+    if (!outputFile.is_open())
+    {
+        std::cerr << "Incorrect output file " << filename;
+        exit(1);
+    }
+
+    for (auto k = 0; k < globalValues.size(); ++k)
+    {
+        for (auto i = 0; i < globalValues[k]->rowsCount(); ++i)
+        {
+            for (auto j = 0; j < globalValues[k]->colsCount(); ++j)
+            {
+                outputFile << globalValues[k]->matrix[i][j] << " ";
+            }
+            outputFile << "\n";
+        }
+    }
+
+    outputFile.close();
+}
+
+
+
 int main(int argc, char *argv[])
 {    
     if (argc < 4)
@@ -109,9 +135,48 @@ int main(int argc, char *argv[])
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
         optimizationAlgo->Process(uValuesApproximate, uValues);
+#ifdef DEBUG_MAIN
+        std::cout << "Process finished." << std::endl;
+#endif
+        if (processorInfoPtr->IsMainProcessor())
+        {
+            std::vector<std::shared_ptr<DoubleMatrix>> globalUValues;
+            globalUValues.push_back(std::make_shared<DoubleMatrix>(uValuesApproximate));
+#ifdef DEBUG_MAIN
+            std::cout << "Gathering results." << std::endl;
+#endif
+            for (int i = 1; i < processorInfoPtr->processorsCount; ++i)
+            {
+                auto tmp = receiveMatrix(i, i);
+#ifdef DEBUG_MAIN
+            std::cout << "receiveMatrix, i = "<< i << " tmp = " << tmp << "\n " << tmp->colsCount() << std::endl;
+#endif
+                globalUValues.push_back(tmp);
+            }
+#ifdef DEBUG_MAIN
+            std::cout << "Gathering results finished, globalUValuesCount = "<< globalUValues.size() << std::endl;
+#endif
+            writeValues(groundValuesFilename, globalUValues);
+#ifdef DEBUG_MAIN
+            std::cout << "writeValues finished." << std::endl;
+#endif
+        }
+        else
+        {
+            sendMatrix(uValuesApproximate, processorInfoPtr->mainProcessorRank, processorInfoPtr->rank);
+        }
 
-    //        //    std::cout << netModelPtr->xValue(0) << " " << netModelPtr->yValue(0) << std::endl;
-    //        //    std::cout << netModelPtr->xValue(pointsCount) << " " << netModelPtr->yValue(pointsCount) << std::endl;
+//        auto plainU = uValues.PlainArray();
+//        double globalUValues[netModelPtr->xPointsCount * netModelPtr->YPointsCount];
+//        MPI_Gatherv(plainU, uValues.colsCount() * uValues.rowsCount(), MPI_DOUBLE,
+//                    globalUValues, rcounts, displs, MPI_INT,
+//                                                                       root, comm);
+
+//        if (processorInfoPtr->IsMainProcessor())
+//        {
+//            // gather matrices together
+
+//        }
 
 //        writeValues(groundValuesFilename, uValues);
 //        writeValues(approximateValuesFilename, uValuesApproximate);
