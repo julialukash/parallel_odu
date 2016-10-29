@@ -3,7 +3,7 @@
 #include "ConjugateGradientAlgo.h"
 
 #include "MPIOperations.h"
-//#define DEBUG_MODE = 1
+#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                   std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
@@ -15,15 +15,15 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, st
     processorData = processorDataPtr;
 }
 
-DoubleMatrix ConjugateGradientAlgo::CalculateU()
+DoubleMatrix* ConjugateGradientAlgo::CalculateU()
 {
-    auto values = DoubleMatrix(processorData->RowsCount(), netModel->yPointsCount);
-    for (auto i = 0; i < values.rowsCount(); ++i)
+    auto values = new DoubleMatrix(processorData->RowsCount(), netModel->yPointsCount);
+    for (auto i = 0; i < values->rowsCount(); ++i)
     {
         auto iNetIndex = i + processorData->FirstRowIndex();
-        for (auto j = 0; j < values.colsCount(); ++j)
+        for (auto j = 0; j < values->colsCount(); ++j)
         {
-            values(i, j) = diffModel->CalculateUValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+            (*values)(i, j) = diffModel->CalculateUValue(netModel->xValue(iNetIndex), netModel->yValue(j));
 //#ifdef DEBUG_MODE
 //            std::cout << "i = " << i << ", j = " << j << ", iNetIndex = " << iNetIndex  << ", v = " << values(i, j) << std::endl;
 //#endif
@@ -77,9 +77,8 @@ double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValu
     while (true)
     {
 #ifdef DEBUG_MODE
+        std::cout << "u vals = \n" << uValues << std::endl;
         std::cout << "rank = " << processorData->rank << " iteration = " << iteration << std::endl;
-#endif
-#ifdef DEBUG_MODE
         std::cout << "===================================================================" << std::endl;
         std::cout << "iteration = " << iteration << ", error = " << error << std::endl;
         std::cout << "p = " << p << std::endl;
@@ -138,6 +137,10 @@ double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValu
 
         ++iteration;        
     }
+
+#ifdef DEBUG_MODE
+        std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
+#endif
     return error;
 }
 
@@ -246,6 +249,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 
     auto pCropped = p.CropMatrix(1, p.rowsCount() - 2);
 #ifdef DEBUG_MODE
+    std::cout << "uValues = \n" << uValues << std::endl;
     std::cout << "pCropped = \n" << pCropped << std::endl;
 #endif
     auto psi = uValues - pCropped;

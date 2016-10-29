@@ -30,7 +30,7 @@ public:
                           std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
                           std::shared_ptr<ProcessorsData> processorDataPtr);
     DoubleMatrix Init();    
-    DoubleMatrix CalculateU();
+    DoubleMatrix* CalculateU();
     double Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
     void RenewBoundRows(DoubleMatrix &values);
 };

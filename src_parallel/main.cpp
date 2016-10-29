@@ -15,7 +15,7 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 const double eps = 1e-4;
 
-//#define DEBUG_MAIN
+#define DEBUG_MAIN
 
 void writeValues(char* filename, const DoubleMatrix& values)
 {
@@ -139,14 +139,14 @@ int main(int argc, char *argv[])
         auto uValuesApproximate = optimizationAlgoPtr->Init();
         auto uValues = optimizationAlgoPtr->CalculateU();
 #ifdef DEBUG_MAIN
-        std::cout << "uValues  = " << std::endl << uValues << std::endl;
+        std::cout << "uValues  = " << std::endl << *uValues << std::endl;
         std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
 #endif
 
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        double localError = optimizationAlgoPtr->Process(uValuesApproximate, uValues);
+        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
