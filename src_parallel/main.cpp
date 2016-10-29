@@ -38,8 +38,6 @@ void writeValues(char* filename, const DoubleMatrix& values)
     outputFile.close();
 }
 
-
-
 void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > globalValues)
 {
     std::ofstream outputFile(filename);
@@ -64,7 +62,6 @@ void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > glo
     outputFile.close();
 }
 
-
 std::tuple<int, int> GetProcessorParameters(int pointsCount, int rank, int processorsCount)
 {
     int rowsCount, firstRowIndex;
@@ -82,9 +79,6 @@ std::tuple<int, int> GetProcessorParameters(int pointsCount, int rank, int proce
     std::cout << "left rows " << leftRowsCount << ", rc = " << rowsCount << ", fri = " << firstRowIndex << std::endl;
     return std::make_tuple(rowsCount, firstRowIndex);
 }
-
-
-
 
 int main(int argc, char *argv[])
 {    
@@ -113,23 +107,16 @@ int main(int argc, char *argv[])
         auto diffEquationPtr = std::make_shared<DifferentialEquationModel>();
         auto approximateOperationsPtr = std::make_shared<ApproximateOperations>(netModelPtr);
 
+#ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
         auto fileName = "out/out_rank" + std::to_string(processorInfoPtr->rank)  + ".txt";
         std::ofstream out(fileName);
-        std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-
+        std::cout.rdbuf(out.rdbuf());
+#endif
         // init processors with their part of data
         auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
         processorInfoPtr->rowsCountValue = std::get<0>(processorParameters);
         processorInfoPtr->startRowIndex = std::get<1>(processorParameters);
-//        processorInfoPtr->rowsCountValue = (netModelPtr->yPointsCount) / (processorInfoPtr->processorsCount);
-//        auto leftRowsCount = netModelPtr->yPointsCount - processorInfoPtr->rowsCountValue  * (processorInfoPtr->processorsCount);
-
-//        processorInfoPtr->startRowIndex = (processorInfoPtr->rank) * processorInfoPtr->rowsCountValue;
-//        if (leftRowsCount != 0 & processorInfoPtr->IsLastProcessor())
-//        {
-//            processorInfoPtr->rowsCountValue = processorInfoPtr->rowsCountValue + leftRowsCount;
-//        }
 #ifdef DEBUG_MAIN
         std::cout << "Finished" << std::endl;
         std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
@@ -145,17 +132,17 @@ int main(int argc, char *argv[])
                                                           processorInfoPtr);
         auto uValuesApproximate = optimizationAlgo->Init();
         auto uValues = optimizationAlgo->CalculateU();
-        #ifdef DEBUG_MAIN
-                    std::cout << "uValues  = " << std::endl << uValues << std::endl;
-                    std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
-        #endif
+#ifdef DEBUG_MAIN
+        std::cout << "uValues  = " << std::endl << uValues << std::endl;
+        std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
+#endif
 
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
         double localError, globalError;
         localError = optimizationAlgo->Process(uValuesApproximate, uValues);
-        MPI_Allreduce(&localError, &globalError, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+        globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
         std::cout << "Process finished, error = " << localError << ", global = "
@@ -196,21 +183,48 @@ int main(int argc, char *argv[])
 //            sendMatrix(uValues, processorInfoPtr->mainProcessorRank, GROUND_MATRIX);
         }
 
-//        auto plainU = uValues.PlainArray();
-//        double globalUValues[netModelPtr->xPointsCount * netModelPtr->YPointsCount];
-//        MPI_Gatherv(plainU, uValues.colsCount() * uValues.rowsCount(), MPI_DOUBLE,
-//                    globalUValues, rcounts, displs, MPI_INT,
-//                    root, comm);
+//        double *globalUValues;
+//        if (processorInfoPtr->IsMainProcessor())
+//        {
+
+//            globalUValues[netModelPtr->xPointsCount * netModelPtr->yPointsCount];/*
+//            std::cout << "2*plainU = " << plainU[0] << std::endl;*/
+//        }
+//        int recvcounts[processorInfoPtr->processorsCount], displs[processorInfoPtr->processorsCount];
+//        for (auto i = 0; i < processorInfoPtr->processorsCount; ++i)
+//        {
+//            auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, i, processorInfoPtr->processorsCount);
+//            recvcounts[i] = std::get<0>(processorParameters);
+//            displs[i] = std::get<1>(processorParameters);
+//        }
+
+//        auto plainU = uValuesApproximate.PlainArray();
+//        std::cout << "*plainU = " << plainU[0] << std::endl;
+//        std::cout << "**plainU = " << plainU[0] << std::endl;
+//#ifdef DEBUG_MAIN
+//        std::cout << "recvcounts = \n" << recvcounts[0] << ", \ndispls = \n" << displs[0] << std::endl;
+//        std::cout << "plainU = " << plainU[0] << std::endl;
+//#endif
+
+//        MPI_Gatherv(plainU, uValuesApproximate.colsCount() * uValuesApproximate.rowsCount(), MPI_DOUBLE,
+//                    globalUValues, recvcounts, displs, MPI_DOUBLE, processorInfoPtr->mainProcessorRank, MPI_COMM_WORLD);
+
+//        std::cout << "3plainU = " << plainU[0] << std::endl;
 
 //        if (processorInfoPtr->IsMainProcessor())
 //        {
-//            // gather matrices together
+//            std::cout << "4plainU = " << plainU[0] << std::endl;
 
+//            auto tmp = DoubleMatrix(globalUValues, netModelPtr->yPointsCount, netModelPtr->xPointsCount);
+//#ifdef DEBUG_MAIN
+//            std::cout << "tmp = \n" << tmp << std::endl;
+//#endif
+//            writeValues(approximateValuesFilename, tmp);
 //        }
-
-//        writeValues(groundValuesFilename, uValues);
+#ifdef DEBUG_MAIN
         std::cout.rdbuf(coutbuf); //reset to standard output again
         out.close();
+#endif
     }
     catch (const std::exception& e)
     {

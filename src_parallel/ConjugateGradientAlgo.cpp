@@ -1,5 +1,4 @@
 #include <iostream>
-#include <mpi.h>
 
 #include "ConjugateGradientAlgo.h"
 
@@ -30,10 +29,6 @@ DoubleMatrix ConjugateGradientAlgo::CalculateU()
 //#endif
         }
     }
-
-//#ifdef DEBUG_MODE
-//    std::cout << values << std::endl;
-//#endif
     return values;
 }
 
@@ -62,42 +57,13 @@ DoubleMatrix ConjugateGradientAlgo::Init()
             }
         }
     }
-//#ifdef DEBUG_MODE
-//    std::cout << values << std::endl;
-//#endif
     return values;
 }
 
-
 void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
 {
-//#ifdef DEBUG_MODE
-//    std::cout << "RenewBoundRows \n" << values << std::endl;
-//#endif
-    MPI_Status status;
-    int nextProcessorRank = processorData->IsLastProcessor() ? MPI_PROC_NULL : processorData->rank + 1;
-    int previousProcessorRank = processorData->IsFirstProcessor() ? MPI_PROC_NULL : processorData->rank - 1;
-
-//#ifdef DEBUG_MODE
-//    std::cout << "nextProcessorRank = " << nextProcessorRank << ", previousProcessorRank = " << previousProcessorRank << std::endl;
-//#endif
-
-    // send to next processor last "no border" line
-    // receive from prev processor first "border" line
-    MPI_Sendrecv(&(values.matrix[processorData->RowsCountWithBorders() - 2][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
-                 &(values.matrix[0][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, UP,
-                 MPI_COMM_WORLD, &status);
-    // send to prev processor first "no border" line
-    // receive from next processor last "border" line
-    MPI_Sendrecv(&(values.matrix[1][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
-                 &(values.matrix[processorData->RowsCountWithBorders() - 1][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
-                 MPI_COMM_WORLD, &status);
-
-//#ifdef DEBUG_MODE
-//    std::cout << "Finished RenewBoundRows \n" << values << std::endl;
-//#endif
+    RenewMatrixBoundRows(values, processorData, netModel);
 }
-
 
 double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
 {
@@ -121,7 +87,6 @@ double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValu
 #ifdef DEBUG_MODE
         std::cout << "renewed p = \n" << p << std::endl;
 #endif
-
         // check stop condition
         auto stopCondition = iteration != 0 && IsStopCondition(p, previousP);
         if (stopCondition)
@@ -180,16 +145,7 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
 #endif
     auto numerator = approximateOperations->ScalarProduct(residuals, grad, processorData);
     auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad, processorData);
-    double localTau[2] = {numerator, denominator};
-    double globalTau[2] = {0, 0};
-    MPI_Allreduce(localTau, globalTau, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#ifdef DEBUG_MODE
-    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
-              << ", local tau = " << *localTau  << " " << *(localTau + 1)
-              << ", global = " << *globalTau << " " <<  *(globalTau + 1) << std::endl;
-//              << "tau = " << globalTau[0] / globalTau[1] << std::endl;
-#endif
-    auto tauValue = globalTau[0] / globalTau[1];
+    auto tauValue = getFractionValueFromAllProcessors(numerator, denominator);
     return tauValue;
 }
 
@@ -200,16 +156,7 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
 #endif
     auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad, processorData);
     auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad, processorData);
-    double localAlpha[2] = {numerator, denominator};
-    double globalAlpha[2] = {0, 0};
-    MPI_Allreduce(localAlpha, globalAlpha, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#ifdef DEBUG_MODE
-    std::cout << "CalculateAlphaValue num  = " << numerator << ", " << denominator
-              << ", localAlpha = " << *localAlpha  << " " << *(localAlpha + 1)
-              << ", globalAlpha = " << *globalAlpha << " " <<  *(globalAlpha + 1) << std::endl;
-//              << "alpha = " << globalAlpha[0] / globalAlpha[1] << std::endl;
-#endif
-    auto alphaValue = globalAlpha[0] / globalAlpha[1];
+    auto alphaValue = getFractionValueFromAllProcessors(numerator, denominator);
     return alphaValue;
 }
 
@@ -230,7 +177,6 @@ DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
         auto iNetIndex = i - startIndex + processorData->FirstRowIndex();
         for (auto j = 0; j < residuals.colsCount(); ++j)
         {
-
             if (netModel->IsInnerPoint(iNetIndex, j))
             {
                 residuals(i, j) = 0;
@@ -317,7 +263,7 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
     auto pDiffCropped = pDiff.CropMatrix(pDiff, 1, pDiff.rowsCount() - 2);
     double pDiffNormLocal, pDiffNormGlobal;
     pDiffNormLocal = approximateOperations->MaxNormValue(pDiffCropped);
-    MPI_Allreduce(&pDiffNormLocal, &pDiffNormGlobal, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    pDiffNormGlobal = getMaxValueFromAllProcessors(pDiffNormLocal);
 
 #ifdef DEBUG_MODE
     std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;

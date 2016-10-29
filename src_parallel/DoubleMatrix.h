@@ -36,6 +36,23 @@ public:
       }
     }
 
+    DoubleMatrix(double* values, const int rowCount, const int colCount)
+    {
+      matrix = NULL;
+      rowsCountValue = rowCount;
+      colsCountValue = colCount;
+
+      matrix = new double*[rowsCountValue];
+      for (auto i = 0; i < rowsCountValue; i++)
+      {
+          matrix[i] = new double[colsCountValue];
+          for (auto j = 0; j < colsCountValue; j++)
+          {
+              matrix[i][j] = values[i * rowsCountValue + j];
+          }
+      }
+    }
+
     DoubleMatrix(const DoubleMatrix& otherMatrix)
     {
         rowsCountValue = otherMatrix.rowsCountValue;
@@ -84,6 +101,7 @@ public:
                 array[i * colsCountValue + j] = matrix[i][j];
             }
         }
+        std::cout <<"plain = " << array[0] << std::endl;
         return array;
     }
 

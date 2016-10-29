@@ -34,3 +34,52 @@ std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag)
     return values;
 }
 
+double getMaxValueFromAllProcessors(double localValue)
+{
+    double globalValue;
+    MPI_Allreduce(&localValue, &globalValue, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    return globalValue;
+}
+
+double getFractionValueFromAllProcessors(double numerator, double denominator)
+{
+    double localValue[2] = {numerator, denominator};
+    double globalValue[2] = {0, 0};
+    MPI_Allreduce(localValue, globalValue, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#ifdef DEBUG_MODE
+    std::cout << "getFractionValueFromAllProcessors num  = " << numerator << ", " << denominator
+              << ", local = " << *localValue  << " " << *(localValue + 1)
+              << ", global = " << *globalValue << " " <<  *(globalValue + 1) << std::endl;
+//              << "tau = " << globalValue[0] / globalValue[1] << std::endl;
+#endif
+    return globalValue[0] / globalValue[1];
+}
+
+void RenewMatrixBoundRows(DoubleMatrix& values, std::shared_ptr<ProcessorsData> processorData, std::shared_ptr<NetModel> netModel)
+{
+#ifdef DEBUG_MODE
+    std::cout << "RenewBoundRows \n" << values << std::endl;
+#endif
+    MPI_Status status;
+    int nextProcessorRank = processorData->IsLastProcessor() ? MPI_PROC_NULL : processorData->rank + 1;
+    int previousProcessorRank = processorData->IsFirstProcessor() ? MPI_PROC_NULL : processorData->rank - 1;
+
+#ifdef DEBUG_MODE
+    std::cout << "nextProcessorRank = " << nextProcessorRank << ", previousProcessorRank = " << previousProcessorRank << std::endl;
+#endif
+
+    // send to next processor last "no border" line
+    // receive from prev processor first "border" line
+    MPI_Sendrecv(&(values.matrix[processorData->RowsCountWithBorders() - 2][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
+                 &(values.matrix[0][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, UP,
+                 MPI_COMM_WORLD, &status);
+    // send to prev processor first "no border" line
+    // receive from next processor last "border" line
+    MPI_Sendrecv(&(values.matrix[1][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
+                 &(values.matrix[processorData->RowsCountWithBorders() - 1][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
+                 MPI_COMM_WORLD, &status);
+
+//#ifdef DEBUG_MODE
+//    std::cout << "Finished RenewBoundRows \n" << values << std::endl;
+//#endif
+}

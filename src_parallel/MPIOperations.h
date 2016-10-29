@@ -3,6 +3,7 @@
 #define MPIOPERATIONS_H
 
 #include "Interface.h"
+#include "ProcessorsData.h"
 
 enum MessageTag
 {
@@ -22,18 +23,9 @@ enum FlagType
 void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag);
 std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag);
 
-void sendVector(const double* values, int size, int receiverRank, int tag);
-void receiveVector(double* values, int senderRank, int tag);
+double getMaxValueFromAllProcessors(double localValue);
+double getFractionValueFromAllProcessors(double numerator, double denominator);
 
-void sendValue(double value, int receiverRank, int tag);
-void receiveValue(double* value, int senderRank, int tag);
-
-void sendFlag(FlagType flag, int receiverRank, int tag);
-void receiveFlag(FlagType* flag, int senderRank, int tag);
-
-double collectValueFromAll(int processorsCount);
-void sendValueToAll(int processorsCount, double value);
-void sendFlagToAll(int processorsCount, FlagType flag);
-
+void RenewMatrixBoundRows(DoubleMatrix& values, std::shared_ptr<ProcessorsData> processorData, std::shared_ptr<NetModel> netModel);
 
 #endif // MPIOPERATIONS_H
