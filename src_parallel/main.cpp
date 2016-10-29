@@ -140,30 +140,37 @@ int main(int argc, char *argv[])
 #endif
         if (processorInfoPtr->IsMainProcessor())
         {
-            std::vector<std::shared_ptr<DoubleMatrix>> globalUValues;
-            globalUValues.push_back(std::make_shared<DoubleMatrix>(uValuesApproximate));
+            std::vector<std::shared_ptr<DoubleMatrix>> globalUValues, globalUValuesApproximate;
+            globalUValues.push_back(std::make_shared<DoubleMatrix>(uValues));
+            globalUValuesApproximate.push_back(std::make_shared<DoubleMatrix>(uValuesApproximate));
 #ifdef DEBUG_MAIN
-            std::cout << "Gathering results." << std::endl;
+            std::cout << "Gathering results..." << std::endl;
 #endif
             for (int i = 1; i < processorInfoPtr->processorsCount; ++i)
             {
-                auto tmp = receiveMatrix(i, i);
-#ifdef DEBUG_MAIN
-            std::cout << "receiveMatrix, i = "<< i << " tmp = " << tmp << "\n " << tmp->colsCount() << std::endl;
-#endif
-                globalUValues.push_back(tmp);
+                auto localUValuesApproximate = receiveMatrix(i, APPROXIMATE_MATRIX);
+                auto localUValues = receiveMatrix(i, GROUND_MATRIX);
+//#ifdef DEBUG_MAIN
+//            std::cout << "receiveMatrix, i = "<< i << " tmp = " << localUValuesApproximate << "\n "
+//                      << localUValuesApproximate->colsCount() << " " << localUValuesApproximate->rowsCount()
+//                      << "\n" << localUValuesApproximate->matrix << std::endl;
+//#endif
+                globalUValues.push_back(localUValues);
+                globalUValuesApproximate.push_back(localUValuesApproximate);
             }
 #ifdef DEBUG_MAIN
-            std::cout << "Gathering results finished, globalUValuesCount = "<< globalUValues.size() << std::endl;
+            std::cout << "Gathering results finished, globalUValuesCount = "<< globalUValuesApproximate.size() << std::endl;
 #endif
             writeValues(groundValuesFilename, globalUValues);
+            writeValues(approximateValuesFilename, globalUValuesApproximate);
 #ifdef DEBUG_MAIN
             std::cout << "writeValues finished." << std::endl;
 #endif
         }
         else
         {
-            sendMatrix(uValuesApproximate, processorInfoPtr->mainProcessorRank, processorInfoPtr->rank);
+            sendMatrix(uValuesApproximate, processorInfoPtr->mainProcessorRank, APPROXIMATE_MATRIX);
+            sendMatrix(uValues, processorInfoPtr->mainProcessorRank, GROUND_MATRIX);
         }
 
 //        auto plainU = uValues.PlainArray();
@@ -179,7 +186,6 @@ int main(int argc, char *argv[])
 //        }
 
 //        writeValues(groundValuesFilename, uValues);
-//        writeValues(approximateValuesFilename, uValuesApproximate);
         std::cout.rdbuf(coutbuf); //reset to standard output again
         out.close();
     }

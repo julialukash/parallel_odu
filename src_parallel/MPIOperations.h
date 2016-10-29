@@ -7,7 +7,9 @@
 enum MessageTag
 {
     UP,
-    DOWN
+    DOWN,
+    APPROXIMATE_MATRIX = 77,
+    GROUND_MATRIX = 78
 };
 
 
