@@ -134,10 +134,10 @@ int main(int argc, char *argv[])
                   << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
-        auto optimizationAlgo = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
+        auto optimizationAlgoPtr = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
                                                           processorInfoPtr);
-        auto uValuesApproximate = optimizationAlgo->Init();
-        auto uValues = optimizationAlgo->CalculateU();
+        auto uValuesApproximate = optimizationAlgoPtr->Init();
+        auto uValues = optimizationAlgoPtr->CalculateU();
 #ifdef DEBUG_MAIN
         std::cout << "uValues  = " << std::endl << uValues << std::endl;
         std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        double localError = optimizationAlgo->Process(uValuesApproximate, uValues);
+        double localError = optimizationAlgoPtr->Process(uValuesApproximate, uValues);
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN

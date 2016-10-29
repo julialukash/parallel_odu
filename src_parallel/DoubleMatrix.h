@@ -18,6 +18,10 @@ public:
         colsCountValue = 0;
     }
 
+    ~DoubleMatrix()
+    {
+        delete[] matrix;
+    }
 
     DoubleMatrix(const int rowCount, const int colCount)
     {
