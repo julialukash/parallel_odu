@@ -25,10 +25,14 @@ DoubleMatrix ConjugateGradientAlgo::CalculateU()
         {
             values(i, j) = diffModel->CalculateUValue(netModel->xValue(iNetIndex), netModel->yValue(j));
 //#ifdef DEBUG_MODE
-//            std::cout << "i = " << i << ", j = " << j << ", iNetIndex = " << iNetIndex << std::endl;
+//            std::cout << "i = " << i << ", j = " << j << ", iNetIndex = " << iNetIndex  << ", v = " << values(i, j) << std::endl;
 //#endif
         }
     }
+//#ifdef DEBUG_MODE
+//    std::cout << "values = \n" << values(0, 6) <<" " << values(0, 5) << std::endl;
+//    std::cout << "values = \n" << values << std::endl;
+//#endif
     return values;
 }
 
@@ -91,7 +95,7 @@ double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValu
         auto stopCondition = iteration != 0 && IsStopCondition(p, previousP);
         if (stopCondition)
         {
-            p = p.CropMatrix(p, 1, p.rowsCount() - 2);
+            p = p.CropMatrix(1, p.rowsCount() - 2);
             break;
         }
 
@@ -237,12 +241,13 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 {
 #ifdef DEBUG_MODE
     std::cout << "CalculateError..." << std::endl;
+    std::cout << "p = \n" << p << std::endl;
 #endif
 
-    auto pCropped = p.CropMatrix(p, 1, p.rowsCount() - 2);
-//#ifdef DEBUG_MODE
-//    std::cout << "pCropped = \n" << pCropped << std::endl;
-//#endif
+    auto pCropped = p.CropMatrix(1, p.rowsCount() - 2);
+#ifdef DEBUG_MODE
+    std::cout << "pCropped = \n" << pCropped << std::endl;
+#endif
     auto psi = uValues - pCropped;
 
 //#ifdef DEBUG_MODE
@@ -260,7 +265,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleMatrix& previousP)
 {
     auto pDiff = p - previousP;
-    auto pDiffCropped = pDiff.CropMatrix(pDiff, 1, pDiff.rowsCount() - 2);
+    auto pDiffCropped = pDiff.CropMatrix(1, pDiff.rowsCount() - 2);
     double pDiffNormLocal, pDiffNormGlobal;
     pDiffNormLocal = approximateOperations->MaxNormValue(pDiffCropped);
     pDiffNormGlobal = getMaxValueFromAllProcessors(pDiffNormLocal);

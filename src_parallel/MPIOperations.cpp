@@ -9,7 +9,7 @@ void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
     MPI_Send(&colsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
     for (int i = 0; i < rowsCount; ++i)
     {
-        MPI_Send(&(values.matrix[i][0]), colsCount, MPI_DOUBLE, receiverRank, tag, MPI_COMM_WORLD);
+        MPI_Send(&(values[i]), colsCount, MPI_DOUBLE, receiverRank, tag, MPI_COMM_WORLD);
     }
 }
 
@@ -26,7 +26,7 @@ std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag)
     auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
     for (int i = 0; i < rowsCount; ++i)
     {
-        MPI_Recv(&(values->matrix[i][0]), colsCount, MPI_DOUBLE, senderRank, tag, MPI_COMM_WORLD, &status);
+        MPI_Recv(&(values->matrix[i]), colsCount, MPI_DOUBLE, senderRank, tag, MPI_COMM_WORLD, &status);
     }/*
     std::cout << "senderRank " << senderRank << " " << rowsCount << ", " << colsCount
               << "values = \n" << values->matrix << std::endl;*/
@@ -70,13 +70,13 @@ void RenewMatrixBoundRows(DoubleMatrix& values, std::shared_ptr<ProcessorsData> 
 
     // send to next processor last "no border" line
     // receive from prev processor first "border" line
-    MPI_Sendrecv(&(values.matrix[processorData->RowsCountWithBorders() - 2][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
-                 &(values.matrix[0][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, UP,
+    MPI_Sendrecv(&(values[processorData->RowsCountWithBorders() - 2]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
+                 &(values[0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, UP,
                  MPI_COMM_WORLD, &status);
     // send to prev processor first "no border" line
     // receive from next processor last "border" line
-    MPI_Sendrecv(&(values.matrix[1][0]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
-                 &(values.matrix[processorData->RowsCountWithBorders() - 1][0]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
+    MPI_Sendrecv(&(values[1]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
+                 &(values[processorData->RowsCountWithBorders() - 1]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
                  MPI_COMM_WORLD, &status);
 
 //#ifdef DEBUG_MODE

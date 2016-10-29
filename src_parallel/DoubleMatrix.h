@@ -9,7 +9,7 @@ class DoubleMatrix
 private:
     int rowsCountValue, colsCountValue;
 public:
-    double **matrix;
+    double *matrix;
 
     DoubleMatrix()
     {
@@ -25,30 +25,12 @@ public:
       rowsCountValue = rowCount;
       colsCountValue = colCount;
 
-      matrix = new double*[rowsCountValue];
+      matrix = new double[rowsCountValue * colsCountValue];
       for (auto i = 0; i < rowsCountValue; i++)
       {
-          matrix[i] = new double[colsCountValue];
           for (auto j = 0; j < colsCountValue; j++)
           {
-              matrix[i][j] = 0;
-          }
-      }
-    }
-
-    DoubleMatrix(double* values, const int rowCount, const int colCount)
-    {
-      matrix = NULL;
-      rowsCountValue = rowCount;
-      colsCountValue = colCount;
-
-      matrix = new double*[rowsCountValue];
-      for (auto i = 0; i < rowsCountValue; i++)
-      {
-          matrix[i] = new double[colsCountValue];
-          for (auto j = 0; j < colsCountValue; j++)
-          {
-              matrix[i][j] = values[i * rowsCountValue + j];
+              matrix[i * rowsCountValue + j] = 0;
           }
       }
     }
@@ -57,33 +39,36 @@ public:
     {
         rowsCountValue = otherMatrix.rowsCountValue;
         colsCountValue = otherMatrix.colsCountValue;
-        matrix = new double*[otherMatrix.rowsCountValue];
+        matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
         for (auto i = 0; i < rowsCountValue; i++)
         {
-            matrix[i] = new double[colsCountValue];
             for (auto j = 0; j < colsCountValue; j++)
             {
-                matrix[i][j] = otherMatrix.matrix[i][j];
+                operator() (i, j) = otherMatrix(i, j);
             }
         }
      }
 
-    const double* getRow(const int i) const
-    {
-        return matrix[i];
-    }
 
-
-    double* getRowNotConst(const int i)
+    DoubleMatrix(double* otherMatrix, int rowsCount, int colsCount)
     {
-        return matrix[i];
-    }
+        rowsCountValue = rowsCount;
+        colsCountValue = colsCount;
+        matrix = new double[rowsCount * colsCount];
+        for (auto i = 0; i < rowsCountValue; i++)
+        {
+            for (auto j = 0; j < colsCountValue; j++)
+            {
+                operator() (i, j) = otherMatrix[i * colsCount + j];
+            }
+        }
+     }
 
     double& operator()(const int i, const int j) const
     {
         if (matrix != NULL && i >= 0 && i < rowsCountValue && j >= 0 && j < colsCountValue)
         {
-          return matrix[i][j];
+          return matrix[i * colsCountValue + j];
         }
         else
         {
@@ -91,32 +76,30 @@ public:
         }
     }
 
-    double* PlainArray()
+    double& operator[](const int i) const
     {
-        double array[rowsCountValue * colsCountValue];
-        for (auto i = 0; i < rowsCountValue; i++)
+        if (matrix != NULL && i >= 0 && i < rowsCountValue)
         {
-            for (auto j = 0; j < colsCountValue; j++)
-            {
-                array[i * colsCountValue + j] = matrix[i][j];
-            }
+          return matrix[i * colsCountValue];
         }
-        std::cout <<"plain = " << array[0] << std::endl;
-        return array;
+        else
+        {
+          throw "Subscript out of range";
+        }
     }
+
 
     // assignment operator
     DoubleMatrix& operator= (const DoubleMatrix& otherMatrix)
     {
         rowsCountValue = otherMatrix.rowsCountValue;
         colsCountValue = otherMatrix.colsCountValue;
-        matrix = new double*[otherMatrix.rowsCountValue];
+        matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
         for (auto i = 0; i < rowsCountValue; i++)
         {
-            matrix[i] = new double[colsCountValue];
             for (auto j = 0; j < colsCountValue; j++)
             {
-                matrix[i][j] = otherMatrix.matrix[i][j];
+                operator() (i, j) = otherMatrix(i, j);
             }
         }
         return *this;
@@ -132,7 +115,7 @@ public:
             {
                 for (auto j = 0; j < a.colsCountValue; j++)
                 {
-                    res.matrix[i][j] = a.matrix[i][j] + b.matrix[i][j];
+                    res(i, j) = a(i, j) + b(i, j);
                 }
             }
             return res;
@@ -153,7 +136,7 @@ public:
             {
                 for (auto j = 0; j < a.colsCountValue; j++)
                 {
-                    res.matrix[i][j] = a.matrix[i][j] - b.matrix[i][j];
+                    res(i, j) = a(i, j) - b(i, j);
                 }
             }
             return res;
@@ -170,7 +153,7 @@ public:
         {
             for (auto j = 0; j < colsCountValue; j++)
             {
-                matrix[i][j] *= value;
+                operator()(i, j) *= value;
             }
         }
         return *this;
@@ -200,15 +183,15 @@ public:
         return colsCountValue;
     }
 
-    DoubleMatrix CropMatrix(const DoubleMatrix& a, int startRow, int rowsCount) const
+    DoubleMatrix CropMatrix(int startRow, int rowsCount) const
     {
-        DoubleMatrix res(rowsCount, a.colsCountValue);
+        DoubleMatrix res(rowsCount, colsCountValue);
         for (auto i = startRow; i < startRow + rowsCount; i++)
         {
             auto iIndex = i - startRow;
-            for (auto j = 0; j < a.colsCountValue; j++)
+            for (auto j = 0; j < colsCountValue; j++)
             {
-                res.matrix[iIndex][j] = a.matrix[i][j];
+                res(iIndex, j) = operator ()(i, j);
             }
         }
         return res;
