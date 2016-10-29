@@ -15,7 +15,6 @@ void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
 
 std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag)
 {
-//    std::cout << "receive " << std::endl;
     MPI_Status status;
     int rowsCount;
     int colsCount;
@@ -27,10 +26,7 @@ std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag)
     for (int i = 0; i < rowsCount; ++i)
     {
         MPI_Recv(&(values->matrix[i]), colsCount, MPI_DOUBLE, senderRank, tag, MPI_COMM_WORLD, &status);
-    }/*
-    std::cout << "senderRank " << senderRank << " " << rowsCount << ", " << colsCount
-              << "values = \n" << values->matrix << std::endl;*/
-
+    }
     return values;
 }
 
@@ -78,8 +74,4 @@ void RenewMatrixBoundRows(DoubleMatrix& values, std::shared_ptr<ProcessorsData> 
     MPI_Sendrecv(&(values[1]), netModel->xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
                  &(values[processorData->RowsCountWithBorders() - 1]), netModel->xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
                  MPI_COMM_WORLD, &status);
-
-//#ifdef DEBUG_MODE
-//    std::cout << "Finished RenewBoundRows \n" << values << std::endl;
-//#endif
 }

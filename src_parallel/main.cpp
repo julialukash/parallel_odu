@@ -15,7 +15,7 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 const double eps = 1e-4;
 
-#define DEBUG_MAIN
+//#define DEBUG_MAIN
 
 void writeValues(char* filename, const DoubleMatrix& values)
 {
@@ -76,7 +76,6 @@ std::tuple<int, int> GetProcessorParameters(int pointsCount, int rank, int proce
     {
         firstRowIndex = leftRowsCount * (rowsCount + 1) + (rank - leftRowsCount) * rowsCount;
     }
-    std::cout << "left rows " << leftRowsCount << ", rc = " << rowsCount << ", fri = " << firstRowIndex << std::endl;
     return std::make_tuple(rowsCount, firstRowIndex);
 }
 
@@ -90,7 +89,9 @@ int main(int argc, char *argv[])
     int rank, processorsCount;
     try
     {
-        auto beginTime = clock();
+        double beginTime, elapsedTime, globalError;
+        beginTime = clock();
+
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &processorsCount);
@@ -145,8 +146,7 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        double localError, globalError;
-        localError = optimizationAlgo->Process(uValuesApproximate, uValues);
+        double localError = optimizationAlgo->Process(uValuesApproximate, uValues);
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
@@ -173,12 +173,22 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
             std::cout << "globalUValues = \n" << globalUValues << std::endl;
 #endif
+            elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
+            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
+                      << "globalError: " << globalError << std::endl;
             writeValues(approximateValuesFilename, globalUValues);
         }
 #ifdef DEBUG_MAIN
         std::cout.rdbuf(coutbuf); //reset to standard output again
         out.close();
 #endif
+        if (processorInfoPtr->IsMainProcessor())
+        {
+            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
+                      << "globalError: " << globalError << std::endl;
+            writeValues(approximateValuesFilename, globalUValues);
+        }
+        MPI_Finalize();
     }
     catch (const std::exception& e)
     {
