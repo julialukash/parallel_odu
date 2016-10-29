@@ -31,7 +31,7 @@ public:
                           std::shared_ptr<ProcessorsData> processorDataPtr);
     DoubleMatrix Init();    
     DoubleMatrix CalculateU();
-    void Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
+    double Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
     void RenewBoundRows(DoubleMatrix &values);
 };
 

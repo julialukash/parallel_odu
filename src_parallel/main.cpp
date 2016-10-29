@@ -65,6 +65,26 @@ void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > glo
 }
 
 
+std::tuple<int, int> GetProcessorParameters(int pointsCount, int rank, int processorsCount)
+{
+    int rowsCount, firstRowIndex;
+    rowsCount = pointsCount / processorsCount;
+    auto leftRowsCount = pointsCount - rowsCount * processorsCount;
+    if (rank < leftRowsCount)
+    {
+        rowsCount = rowsCount + 1;
+        firstRowIndex = rank * rowsCount;
+    }
+    else
+    {
+        firstRowIndex = leftRowsCount * (rowsCount + 1) + (rank - leftRowsCount) * rowsCount;
+    }
+    std::cout << "left rows " << leftRowsCount << ", rc = " << rowsCount << ", fri = " << firstRowIndex << std::endl;
+    return std::make_tuple(rowsCount, firstRowIndex);
+}
+
+
+
 
 int main(int argc, char *argv[])
 {    
@@ -85,8 +105,6 @@ int main(int argc, char *argv[])
 
         auto processorInfoPtr = std::make_shared<ProcessorsData>(rank, processorsCount);
 
-        std::cout << "(-) Processor with rank = " << processorInfoPtr->rank << std::endl;
-
         auto groundValuesFilename = argv[1];
         auto approximateValuesFilename = argv[2];
         auto pointsCount = std::stoi(argv[3]);
@@ -95,22 +113,23 @@ int main(int argc, char *argv[])
         auto diffEquationPtr = std::make_shared<DifferentialEquationModel>();
         auto approximateOperationsPtr = std::make_shared<ApproximateOperations>(netModelPtr);
 
-        std::cout << "(*)Processor with rank = " << processorInfoPtr->rank << std::endl;
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
         auto fileName = "out/out_rank" + std::to_string(processorInfoPtr->rank)  + ".txt";
         std::ofstream out(fileName);
         std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
-        std::cout << "(+)Processor with rank = " << processorInfoPtr->rank << std::endl;
         // init processors with their part of data
-        processorInfoPtr->rowsCountValue = (netModelPtr->yPointsCount) / (processorInfoPtr->processorsCount);
-        auto leftRowsCount = netModelPtr->yPointsCount - processorInfoPtr->rowsCountValue  * (processorInfoPtr->processorsCount);
+        auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
+        processorInfoPtr->rowsCountValue = std::get<0>(processorParameters);
+        processorInfoPtr->startRowIndex = std::get<1>(processorParameters);
+//        processorInfoPtr->rowsCountValue = (netModelPtr->yPointsCount) / (processorInfoPtr->processorsCount);
+//        auto leftRowsCount = netModelPtr->yPointsCount - processorInfoPtr->rowsCountValue  * (processorInfoPtr->processorsCount);
 
-        processorInfoPtr->startRowIndex = (processorInfoPtr->rank) * processorInfoPtr->rowsCountValue;
-        if (leftRowsCount != 0 & processorInfoPtr->IsLastProcessor())
-        {
-            processorInfoPtr->rowsCountValue = processorInfoPtr->rowsCountValue + leftRowsCount;
-        }
+//        processorInfoPtr->startRowIndex = (processorInfoPtr->rank) * processorInfoPtr->rowsCountValue;
+//        if (leftRowsCount != 0 & processorInfoPtr->IsLastProcessor())
+//        {
+//            processorInfoPtr->rowsCountValue = processorInfoPtr->rowsCountValue + leftRowsCount;
+//        }
 #ifdef DEBUG_MAIN
         std::cout << "Finished" << std::endl;
         std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
@@ -134,9 +153,13 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        optimizationAlgo->Process(uValuesApproximate, uValues);
+        double localError, globalError;
+        localError = optimizationAlgo->Process(uValuesApproximate, uValues);
+        MPI_Allreduce(&localError, &globalError, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+
 #ifdef DEBUG_MAIN
-        std::cout << "Process finished." << std::endl;
+        std::cout << "Process finished, error = " << localError << ", global = "
+                  << globalError << ", u = \n" << uValuesApproximate << std::endl;
 #endif
         if (processorInfoPtr->IsMainProcessor())
         {
@@ -149,19 +172,19 @@ int main(int argc, char *argv[])
             for (int i = 1; i < processorInfoPtr->processorsCount; ++i)
             {
                 auto localUValuesApproximate = receiveMatrix(i, APPROXIMATE_MATRIX);
-                auto localUValues = receiveMatrix(i, GROUND_MATRIX);
+//                auto localUValues = receiveMatrix(i, GROUND_MATRIX);
 //#ifdef DEBUG_MAIN
 //            std::cout << "receiveMatrix, i = "<< i << " tmp = " << localUValuesApproximate << "\n "
 //                      << localUValuesApproximate->colsCount() << " " << localUValuesApproximate->rowsCount()
 //                      << "\n" << localUValuesApproximate->matrix << std::endl;
 //#endif
-                globalUValues.push_back(localUValues);
+//                globalUValues.push_back(localUValues);
                 globalUValuesApproximate.push_back(localUValuesApproximate);
             }
 #ifdef DEBUG_MAIN
             std::cout << "Gathering results finished, globalUValuesCount = "<< globalUValuesApproximate.size() << std::endl;
 #endif
-            writeValues(groundValuesFilename, globalUValues);
+//            writeValues(groundValuesFilename, globalUValues);
             writeValues(approximateValuesFilename, globalUValuesApproximate);
 #ifdef DEBUG_MAIN
             std::cout << "writeValues finished." << std::endl;
@@ -170,14 +193,14 @@ int main(int argc, char *argv[])
         else
         {
             sendMatrix(uValuesApproximate, processorInfoPtr->mainProcessorRank, APPROXIMATE_MATRIX);
-            sendMatrix(uValues, processorInfoPtr->mainProcessorRank, GROUND_MATRIX);
+//            sendMatrix(uValues, processorInfoPtr->mainProcessorRank, GROUND_MATRIX);
         }
 
 //        auto plainU = uValues.PlainArray();
 //        double globalUValues[netModelPtr->xPointsCount * netModelPtr->YPointsCount];
 //        MPI_Gatherv(plainU, uValues.colsCount() * uValues.rowsCount(), MPI_DOUBLE,
 //                    globalUValues, rcounts, displs, MPI_INT,
-//                                                                       root, comm);
+//                    root, comm);
 
 //        if (processorInfoPtr->IsMainProcessor())
 //        {

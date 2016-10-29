@@ -4,7 +4,7 @@
 #include "ConjugateGradientAlgo.h"
 
 #include "MPIOperations.h"
-#define DEBUG_MODE = 1
+//#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                   std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
@@ -99,7 +99,7 @@ void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
 }
 
 
-void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
+double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
 {
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
     int iteration = 0;
@@ -109,7 +109,6 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 #ifdef DEBUG_MODE
         std::cout << "rank = " << processorData->rank << " iteration = " << iteration << std::endl;
 #endif
-        error = CalculateError(uValues, p);
 #ifdef DEBUG_MODE
         std::cout << "===================================================================" << std::endl;
         std::cout << "iteration = " << iteration << ", error = " << error << std::endl;
@@ -117,6 +116,8 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 #endif
 
         RenewBoundRows(p);
+        error = CalculateError(uValues, p);
+
 #ifdef DEBUG_MODE
         std::cout << "renewed p = \n" << p << std::endl;
 #endif
@@ -168,7 +169,7 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 
         ++iteration;        
     }
-    return;
+    return error;
 }
 
 
