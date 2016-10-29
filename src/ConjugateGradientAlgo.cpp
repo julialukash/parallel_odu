@@ -38,21 +38,19 @@ DoubleMatrix ConjugateGradientAlgo::Init()
             }
         }
     }
-#ifdef DEBUG_MODE
-    std::cout << values << std::endl;
-#endif
     return values;
 }
 
-void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
+double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues)
 {
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
-
+    double error = -1;
     int iteration = 0;
     while (iteration == 0 || !IsStopCondition(p, previousP))
     {
+        error = CalculateError(uValues, p);
         std::cout << "==============================================================" << std::endl;
-        std::cout << "iteration = " << iteration << ", error = " << CalculateError(p, uValues) << std::endl;
+        std::cout << "iteration = " << iteration << ", error = " <<  error << std::endl;
 
 #ifdef DEBUG_MODE
         std::cout << "p = \n" << p << std::endl;
@@ -88,6 +86,11 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 
         ++iteration;
     }
+
+#ifdef DEBUG_MODE
+        std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
+#endif
+    return error;
 }
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
@@ -135,12 +138,12 @@ DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
                 residuals(i, j) = laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
             }
 
-#ifdef DEBUG_MODE
-        std::cout << "i = " << i << ", j = " << j << " " << netModel->IsInnerPoint(i, j)
-                  << ", laplassP(i, j) = " << laplassP(i, j)
-                  << ", value = " << diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(i))
-                  << ", residuals(i, j) = " << residuals(i, j) << std::endl;
-#endif
+//#ifdef DEBUG_MODE
+//        std::cout << "i = " << i << ", j = " << j << " " << netModel->IsInnerPoint(i, j)
+//                  << ", laplassP(i, j) = " << laplassP(i, j)
+//                  << ", value = " << diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(i))
+//                  << ", residuals(i, j) = " << residuals(i, j) << std::endl;
+//#endif
         }
     }
 
@@ -177,8 +180,21 @@ DoubleMatrix ConjugateGradientAlgo::CalculateNewP(const DoubleMatrix& p, const D
 
 double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const DoubleMatrix& p)
 {
+#ifdef DEBUG_MODE
+    std::cout << "CalculateError..." << std::endl;
+    std::cout << "uValues = \n" << uValues << std::endl;
+    std::cout << "p = \n" << p<< std::endl;
+#endif
     auto psi = uValues - p;
+
+#ifdef DEBUG_MODE
+    std::cout << "psi = \n" << psi << std::endl;
+#endif
+
     auto error = approximateOperations->NormValue(psi);
+#ifdef DEBUG_MODE
+    std::cout << "error = " << error << std::endl;
+#endif
     return error;
 }
 

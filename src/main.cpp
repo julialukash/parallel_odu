@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 4)
     {
-        std::cerr << "Not enough input arguments\n";
+        std::cerr << "Not enough input arguments, argc = " << argc << "\n";
         exit(1);
     }
     std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -64,13 +64,14 @@ int main(int argc, char *argv[])
     std::cout << "p init = \n" << uValuesApproximate << std::endl;
     auto begin = omp_get_wtime();
 
-    optimizationAlgo->Process(uValuesApproximate, uValues);
+    auto error = optimizationAlgo->Process(uValuesApproximate, uValues);
 
     auto time_elapsed = omp_get_wtime() - begin;
 
 
     std::cout.rdbuf(coutbuf); //reset to standard output again
-    std::cout << "Elapsed time is " << time_elapsed << " sec" << std::endl;
+    std::cout << "Elapsed time is " << time_elapsed << " sec" << std::endl
+              << "globalError: " << error << std::endl;
 
     writeValues(groundValuesFilename, uValues);
     writeValues(approximateValuesFilename, uValuesApproximate);

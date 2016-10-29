@@ -36,24 +36,24 @@ DoubleMatrix* ConjugateGradientAlgo::CalculateU()
     return values;
 }
 
-DoubleMatrix ConjugateGradientAlgo::Init()
+DoubleMatrix* ConjugateGradientAlgo::Init()
 {
-    auto values = DoubleMatrix(processorData->RowsCountWithBorders(), netModel->xPointsCount);
-    for (auto i = 0; i < values.rowsCount(); ++i)
+    auto values = new DoubleMatrix(processorData->RowsCountWithBorders(), netModel->xPointsCount);
+    for (auto i = 0; i < values->rowsCount(); ++i)
     {
         auto iValueIndex = processorData->IsFirstProcessor() ? i + 1 : i;
         auto iNetIndex = i + processorData->FirstRowWithBordersIndex();
         if (iNetIndex  >= processorData->FirstRowIndex() && iNetIndex <= processorData->LastRowIndex())
         {
-            for (auto j = 0; j < values.colsCount(); ++j)
+            for (auto j = 0; j < values->colsCount(); ++j)
             {
                 if (netModel->IsInnerPoint(iNetIndex, j))
                 {
-                    values(iValueIndex, j) = diffModel->CalculateBoundaryValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                    (*values)(iValueIndex, j) = diffModel->CalculateBoundaryValue(netModel->xValue(iNetIndex), netModel->yValue(j));
                 }
                 else
                 {
-                    values(iValueIndex, j) = diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                    (*values)(iValueIndex, j) = diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
                 }
 //#ifdef DEBUG_MODE
 //            std::cout << "i = " << i << ", j = " << j << ", iNetIndex = " << iNetIndex << std::endl;
@@ -254,16 +254,16 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 #endif
     auto psi = uValues - pCropped;
 
-//#ifdef DEBUG_MODE
-//    std::cout << "psi = \n" << psi << std::endl;
-//#endif
-
+#ifdef DEBUG_MODE
+    std::cout << "psi = \n" << psi << std::endl;
+#endif
     auto error = approximateOperations->MaxNormValue(psi);
+    auto globalError = getMaxValueFromAllProcessors(error);
 
 #ifdef DEBUG_MODE
-    std::cout << "error = \n" << error << std::endl;
+    std::cout << "error = " << error << ", global = " << globalError << std::endl;
 #endif
-    return error;
+    return globalError;
 }
 
 bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleMatrix& previousP)

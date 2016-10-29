@@ -25,8 +25,8 @@ core
 QMAKE_CXXFLAGS += -fopenmp
 QMAKE_LFLAGS += -fopenmp
 
-CONFIG += c++11
 
+CONFIG += c++11
 
 INCLUDEPATH += /usr/include/mpich/
 
@@ -44,4 +44,3 @@ HEADERS += \
     src_parallel/DoubleMatrix.h \
     src_parallel/ProcessorsData.h \
     src_parallel/MPIOperations.h
-

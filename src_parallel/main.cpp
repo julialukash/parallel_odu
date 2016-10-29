@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
+        double localError = optimizationAlgoPtr->Process(*uValuesApproximate, *uValues);
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
             recvcounts[i] = std::get<0>(processorParameters) * netModelPtr->xPointsCount;
             displs[i] = std::get<1>(processorParameters) * netModelPtr->xPointsCount;
         }
-        MPI_Gatherv(&(uValuesApproximate(0, 0)), recvcounts[processorInfoPtr->rank], MPI_DOUBLE,
+        MPI_Gatherv(&((*uValuesApproximate)(0, 0)), recvcounts[processorInfoPtr->rank], MPI_DOUBLE,
                     &(globalUValues(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr->mainProcessorRank, MPI_COMM_WORLD);
         if (processorInfoPtr->IsMainProcessor())
         {

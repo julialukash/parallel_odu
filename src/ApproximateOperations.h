@@ -49,8 +49,12 @@ public:
 
     double NormValue(const DoubleMatrix& currentValues)
     {
-        return fabs(*std::max_element(&(currentValues.matrix[0][0]),
-                &(currentValues.matrix[0][0]) + currentValues.size1() * currentValues.size2()));
+        auto minMax = std::minmax_element(&(currentValues.matrix[0][0]),
+                        &(currentValues.matrix[0][0]) + currentValues.size1() * currentValues.size2());
+        double min = fabs(*minMax.first);
+        double max = fabs(*minMax.second);
+        std::cout << "MaxNormValue min = " << min << ", max = " << max << std::endl;
+        return max > min ? max : min;
     }
 };
 

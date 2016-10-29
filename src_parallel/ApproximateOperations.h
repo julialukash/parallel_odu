@@ -73,8 +73,12 @@ public:
 
     double MaxNormValue(const DoubleMatrix& currentValues)
     {
-        return fabs(*std::max_element(&(currentValues(0, 0)),
-                &(currentValues(0, 0)) + currentValues.rowsCount() * currentValues.colsCount()));
+        auto minMax = std::minmax_element(&(currentValues(0,0)),
+                        &(currentValues(0,0)) + currentValues.rowsCount() * currentValues.colsCount());
+        double min = fabs(*minMax.first);
+        double max = fabs(*minMax.second);
+        std::cout << "MaxNormValue min = " << min << ", max = " << max << std::endl;
+        return max > min ? max : min;
     }
 
 };

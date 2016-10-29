@@ -5,3 +5,5 @@
 /build-task2_parallel-Desktop-Debug/
 *.pro~
 *.csv
+/makes/
+/main~

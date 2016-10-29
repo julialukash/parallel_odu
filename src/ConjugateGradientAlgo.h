@@ -28,7 +28,7 @@ public:
     ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                       std::shared_ptr<ApproximateOperations> approximateOperationsPtr);
     DoubleMatrix Init();
-    void Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
+    double Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
 };
 
 #endif // CONJUGATEGRADIENTALGO_H
