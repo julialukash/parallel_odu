@@ -95,13 +95,18 @@ int main(int argc, char *argv[])
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &processorsCount);
 
-        std::cout << "rank = " << rank << std::endl;
-
-        auto processorInfoPtr = std::make_shared<ProcessorsData>(rank, processorsCount);
-
         auto groundValuesFilename = argv[1];
         auto approximateValuesFilename = argv[2];
         auto pointsCount = std::stoi(argv[3]);
+
+        if (processorsCount <= 1)// || (processorsCount > (pointsCount + 1) / 2))
+        {
+            std::cerr << "Incorrect number of processors\n";
+            exit(1);
+        }
+        std::cout << "rank = " << rank << std::endl;
+
+        auto processorInfoPtr = std::make_shared<ProcessorsData>(rank, processorsCount);
 
         auto netModelPtr = std::make_shared<NetModel>(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, pointsCount, pointsCount);
         auto diffEquationPtr = std::make_shared<DifferentialEquationModel>();
@@ -148,6 +153,7 @@ int main(int argc, char *argv[])
         std::cout << "Process finished, error = " << localError << ", global = "
                   << globalError << ", u = \n" << uValuesApproximate << std::endl;
 #endif
+        // gather values
         DoubleMatrix globalUValues(1,1);
         if (processorInfoPtr->IsMainProcessor())
         {
