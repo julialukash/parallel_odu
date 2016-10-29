@@ -148,78 +148,24 @@ int main(int argc, char *argv[])
         std::cout << "Process finished, error = " << localError << ", global = "
                   << globalError << ", u = \n" << uValuesApproximate << std::endl;
 #endif
-//        if (processorInfoPtr->IsMainProcessor())
-//        {
-//            std::vector<std::shared_ptr<DoubleMatrix>> globalUValues, globalUValuesApproximate;
-//            globalUValues.push_back(std::make_shared<DoubleMatrix>(uValues));
-//            globalUValuesApproximate.push_back(std::make_shared<DoubleMatrix>(uValuesApproximate));
-//#ifdef DEBUG_MAIN
-//            std::cout << "Gathering results..." << std::endl;
-//#endif
-//            for (int i = 1; i < processorInfoPtr->processorsCount; ++i)
-//            {
-//                auto localUValuesApproximate = receiveMatrix(i, APPROXIMATE_MATRIX);
-////                auto localUValues = receiveMatrix(i, GROUND_MATRIX);
-////#ifdef DEBUG_MAIN
-////            std::cout << "receiveMatrix, i = "<< i << " tmp = " << localUValuesApproximate << "\n "
-////                      << localUValuesApproximate->colsCount() << " " << localUValuesApproximate->rowsCount()
-////                      << "\n" << localUValuesApproximate->matrix << std::endl;
-////#endif
-////                globalUValues.push_back(localUValues);
-//                globalUValuesApproximate.push_back(localUValuesApproximate);
-//            }
-//#ifdef DEBUG_MAIN
-//            std::cout << "Gathering results finished, globalUValuesCount = "<< globalUValuesApproximate.size() << std::endl;
-//#endif
-////            writeValues(groundValuesFilename, globalUValues);
-//            writeValues(approximateValuesFilename, globalUValuesApproximate);
-//#ifdef DEBUG_MAIN
-//            std::cout << "writeValues finished." << std::endl;
-//#endif
-//        }
-//        else
-//        {
-//            sendMatrix(uValuesApproximate, processorInfoPtr->mainProcessorRank, APPROXIMATE_MATRIX);
-////            sendMatrix(uValues, processorInfoPtr->mainProcessorRank, GROUND_MATRIX);
-//        }
-
-        DoubleMatrix globalUValues;
+        DoubleMatrix globalUValues(1,1);
         if (processorInfoPtr->IsMainProcessor())
         {
             globalUValues = DoubleMatrix(netModelPtr->yPointsCount, netModelPtr->xPointsCount);
-//            globalUValues = (double *)malloc(gsize*100*sizeof(int)); //[netModelPtr->xPointsCount * netModelPtr->yPointsCount];
         }
-#ifdef DEBUG_MAIN
-        std::cout << "globalUValues = \n" << globalUValues << std::endl;
-#endif
         int recvcounts[processorInfoPtr->processorsCount], displs[processorInfoPtr->processorsCount];
         for (auto i = 0; i < processorInfoPtr->processorsCount; ++i)
         {
             auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, i, processorInfoPtr->processorsCount);
             recvcounts[i] = std::get<0>(processorParameters) * netModelPtr->xPointsCount;
-            displs[i] = std::get<1>(processorParameters) * netModelPtr->xPointsCount + 1;
-
-#ifdef DEBUG_MAIN
-        std::cout << "i = " << i << ", recvcounts = \n" << recvcounts[i] << ", \ndispls = \n" << displs[i] << std::endl;
-#endif
+            displs[i] = std::get<1>(processorParameters) * netModelPtr->xPointsCount;
         }
-#ifdef DEBUG_MAIN
-        std::cout << "* = " << uValuesApproximate.colsCount() * uValuesApproximate.rowsCount()<< std::endl;
-#endif
-        MPI_Datatype stype;
-        MPI_Type_vector(netModelPtr->xPointsCount, 1, netModelPtr->xPointsCount, MPI_DOUBLE, &stype);
-        MPI_Type_commit( &stype );
-        MPI_Gatherv(&(uValuesApproximate(0, 0)), uValuesApproximate.colsCount() * uValuesApproximate.rowsCount(), MPI_DOUBLE,
+        MPI_Gatherv(&(uValuesApproximate(0, 0)), recvcounts[processorInfoPtr->rank], MPI_DOUBLE,
                     &(globalUValues(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr->mainProcessorRank, MPI_COMM_WORLD);
-
-#ifdef DEBUG_MAIN
-        std::cout << "MPI_Gatherv finished" << std::endl;
-#endif
         if (processorInfoPtr->IsMainProcessor())
         {
-//            auto tmp = DoubleMatrix(globalUValues, netModelPtr->yPointsCount, netModelPtr->xPointsCount);
 #ifdef DEBUG_MAIN
-            std::cout << "tmp = \n" << globalUValues << std::endl;
+            std::cout << "globalUValues = \n" << globalUValues << std::endl;
 #endif
             writeValues(approximateValuesFilename, globalUValues);
         }
