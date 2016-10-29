@@ -90,28 +90,28 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
                 std::cout << "Sent flag to start" << std::endl;
 #endif
-                // wait for parts of alpha, sum them and send back
-                double alphaDen = collectValueFromAll(processorInfoPtr->processorsCount);
-                double alphaNom = collectValueFromAll(processorInfoPtr->processorsCount);
-                double alpha = alphaNom / alphaDen;
-#ifdef DEBUG_MAIN
-                std::cout << "Got alphaDen = " << alphaDen << ", nom  = " << alphaNom << ", alpha = " << alpha << std::endl;
-#endif
-                sendValueToAll(processorInfoPtr->processorsCount, alpha);
-#ifdef DEBUG_MAIN
-                std::cout << "Alpha sent" << std::endl;
-#endif
-                // wait for parts of tau, sum them and send back
-                double tauDen = collectValueFromAll(processorInfoPtr->processorsCount);
-                double tauNom = collectValueFromAll(processorInfoPtr->processorsCount);
-                double tau = tauNom / tauDen;
-#ifdef DEBUG_MAIN
-                std::cout << "Got tauDen = " << tauDen << ", nom  = " << tauNom << ", alpha = " << tau << std::endl;
-#endif
-                sendValueToAll(processorInfoPtr->processorsCount, tau);
-#ifdef DEBUG_MAIN
-                std::cout << "Tau sent" << std::endl;
-#endif
+//                // wait for parts of alpha, sum them and send back
+//                double alphaDen = collectValueFromAll(processorInfoPtr->processorsCount);
+//                double alphaNom = collectValueFromAll(processorInfoPtr->processorsCount);
+//                double alpha = alphaNom / alphaDen;
+//#ifdef DEBUG_MAIN
+//                std::cout << "Got alphaDen = " << alphaDen << ", nom  = " << alphaNom << ", alpha = " << alpha << std::endl;
+//#endif
+//                sendValueToAll(processorInfoPtr->processorsCount, alpha);
+//#ifdef DEBUG_MAIN
+//                std::cout << "Alpha sent" << std::endl;
+//#endif
+//                // wait for parts of tau, sum them and send back
+//                double tauDen = collectValueFromAll(processorInfoPtr->processorsCount);
+//                double tauNom = collectValueFromAll(processorInfoPtr->processorsCount);
+//                double tau = tauNom / tauDen;
+//#ifdef DEBUG_MAIN
+//                std::cout << "Got tauDen = " << tauDen << ", nom  = " << tauNom << ", alpha = " << tau << std::endl;
+//#endif
+//                sendValueToAll(processorInfoPtr->processorsCount, tau);
+//#ifdef DEBUG_MAIN
+//                std::cout << "Tau sent" << std::endl;
+//#endif
                 // wait for the end of the iteration and collect errors
                 double notFinished = collectValueFromAll(processorInfoPtr->processorsCount);
 #ifdef DEBUG_MAIN

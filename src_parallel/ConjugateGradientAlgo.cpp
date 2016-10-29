@@ -117,9 +117,8 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 //    std::cout << "p = " << p << std::endl;
 //    std::cout << "uValues = " << uValues << std::endl;
 //#endif
-    while (true)
-    {        
-        ++iteration;
+    while (iteration < 1)
+    {
         FlagType flag;
         receiveFlag(&flag, 0, processorData->rank);        
 #ifdef DEBUG_MODE
@@ -147,10 +146,15 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
         std::cout << "renewed p = \n" << p << std::endl;
 #endif
         auto residuals = CalculateResidual(p);
+        RenewBoundRows(residuals);
+#ifdef DEBUG_MODE
+        std::cout << "renewed residuals (before calc) = \n" << residuals << std::endl;
+#endif
         auto laplassResiduals = approximateOperations->CalculateLaplass(residuals, processorData);
+        RenewBoundRows(laplassResiduals);
 
 #ifdef DEBUG_MODE
-        std::cout << "Residuals = " << residuals << std::endl;
+        std::cout << "Residuals = \n" << residuals << std::endl;
         std::cout << "Laplass Residuals = " << laplassResiduals << std::endl;
         std::cout << "grad = " << grad << std::endl;
         std::cout << "laplassPreviousGrad = " << laplassPreviousGrad << std::endl;
@@ -160,6 +164,7 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 
         laplassPreviousGrad = laplassGrad;
         laplassGrad = approximateOperations->CalculateLaplass(grad, processorData);
+        RenewBoundRows(laplassGrad);
 
         auto tau = CalculateTauValue(residuals, grad, laplassGrad);
 
@@ -178,19 +183,42 @@ void ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValues
 }
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
-{
+{    
+#ifdef DEBUG_MODE
+    std::cout << "CalculateTauValue" << std::endl;
+#endif
     auto numerator = approximateOperations->ScalarProduct(residuals, grad);
-    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad);
-    auto tau = numerator / denominator;
-    return tau;
+    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad);    
+    double localTau[2] = {numerator, denominator};
+    double globalTau[2] = {0, 0};
+#ifdef DEBUG_MODE
+    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator
+              << ", local tau = " << *localTau << ", global = " << *globalTau << std::endl;
+#endif
+    MPI_Allreduce(localTau, globalTau, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#ifdef DEBUG_MODE
+    std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator << std::endl;
+    std::cout << ", local tau = " << localTau << ", global = " << globalTau << std::endl;
+#endif
+    auto tauValue = globalTau[0] / globalTau[1];
+    return tauValue;
 }
 
 double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassResiduals, const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad)
 {
+#ifdef DEBUG_MODE
+    std::cout << "CalculateAlphaValue" << std::endl;
+#endif
     auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad);
-    auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);
-    auto alpha = numerator / denominator;
-    return alpha;
+    auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);        
+    double alpha[2] = {numerator, denominator};
+    MPI_Allreduce(alpha, alpha, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#ifdef DEBUG_MODE
+    std::cout << "CalculateAlphaValue num  = " << numerator << ", "
+              << denominator << ", alpha = " << alpha << std::endl;
+#endif
+    auto alphaValue = alpha[0] / alpha[1];
+    return alphaValue;
 }
 
 DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
@@ -238,6 +266,9 @@ DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residu
                                 const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
                                 int k)
 {
+#ifdef DEBUG_MODE
+        std::cout << "CalculateGradient = \n" << residuals << std::endl;
+#endif
     DoubleMatrix gradient;
     if (k == 0)
     {
