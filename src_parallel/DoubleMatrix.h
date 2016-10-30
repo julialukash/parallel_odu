@@ -3,6 +3,7 @@
 
 
 #include <iostream>
+#include <memory.h>
 
 class DoubleMatrix
 {
@@ -187,15 +188,15 @@ public:
         return colsCountValue;
     }
 
-    DoubleMatrix CropMatrix(int startRow, int rowsCount) const
+    std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount) const
     {
-        DoubleMatrix res(rowsCount, colsCountValue);
+        auto res = std::make_shared<DoubleMatrix>(rowsCount, colsCountValue);
         for (auto i = startRow; i < startRow + rowsCount; i++)
         {
             auto iIndex = i - startRow;
             for (auto j = 0; j < colsCountValue; j++)
             {
-                res(iIndex, j) = operator ()(i, j);
+                (*res)(iIndex, j) = operator ()(i, j);
             }
         }
         return res;

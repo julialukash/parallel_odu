@@ -22,16 +22,16 @@ private:
     DoubleMatrix CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
                                    const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
                                    int k);
-    DoubleMatrix CalculateNewP(const DoubleMatrix &p, const DoubleMatrix &grad, double tau);
+    std::shared_ptr<DoubleMatrix> CalculateNewP(const DoubleMatrix &p, const DoubleMatrix &grad, double tau);
     double CalculateError(const DoubleMatrix &uValues, const DoubleMatrix &p);
     bool IsStopCondition(const DoubleMatrix &p, const DoubleMatrix &previousP);
 public:
     ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                           std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
                           std::shared_ptr<ProcessorsData> processorDataPtr);
-    DoubleMatrix* Init();
-    DoubleMatrix* CalculateU();
-    double Process(DoubleMatrix &initP, const DoubleMatrix &uValues);
+    std::shared_ptr<DoubleMatrix> Init();
+    std::shared_ptr<DoubleMatrix> CalculateU();
+    double Process(std::shared_ptr<DoubleMatrix> initP, const DoubleMatrix &uValues);
     void RenewBoundRows(DoubleMatrix &values);
 };
 

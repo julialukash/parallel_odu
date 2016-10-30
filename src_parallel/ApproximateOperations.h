@@ -82,7 +82,9 @@ public:
                         &(currentValues(0,0)) + currentValues.rowsCount() * currentValues.colsCount());
         double min = fabs(*minMax.first);
         double max = fabs(*minMax.second);
+#ifdef DEBUG_MODE
         std::cout << "MaxNormValue min = " << min << ", max = " << max << std::endl;
+#endif
         return max > min ? max : min;
     }
 

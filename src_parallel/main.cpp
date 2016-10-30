@@ -62,7 +62,7 @@ void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > glo
     outputFile.close();
 }
 
-std::tuple<int, int> GetProcessorParameters(int pointsCount, int rank, int processorsCount)
+std::pair<int, int> GetProcessorParameters(int pointsCount, int rank, int processorsCount)
 {
     int rowsCount, firstRowIndex;
     rowsCount = pointsCount / processorsCount;
@@ -76,7 +76,7 @@ std::tuple<int, int> GetProcessorParameters(int pointsCount, int rank, int proce
     {
         firstRowIndex = leftRowsCount * (rowsCount + 1) + (rank - leftRowsCount) * rowsCount;
     }
-    return std::make_tuple(rowsCount, firstRowIndex);
+    return std::make_pair(rowsCount, firstRowIndex);
 }
 
 int main(int argc, char *argv[])
@@ -121,8 +121,8 @@ int main(int argc, char *argv[])
 #endif
         // init processors with their part of data
         auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
-        processorInfoPtr->rowsCountValue = std::get<0>(processorParameters);
-        processorInfoPtr->startRowIndex = std::get<1>(processorParameters);
+        processorInfoPtr->rowsCountValue = processorParameters.first;
+        processorInfoPtr->startRowIndex = processorParameters.second;
 #ifdef DEBUG_MAIN
         std::cout << "Finished" << std::endl;
         std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
@@ -140,13 +140,13 @@ int main(int argc, char *argv[])
         auto uValues = optimizationAlgoPtr->CalculateU();
 #ifdef DEBUG_MAIN
         std::cout << "uValues  = " << std::endl << *uValues << std::endl;
-        std::cout << "p = " << std::endl << uValuesApproximate << std::endl;
+        std::cout << "p = " << std::endl << *uValuesApproximate << std::endl;
 #endif
 
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        double localError = optimizationAlgoPtr->Process(*uValuesApproximate, *uValues);
+        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
@@ -154,29 +154,29 @@ int main(int argc, char *argv[])
                   << globalError << ", u = \n" << *uValuesApproximate << std::endl;
 #endif
         // gather values
-        DoubleMatrix globalUValues(1,1);
+        auto globalUValues = std::make_shared<DoubleMatrix>(1,1);
         if (processorInfoPtr->IsMainProcessor())
         {
-            globalUValues = DoubleMatrix(netModelPtr->yPointsCount, netModelPtr->xPointsCount);
+            globalUValues = std::make_shared<DoubleMatrix>(netModelPtr->yPointsCount, netModelPtr->xPointsCount);
         }
         int recvcounts[processorInfoPtr->processorsCount], displs[processorInfoPtr->processorsCount];
         for (auto i = 0; i < processorInfoPtr->processorsCount; ++i)
         {
             auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, i, processorInfoPtr->processorsCount);
-            recvcounts[i] = std::get<0>(processorParameters) * netModelPtr->xPointsCount;
-            displs[i] = std::get<1>(processorParameters) * netModelPtr->xPointsCount;
+            recvcounts[i] = processorParameters.first * netModelPtr->xPointsCount;
+            displs[i] = processorParameters.second * netModelPtr->xPointsCount;
         }
         MPI_Gatherv(&((*uValuesApproximate)(0, 0)), recvcounts[processorInfoPtr->rank], MPI_DOUBLE,
-                    &(globalUValues(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr->mainProcessorRank, MPI_COMM_WORLD);
+                    &((*globalUValues)(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr->mainProcessorRank, MPI_COMM_WORLD);
         if (processorInfoPtr->IsMainProcessor())
         {
 #ifdef DEBUG_MAIN
-            std::cout << "globalUValues = \n" << globalUValues << std::endl;
+            std::cout << "globalUValues = \n" << *globalUValues << std::endl;
 #endif
             elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
             std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
                       << "globalError: " << globalError << std::endl;
-            writeValues(approximateValuesFilename, globalUValues);
+            writeValues(approximateValuesFilename, *globalUValues);
         }
 #ifdef DEBUG_MAIN
         std::cout.rdbuf(coutbuf); //reset to standard output again
@@ -186,7 +186,6 @@ int main(int argc, char *argv[])
         {
             std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
                       << "globalError: " << globalError << std::endl;
-            writeValues(approximateValuesFilename, globalUValues);
         }
         MPI_Finalize();
     }
