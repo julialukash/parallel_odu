@@ -56,7 +56,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 
 void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
 {
-    RenewMatrixBoundRows(values, processorData, netModel);
+    RenewMatrixBoundRows(values, *processorData, *netModel);
 }
 
 std::pair<double, std::shared_ptr<DoubleMatrix>> ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const DoubleMatrix& uValues)
@@ -106,7 +106,7 @@ std::pair<double, std::shared_ptr<DoubleMatrix>> ConjugateGradientAlgo::Process(
 #ifdef DEBUG_MODE
         std::cout << "Process Residuals = \n" << *residuals << std::endl;
 #endif
-        auto laplassResiduals = approximateOperations->CalculateLaplass(*residuals, processorData);
+        auto laplassResiduals = approximateOperations->CalculateLaplass(*residuals, *processorData);
         RenewBoundRows(*laplassResiduals);
 
 #ifdef DEBUG_MODE
@@ -117,7 +117,7 @@ std::pair<double, std::shared_ptr<DoubleMatrix>> ConjugateGradientAlgo::Process(
 
         grad = CalculateGradient(*residuals, *laplassResiduals, *grad, *laplassPreviousGrad, iteration);
 
-        laplassGrad = approximateOperations->CalculateLaplass(*grad, processorData);
+        laplassGrad = approximateOperations->CalculateLaplass(*grad, *processorData);
         RenewBoundRows(*laplassGrad);
 
         auto tau = CalculateTauValue(*residuals, *grad, *laplassGrad);
@@ -178,7 +178,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
 #ifdef DEBUG_MODE
         std::cout << "CalculateResidual ..." << std::endl;
 #endif
-    auto laplassP = approximateOperations->CalculateLaplass(p, processorData);
+    auto laplassP = approximateOperations->CalculateLaplass(p, *processorData);
 #ifdef DEBUG_MODE
         std::cout << "CalculateResidual laplassP \n" << *laplassP << std::endl;
 #endif

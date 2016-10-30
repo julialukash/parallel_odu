@@ -14,13 +14,13 @@ enum MessageTag
 };
 
 
-std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData &processorInfoPtr,
+std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
                                            const NetModel& netModelPtr,
                                            const DoubleMatrix& uValuesApproximate);
 
 double GetMaxValueFromAllProcessors(double localValue);
 double GetFractionValueFromAllProcessors(double numerator, double denominator);
 
-void RenewMatrixBoundRows(DoubleMatrix& values, std::shared_ptr<ProcessorsData> processorData, std::shared_ptr<NetModel> netModel);
+void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
 
 #endif // MPIOPERATIONS_H

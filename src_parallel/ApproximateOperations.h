@@ -18,21 +18,21 @@ public:
     }
 
     // note: calculates -laplass(currentValues)
-    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, std::shared_ptr<ProcessorsData> processorDataPtr)
+    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, const ProcessorsData& processorDataPtr)
     {
-        int startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
-        int endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
+        int startIndex = processorDataPtr.IsFirstProcessor() ? 2 : 1;
+        int endIndex = processorDataPtr.IsLastProcessor() ? processorDataPtr.RowsCountWithBorders() - 3 : processorDataPtr.RowsCountWithBorders() - 2;
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
         std::cout <<"ApproximateOperations.CalculateLaplass startIndex = " << startIndex << ", endIndex = " << endIndex << std::endl;
 #endif
-        auto laplassValues = std::make_shared<DoubleMatrix>(processorDataPtr->RowsCountWithBorders(), netModel->xPointsCount);
+        auto laplassValues = std::make_shared<DoubleMatrix>(processorDataPtr.RowsCountWithBorders(), netModel->xPointsCount);
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
 #endif
         for (int i = startIndex; i <= endIndex; ++i)
         {
-            int iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
+            int iNetIndex = i - startIndex + processorDataPtr.FirstRowIndex();
 
             for (int j = 1; j < laplassValues->colsCount() - 1; ++j)
             {
