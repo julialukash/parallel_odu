@@ -133,10 +133,8 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        auto tmp = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
-        double localError = tmp.first;
-        std::cout <<"WTF \n" << *tmp.second << std::endl;
-        uValuesApproximate = tmp.second;
+        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
+        std::cout <<"WTF2 \n" << *uValuesApproximate << std::endl;
         globalError = GetMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN

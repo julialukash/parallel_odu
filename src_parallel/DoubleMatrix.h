@@ -42,6 +42,7 @@ public:
 
     DoubleMatrix(const DoubleMatrix& otherMatrix)
     {
+//        std::cout << "BITCH, I AM COPYING " << std::endl;
         rowsCountValue = otherMatrix.rowsCountValue;
         colsCountValue = otherMatrix.colsCountValue;
         matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
