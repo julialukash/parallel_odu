@@ -59,7 +59,7 @@ void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
     RenewMatrixBoundRows(values, processorData, netModel);
 }
 
-double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const DoubleMatrix& uValues)
+std::pair<double, DoubleMatrix> ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const DoubleMatrix& uValues)
 {
     std::shared_ptr<DoubleMatrix> previousP, grad, laplassGrad, laplassPreviousGrad;
     previousP = p; laplassGrad = p; laplassPreviousGrad = p; grad = p;
@@ -86,7 +86,12 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const Dou
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
         if (stopCondition)
         {
-            p = p->CropMatrix(1, p->rowsCount() - 2);
+            auto pCroppedPtr = p->CropMatrix(1, p->rowsCount() - 2);
+            p = std::make_shared<DoubleMatrix>(*pCroppedPtr);
+//            p = std::make_shared<DoubleMatrix>();
+#ifdef DEBUG_MODE
+            std::cout << "Process! break p  = \n" << *p << std::endl;
+#endif
             break;
         }
 
@@ -125,19 +130,16 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const Dou
         std::cout << "Process previousP = \n" << *previousP << std::endl;
         std::cout << "Process ... " << std::endl;
 #endif
-
         previousP.swap(p);
         p = CalculateNewP(*previousP, *grad, tau);
 
         ++iteration;        
     }
-
 #ifdef DEBUG_MODE
         std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
 #endif
-    return error;
+    return std::make_pair(error, *p);
 }
-
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
 {    

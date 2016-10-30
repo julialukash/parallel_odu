@@ -139,19 +139,22 @@ int main(int argc, char *argv[])
         auto uValuesApproximate = optimizationAlgoPtr->Init();
         auto uValues = optimizationAlgoPtr->CalculateU();
 #ifdef DEBUG_MAIN
-        std::cout << "uValues  = " << std::endl << *uValues << std::endl;
-        std::cout << "p = " << std::endl << *uValuesApproximate << std::endl;
+        std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
+        std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
 #endif
 
 #ifdef DEBUG_MAIN
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
-        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
+        auto tmp = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
+        double localError = tmp.first;
+        std::cout <<"WTF \n" << tmp.second << std::endl;
+        uValuesApproximate = std::make_shared<DoubleMatrix>(tmp.second);
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
         std::cout << "Process finished, error = " << localError << ", global = "
-                  << globalError << ", u = \n" << *uValuesApproximate << std::endl;
+                  << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
 #endif
         // gather values
         auto globalUValues = std::make_shared<DoubleMatrix>(1,1);

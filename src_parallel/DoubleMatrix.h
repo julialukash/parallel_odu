@@ -190,7 +190,7 @@ public:
 
     std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount) const
     {
-        auto res = std::make_shared<DoubleMatrix>(rowsCount, colsCountValue);
+        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCountValue));
         for (int i = startRow; i < startRow + rowsCount; i++)
         {
             int iIndex = i - startRow;
