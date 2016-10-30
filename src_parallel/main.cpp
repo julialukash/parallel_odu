@@ -62,22 +62,7 @@ void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > glo
     outputFile.close();
 }
 
-std::pair<int, int> GetProcessorParameters(int pointsCount, int rank, int processorsCount)
-{
-    int rowsCount, firstRowIndex;
-    rowsCount = pointsCount / processorsCount;
-    auto leftRowsCount = pointsCount - rowsCount * processorsCount;
-    if (rank < leftRowsCount)
-    {
-        rowsCount = rowsCount + 1;
-        firstRowIndex = rank * rowsCount;
-    }
-    else
-    {
-        firstRowIndex = leftRowsCount * (rowsCount + 1) + (rank - leftRowsCount) * rowsCount;
-    }
-    return std::make_pair(rowsCount, firstRowIndex);
-}
+
 
 int main(int argc, char *argv[])
 {    
@@ -122,7 +107,7 @@ int main(int argc, char *argv[])
         std::cout.rdbuf(out.rdbuf());
 #endif
         // init processors with their part of data
-        auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
+        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
         processorInfoPtr->rowsCountValue = processorParameters.first;
         processorInfoPtr->startRowIndex = processorParameters.second;
 #ifdef DEBUG_MAIN
@@ -136,8 +121,8 @@ int main(int argc, char *argv[])
                   << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
-        auto optimizationAlgoPtr = new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
-                                                          processorInfoPtr);
+        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
+                                                          processorInfoPtr));
         auto uValuesApproximate = optimizationAlgoPtr->Init();
         auto uValues = optimizationAlgoPtr->CalculateU();
 #ifdef DEBUG_MAIN
@@ -152,27 +137,14 @@ int main(int argc, char *argv[])
         double localError = tmp.first;
         std::cout <<"WTF \n" << *tmp.second << std::endl;
         uValuesApproximate = tmp.second;
-        globalError = getMaxValueFromAllProcessors(localError);
+        globalError = GetMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
         std::cout << "Process finished, error = " << localError << ", global = "
                   << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
 #endif
         // gather values
-        auto globalUValues = std::make_shared<DoubleMatrix>(1,1);
-        if (processorInfoPtr->IsMainProcessor())
-        {
-            globalUValues = std::make_shared<DoubleMatrix>(netModelPtr->yPointsCount, netModelPtr->xPointsCount);
-        }
-        int recvcounts[processorInfoPtr->processorsCount], displs[processorInfoPtr->processorsCount];
-        for (auto i = 0; i < processorInfoPtr->processorsCount; ++i)
-        {
-            auto processorParameters = GetProcessorParameters(netModelPtr->yPointsCount, i, processorInfoPtr->processorsCount);
-            recvcounts[i] = processorParameters.first * netModelPtr->xPointsCount;
-            displs[i] = processorParameters.second * netModelPtr->xPointsCount;
-        }
-        MPI_Gatherv(&((*uValuesApproximate)(0, 0)), recvcounts[processorInfoPtr->rank], MPI_DOUBLE,
-                    &((*globalUValues)(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr->mainProcessorRank, MPI_COMM_WORLD);
+        auto globalUValues = GatherUApproximateValuesMatrix(*processorInfoPtr, *netModelPtr, *uValuesApproximate);
         if (processorInfoPtr->IsMainProcessor())
         {
 #ifdef DEBUG_MAIN

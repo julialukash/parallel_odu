@@ -13,31 +13,35 @@ void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
     }
 }
 
-std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag)
+std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
+                                           const NetModel &netModelPtr,
+                                           const DoubleMatrix& uValuesApproximate)
 {
-    MPI_Status status;
-    int rowsCount;
-    int colsCount;
-    MPI_Recv(&rowsCount, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, &status);
-    MPI_Recv(&colsCount, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, &status);
-
-
-    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
-    for (int i = 0; i < rowsCount; ++i)
+    auto globalUValues = std::make_shared<DoubleMatrix>(1,1);
+    if (processorInfoPtr.IsMainProcessor())
     {
-        MPI_Recv(&(values->matrix[i]), colsCount, MPI_DOUBLE, senderRank, tag, MPI_COMM_WORLD, &status);
+        globalUValues = std::make_shared<DoubleMatrix>(netModelPtr.yPointsCount, netModelPtr.xPointsCount);
     }
-    return values;
+    int recvcounts[processorInfoPtr.processorsCount], displs[processorInfoPtr.processorsCount];
+    for (auto i = 0; i < processorInfoPtr.processorsCount; ++i)
+    {
+        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr.yPointsCount, i, processorInfoPtr.processorsCount);
+        recvcounts[i] = processorParameters.first * netModelPtr.xPointsCount;
+        displs[i] = processorParameters.second * netModelPtr.xPointsCount;
+    }
+    MPI_Gatherv(&(uValuesApproximate(0, 0)), recvcounts[processorInfoPtr.rank], MPI_DOUBLE,
+                &((*globalUValues)(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr.mainProcessorRank, MPI_COMM_WORLD);
+    return globalUValues;
 }
 
-double getMaxValueFromAllProcessors(double localValue)
+double GetMaxValueFromAllProcessors(double localValue)
 {
     double globalValue;
     MPI_Allreduce(&localValue, &globalValue, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     return globalValue;
 }
 
-double getFractionValueFromAllProcessors(double numerator, double denominator)
+double GetFractionValueFromAllProcessors(double numerator, double denominator)
 {
     double localValue[2] = {numerator, denominator};
     double globalValue[2] = {0, 0};

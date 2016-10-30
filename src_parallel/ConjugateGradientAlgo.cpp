@@ -3,7 +3,7 @@
 #include "ConjugateGradientAlgo.h"
 
 #include "MPIOperations.h"
-#define DEBUG_MODE = 1
+//#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                   std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
@@ -150,7 +150,7 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
 #endif
     double numerator = approximateOperations->ScalarProduct(residuals, grad, processorData);
     double denominator = approximateOperations->ScalarProduct(laplassGrad, grad, processorData);
-    double tauValue = getFractionValueFromAllProcessors(numerator, denominator);
+    double tauValue = GetFractionValueFromAllProcessors(numerator, denominator);
 #ifdef DEBUG_MODE
     std::cout << "CalculateTauValue tauValue = " << tauValue << std::endl;
 #endif
@@ -166,7 +166,7 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
 #endif
     double numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad, processorData);
     double denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad, processorData);
-    double alphaValue = getFractionValueFromAllProcessors(numerator, denominator);
+    double alphaValue = GetFractionValueFromAllProcessors(numerator, denominator);
 #ifdef DEBUG_MODE
     std::cout << "CalculateAlphaValue alphaValue = " << alphaValue << std::endl;
 #endif
@@ -254,7 +254,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
     std::cout << "psi = \n" << psi << std::endl;
 #endif
     double error = approximateOperations->MaxNormValue(psi);
-    double globalError = getMaxValueFromAllProcessors(error);
+    double globalError = GetMaxValueFromAllProcessors(error);
 
 #ifdef DEBUG_MODE
     std::cout << "error = " << error << ", global = " << globalError << std::endl;
@@ -277,7 +277,7 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
 #endif
     double pDiffNormLocal, pDiffNormGlobal;
     pDiffNormLocal = approximateOperations->MaxNormValue(*pDiffCropped);
-    pDiffNormGlobal = getMaxValueFromAllProcessors(pDiffNormLocal);
+    pDiffNormGlobal = GetMaxValueFromAllProcessors(pDiffNormLocal);
 
 #ifdef DEBUG_MODE
     std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;

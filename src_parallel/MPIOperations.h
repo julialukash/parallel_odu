@@ -14,8 +14,12 @@ enum MessageTag
 };
 
 
-double getMaxValueFromAllProcessors(double localValue);
-double getFractionValueFromAllProcessors(double numerator, double denominator);
+std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData &processorInfoPtr,
+                                           const NetModel& netModelPtr,
+                                           const DoubleMatrix& uValuesApproximate);
+
+double GetMaxValueFromAllProcessors(double localValue);
+double GetFractionValueFromAllProcessors(double numerator, double denominator);
 
 void RenewMatrixBoundRows(DoubleMatrix& values, std::shared_ptr<ProcessorsData> processorData, std::shared_ptr<NetModel> netModel);
 
