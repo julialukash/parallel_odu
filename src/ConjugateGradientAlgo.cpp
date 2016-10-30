@@ -34,7 +34,7 @@ DoubleMatrix ConjugateGradientAlgo::Init()
             else
             {
                 // random init
-                values(i, j) = diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
+                values(i, j) = 0;//diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
             }
         }
     }
@@ -188,7 +188,7 @@ DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residu
 #ifdef DEBUG_MODE
         std::cout << "Alpha = " << alpha << std::endl;
 #endif
-        gradient = residuals - alpha * laplassResiduals;
+        gradient = residuals - alpha * previousGrad;
     }
     return gradient;
 }
