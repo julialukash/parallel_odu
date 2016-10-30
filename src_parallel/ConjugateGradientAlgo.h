@@ -18,8 +18,8 @@ private:
 
     double CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad);
     double CalculateAlphaValue(const DoubleMatrix& laplassResiduals, const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad);
-    DoubleMatrix CalculateResidual(const DoubleMatrix &p);
-    DoubleMatrix CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
+    std::shared_ptr<DoubleMatrix> CalculateResidual(const DoubleMatrix &p);
+    std::shared_ptr<DoubleMatrix> CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
                                    const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
                                    int k);
     std::shared_ptr<DoubleMatrix> CalculateNewP(const DoubleMatrix &p, const DoubleMatrix &grad, double tau);

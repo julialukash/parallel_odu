@@ -18,7 +18,7 @@ public:
     }
 
     // note: calculates -laplass(currentValues)
-    DoubleMatrix CalculateLaplass(const DoubleMatrix& currentValues, std::shared_ptr<ProcessorsData> processorDataPtr)
+    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, std::shared_ptr<ProcessorsData> processorDataPtr)
     {
         auto startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
         auto endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
@@ -26,7 +26,7 @@ public:
         std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
         std::cout <<"ApproximateOperations.CalculateLaplass startIndex = " << startIndex << ", endIndex = " << endIndex << std::endl;
 #endif
-        auto laplassValues = DoubleMatrix(processorDataPtr->RowsCountWithBorders(), netModel->xPointsCount);
+        auto laplassValues = std::make_shared<DoubleMatrix>(processorDataPtr->RowsCountWithBorders(), netModel->xPointsCount);
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
 #endif
@@ -34,13 +34,13 @@ public:
         {
             auto iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
 
-            for (auto j = 1; j < laplassValues.colsCount() - 1; ++j)
+            for (auto j = 1; j < laplassValues->colsCount() - 1; ++j)
             {
                 auto xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel->xStep(iNetIndex - 1) -
                              (currentValues(i + 1, j) - currentValues(i, j)) / netModel->xStep(iNetIndex);
                 auto yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel->yStep(j - 1) -
                              (currentValues(i, j + 1) - currentValues(i, j)) / netModel->yStep(j);
-                laplassValues(i, j) = xPart / netModel->xAverageStep(iNetIndex) + yPart / netModel->yAverageStep(j);
+                (*laplassValues)(i, j) = xPart / netModel->xAverageStep(iNetIndex) + yPart / netModel->yAverageStep(j);
 #ifdef DEBUG_MODE
                 std::cout <<"ApproximateOperations.CalculateLaplass i = " << i << ", iNetIndex = " << iNetIndex << ", j = " << j << ", value = " << laplassValues(i, j) << std::endl;
 #endif

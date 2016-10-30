@@ -61,8 +61,8 @@ void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
 
 double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const DoubleMatrix& uValues)
 {
-    std::shared_ptr<DoubleMatrix> previousP = p;
-    DoubleMatrix grad, laplassGrad, laplassPreviousGrad;
+    std::shared_ptr<DoubleMatrix> previousP, grad, laplassGrad, laplassPreviousGrad;
+    previousP = p; laplassGrad = p; laplassPreviousGrad = p; grad = p;
     int iteration = 0;
     double error = -1.0;
     while (true)
@@ -90,45 +90,44 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const Dou
             break;
         }
 
-        laplassPreviousGrad = laplassGrad;
+        laplassPreviousGrad.swap(laplassGrad);
 
 #ifdef DEBUG_MODE
-        std::cout << "Process laplassPreviousGrad = \n" << laplassPreviousGrad << std::endl;
+        std::cout << "Process laplassPreviousGrad = \n" << *laplassPreviousGrad << std::endl;
 #endif
 
         auto residuals = CalculateResidual(*p);
-        RenewBoundRows(residuals);
+        RenewBoundRows(*residuals);
 #ifdef DEBUG_MODE
-        std::cout << "Process Residuals = \n" << residuals << std::endl;
+        std::cout << "Process Residuals = \n" << *residuals << std::endl;
 #endif
-        auto laplassResiduals = approximateOperations->CalculateLaplass(residuals, processorData);
-        RenewBoundRows(laplassResiduals);
+        auto laplassResiduals = approximateOperations->CalculateLaplass(*residuals, processorData);
+        RenewBoundRows(*laplassResiduals);
 
 #ifdef DEBUG_MODE
-//        std::cout << "Residuals = \n" << residuals << std::endl;
-        std::cout << "Process Laplass Residuals = " << laplassResiduals << std::endl;
-        std::cout << "Process grad = " << grad << std::endl;
-        std::cout << "Process laplassPreviousGrad = " << laplassPreviousGrad << std::endl;
+        std::cout << "Process Laplass Residuals = " << *laplassResiduals << std::endl;
+        std::cout << "Process grad = " << *grad << std::endl;
+        std::cout << "Process laplassPreviousGrad = " << *laplassPreviousGrad << std::endl;
 #endif
 
-        grad = CalculateGradient(residuals, laplassResiduals, grad, laplassPreviousGrad, iteration);
+        grad = CalculateGradient(*residuals, *laplassResiduals, *grad, *laplassPreviousGrad, iteration);
 
-        laplassGrad = approximateOperations->CalculateLaplass(grad, processorData);
-        RenewBoundRows(laplassGrad);
+        laplassGrad = approximateOperations->CalculateLaplass(*grad, processorData);
+        RenewBoundRows(*laplassGrad);
 
-        auto tau = CalculateTauValue(residuals, grad, laplassGrad);
+        auto tau = CalculateTauValue(*residuals, *grad, *laplassGrad);
 
 #ifdef DEBUG_MODE
         std::cout << "Process p = \n" << *p << std::endl;
-        std::cout << "Process grad = \n" << grad << std::endl;
-        std::cout << "Process laplassGrad = \n" << laplassGrad << std::endl;
+        std::cout << "Process grad = \n" << *grad << std::endl;
+        std::cout << "Process laplassGrad = \n" << *laplassGrad << std::endl;
         std::cout << "Process tau = " << tau << std::endl;
         std::cout << "Process previousP = \n" << *previousP << std::endl;
         std::cout << "Process ... " << std::endl;
 #endif
 
         previousP.swap(p);
-        p = CalculateNewP(*previousP, grad, tau);
+        p = CalculateNewP(*previousP, *grad, tau);
 
         ++iteration;        
     }
@@ -172,47 +171,47 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
     return alphaValue;
 }
 
-DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
+std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
 {
 #ifdef DEBUG_MODE
         std::cout << "CalculateResidual ..." << std::endl;
 #endif
     auto laplassP = approximateOperations->CalculateLaplass(p, processorData);
 #ifdef DEBUG_MODE
-        std::cout << "CalculateResidual laplassP \n" << laplassP << std::endl;
+        std::cout << "CalculateResidual laplassP \n" << *laplassP << std::endl;
 #endif
-    auto residuals = DoubleMatrix(laplassP.rowsCount(), laplassP.colsCount());
+    auto residuals = std::make_shared<DoubleMatrix>(laplassP->rowsCount(), laplassP->colsCount());
     auto startIndex = 1;
     auto endIndex = processorData->RowsCountWithBorders() - 2;
     for (auto i = startIndex; i <= endIndex; ++i)
     {
         auto iNetIndex = i - startIndex + processorData->FirstRowIndex();
-        for (auto j = 0; j < residuals.colsCount(); ++j)
+        for (auto j = 0; j < residuals->colsCount(); ++j)
         {
             if (netModel->IsInnerPoint(iNetIndex, j))
             {
-                residuals(i, j) = 0;
+                (*residuals)(i, j) = 0;
             }
             else
             {
-                residuals(i, j) = laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(iNetIndex));
+                (*residuals)(i, j) = (*laplassP)(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(iNetIndex));
             }
         }
     }
     return residuals;
 }
 
-DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
+std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
                                 const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
                                 int k)
 {
 #ifdef DEBUG_MODE
         std::cout << "CalculateGradient = \n" << residuals << std::endl;
 #endif
-    DoubleMatrix gradient;
+    std::shared_ptr<DoubleMatrix> gradient;
     if (k == 0)
     {
-        gradient = residuals;
+        gradient = std::make_shared<DoubleMatrix>(residuals);
     }
     else
     {
@@ -220,7 +219,7 @@ DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residu
 #ifdef DEBUG_MODE
         std::cout << "Alpha = " << alpha << std::endl;
 #endif
-        gradient = residuals - alpha * laplassResiduals;
+        gradient = std::make_shared<DoubleMatrix>(residuals - alpha * laplassResiduals);
     }
     return gradient;
 }
@@ -272,7 +271,7 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
     auto pDiffCropped = pDiff.CropMatrix(1, pDiff.rowsCount() - 2);
 #ifdef DEBUG_MODE
     std::cout << "IsStopCondition pDiff = \n" << pDiff << std::endl;
-    std::cout << "IsStopCondition pDiffCropped = \n" << pDiffCropped << std::endl;
+    std::cout << "IsStopCondition pDiffCropped = \n" << *pDiffCropped << std::endl;
 #endif
     double pDiffNormLocal, pDiffNormGlobal;
     pDiffNormLocal = approximateOperations->MaxNormValue(*pDiffCropped);
