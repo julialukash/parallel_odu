@@ -221,7 +221,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(const Dou
 #ifdef DEBUG_MODE
         std::cout << "Alpha = " << alpha << std::endl;
 #endif
-        gradient = std::make_shared<DoubleMatrix>(residuals - alpha * laplassResiduals);
+        gradient = std::make_shared<DoubleMatrix>(residuals - alpha * previousGrad);
     }
     return gradient;
 }
