@@ -221,7 +221,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(const Dou
 #ifdef DEBUG_MODE
         std::cout << "Alpha = " << alpha << std::endl;
 #endif
-        gradient = std::make_shared<DoubleMatrix>(residuals - alpha * previousGrad);
+        gradient = residuals - alpha * previousGrad;
     }
     return gradient;
 }
@@ -233,7 +233,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateNewP(const DoubleM
     std::cout << "CalculateNewP grad = \n" << grad << std::endl;
     std::cout << "CalculateNewP tau = " << tau << std::endl;
 #endif
-    return std::make_shared<DoubleMatrix>(p - tau * grad);
+    return p - tau * grad;
 }
 
 double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const DoubleMatrix& p)
@@ -253,7 +253,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 #ifdef DEBUG_MODE
     std::cout << "psi = \n" << psi << std::endl;
 #endif
-    double error = approximateOperations->MaxNormValue(psi);
+    double error = approximateOperations->MaxNormValue(*psi);
     double globalError = GetMaxValueFromAllProcessors(error);
 
 #ifdef DEBUG_MODE
@@ -270,9 +270,9 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
 #endif
 
     auto pDiff = p - previousP;
-    auto pDiffCropped = pDiff.CropMatrix(1, pDiff.rowsCount() - 2);
+    auto pDiffCropped = pDiff->CropMatrix(1, pDiff->rowsCount() - 2);
 #ifdef DEBUG_MODE
-    std::cout << "IsStopCondition pDiff = \n" << pDiff << std::endl;
+    std::cout << "IsStopCondition pDiff = \n" << *pDiff << std::endl;
     std::cout << "IsStopCondition pDiffCropped = \n" << *pDiffCropped << std::endl;
 #endif
     double pDiffNormLocal, pDiffNormGlobal;

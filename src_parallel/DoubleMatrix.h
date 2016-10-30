@@ -110,38 +110,18 @@ public:
         return *this;
     }
 
-    friend DoubleMatrix operator+(const DoubleMatrix& a, const DoubleMatrix& b)
+
+    friend std::shared_ptr<DoubleMatrix> operator-(const DoubleMatrix& a, const DoubleMatrix& b)
     {
         if (a.rowsCountValue == b.rowsCountValue && a.colsCountValue == b.colsCountValue)
         {
-            DoubleMatrix res(a.rowsCountValue, a.colsCountValue);
+            auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(a.rowsCountValue, a.colsCountValue));
 
             for (int i = 0; i < a.rowsCountValue; i++)
             {
                 for (int j = 0; j < a.colsCountValue; j++)
                 {
-                    res(i, j) = a(i, j) + b(i, j);
-                }
-            }
-            return res;
-        }
-        else
-        {
-            throw "Dimensions does not match";
-        }
-    }
-
-    friend DoubleMatrix operator-(const DoubleMatrix& a, const DoubleMatrix& b)
-    {
-        if (a.rowsCountValue == b.rowsCountValue && a.colsCountValue == b.colsCountValue)
-        {
-            DoubleMatrix res(a.rowsCountValue, a.colsCountValue);
-
-            for (int i = 0; i < a.rowsCountValue; i++)
-            {
-                for (int j = 0; j < a.colsCountValue; j++)
-                {
-                    res(i, j) = a(i, j) - b(i, j);
+                    (*res)(i, j) = a(i, j) - b(i, j);
                 }
             }
             return res;
@@ -171,12 +151,12 @@ public:
         return res;
     }
 
-    friend DoubleMatrix operator* (const double b, const DoubleMatrix & a)
-    {
-        DoubleMatrix res = a;
-        res.MultiplyByValue(b);
-        return res;
-    }
+//    friend DoubleMatrix operator* (const double b, const DoubleMatrix & a)
+//    {
+//        DoubleMatrix res = a;
+//        res.MultiplyByValue(b);
+//        return res;
+//    }
 
     int rowsCount() const
     {
