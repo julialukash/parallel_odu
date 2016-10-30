@@ -107,11 +107,13 @@ int main(int argc, char *argv[])
         }
         std::cout << "rank = " << rank << std::endl;
 
-        auto processorInfoPtr = std::make_shared<ProcessorsData>(rank, processorsCount);
+        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount));
 
-        auto netModelPtr = std::make_shared<NetModel>(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, pointsCount, pointsCount);
-        auto diffEquationPtr = std::make_shared<DifferentialEquationModel>();
-        auto approximateOperationsPtr = std::make_shared<ApproximateOperations>(netModelPtr);
+        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
+                                                                  yMinBoundary, yMaxBoundary,
+                                                                  pointsCount, pointsCount));
+        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
+        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(netModelPtr));
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -148,8 +150,8 @@ int main(int argc, char *argv[])
 #endif
         auto tmp = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
         double localError = tmp.first;
-        std::cout <<"WTF \n" << tmp.second << std::endl;
-        uValuesApproximate = std::make_shared<DoubleMatrix>(tmp.second);
+        std::cout <<"WTF \n" << *tmp.second << std::endl;
+        uValuesApproximate = tmp.second;
         globalError = getMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN

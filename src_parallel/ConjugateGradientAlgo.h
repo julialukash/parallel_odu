@@ -31,7 +31,7 @@ public:
                           std::shared_ptr<ProcessorsData> processorDataPtr);
     std::shared_ptr<DoubleMatrix> Init();
     std::shared_ptr<DoubleMatrix> CalculateU();
-    std::pair<double, DoubleMatrix>  Process(std::shared_ptr<DoubleMatrix> initP, const DoubleMatrix &uValues);
+    std::pair<double, std::shared_ptr<DoubleMatrix>>  Process(std::shared_ptr<DoubleMatrix> initP, const DoubleMatrix &uValues);
     void RenewBoundRows(DoubleMatrix &values);
 };
 

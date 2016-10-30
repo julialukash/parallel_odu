@@ -17,7 +17,7 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, st
 
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 {
-    auto values = std::make_shared<DoubleMatrix>(processorData->RowsCount(), netModel->yPointsCount);
+    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData->RowsCount(), netModel->yPointsCount));
     for (int i = 0; i < values->rowsCount(); ++i)
     {
         int iNetIndex = i + processorData->FirstRowIndex();
@@ -31,7 +31,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 {
-    auto values = std::make_shared<DoubleMatrix>(processorData->RowsCountWithBorders(), netModel->xPointsCount);
+    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData->RowsCountWithBorders(), netModel->xPointsCount));
     for (int i = 0; i < values->rowsCount(); ++i)
     {
         auto iValueIndex = processorData->IsFirstProcessor() ? i + 1 : i;
@@ -59,7 +59,7 @@ void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
     RenewMatrixBoundRows(values, processorData, netModel);
 }
 
-std::pair<double, DoubleMatrix> ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const DoubleMatrix& uValues)
+std::pair<double, std::shared_ptr<DoubleMatrix>> ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix> p, const DoubleMatrix& uValues)
 {
     std::shared_ptr<DoubleMatrix> previousP, grad, laplassGrad, laplassPreviousGrad;
     previousP = p; laplassGrad = p; laplassPreviousGrad = p; grad = p;
@@ -138,7 +138,7 @@ std::pair<double, DoubleMatrix> ConjugateGradientAlgo::Process(std::shared_ptr<D
 #ifdef DEBUG_MODE
         std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
 #endif
-    return std::make_pair(error, *p);
+    return std::make_pair(error, p);
 }
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
