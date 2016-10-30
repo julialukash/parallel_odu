@@ -3,7 +3,7 @@
 #include "ConjugateGradientAlgo.h"
 
 #include "MPIOperations.h"
-//#define DEBUG_MODE = 1
+#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                   std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
@@ -46,7 +46,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
                 }
                 else
                 {
-                    (*values)(iValueIndex, j) = diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                    (*values)(iValueIndex, j) = 0.05;//diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
                 }
             }
         }

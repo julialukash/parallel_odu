@@ -18,6 +18,15 @@ public:
         colsCount = 0;
     }
 
+    ~DoubleMatrix()
+    {
+        for (int r = 0; r < rowsCount; r++)
+        {
+            delete matrix[r];
+        }
+        delete matrix;
+        matrix = NULL;
+    }
 
     DoubleMatrix(const int rowCount, const int colCount)
     {
