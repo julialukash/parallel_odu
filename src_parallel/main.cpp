@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 
 #ifdef DEBUG_MAIN
         std::cout << "Process finished, error = " << localError << ", global = "
-                  << globalError << ", u = \n" << uValuesApproximate << std::endl;
+                  << globalError << ", u = \n" << *uValuesApproximate << std::endl;
 #endif
         // gather values
         DoubleMatrix globalUValues(1,1);

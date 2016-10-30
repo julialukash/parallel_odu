@@ -46,15 +46,24 @@ double ConjugateGradientAlgo::Process(DoubleMatrix &p, const DoubleMatrix& uValu
     DoubleMatrix previousP, grad, laplassGrad, laplassPreviousGrad;
     double error = -1;
     int iteration = 0;
-    while (iteration == 0 || !IsStopCondition(p, previousP))
+    while (true)
     {
-        error = CalculateError(uValues, p);
-        std::cout << "==============================================================" << std::endl;
-        std::cout << "iteration = " << iteration << ", error = " <<  error << std::endl;
-
 #ifdef DEBUG_MODE
-        std::cout << "p = \n" << p << std::endl;
+        std::cout << "u vals = \n" << uValues << std::endl;
+        std::cout << "===================================================================" << std::endl;
+        std::cout << "iteration = " << iteration << ", error = " << error << std::endl;
+        std::cout << "p = " << p << std::endl;
 #endif
+
+        error = CalculateError(uValues, p);
+
+        // check stop condition
+        auto stopCondition = iteration != 0 && IsStopCondition(p, previousP);
+        if (stopCondition)
+        {
+            break;
+        }
+
 
         laplassPreviousGrad = laplassGrad;
 
@@ -101,17 +110,28 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
     std::cout << "CalculateTauValue num  = " << numerator << ", " << denominator << std::endl;
 #endif
     auto tau = numerator / denominator;
+#ifdef DEBUG_MODE
+    std::cout << "CalculateTauValue tau = " << tau << std::endl;
+#endif
     return tau;
 }
 
 double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassResiduals, const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad)
 {
+#ifdef DEBUG_MODE
+    std::cout << "CalculateAlphaValue laplassResiduals\n " << laplassResiduals << std::endl;
+    std::cout << "CalculateAlphaValue laplassPreviousGrad\n " << laplassPreviousGrad << std::endl;
+    std::cout << "CalculateAlphaValue previousGrad\n " << previousGrad << std::endl;
+#endif
     auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad);
     auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad);
 #ifdef DEBUG_MODE
     std::cout << "CalculateAlphaValue num  = " << numerator << ", " << denominator << std::endl;
 #endif
     auto alpha = numerator / denominator;
+#ifdef DEBUG_MODE
+    std::cout << "CalculateAlphaValue alpha = " << alpha << std::endl;
+#endif
     return alpha;
 }
 
@@ -175,6 +195,11 @@ DoubleMatrix ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residu
 
 DoubleMatrix ConjugateGradientAlgo::CalculateNewP(const DoubleMatrix& p, const DoubleMatrix& grad, double tau)
 {
+#ifdef DEBUG_MODE
+    std::cout << "CalculateNewP p = \n" << p << std::endl;
+    std::cout << "CalculateNewP grad = \n" << grad << std::endl;
+    std::cout << "CalculateNewP tau = " << tau << std::endl;
+#endif
     return p - tau * grad;
 }
 
@@ -200,11 +225,17 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 
 bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleMatrix& previousP)
 {
-    auto pDiff = p - previousP;
-    auto pDiffNorm = approximateOperations->NormValue(pDiff);
-    std::cout << "pDiffNorm = " << pDiffNorm << std::endl;
-
 #ifdef DEBUG_MODE
+    std::cout << "IsStopCondition p = \n" << p << std::endl;
+    std::cout << "IsStopCondition previousP = \n" << previousP << std::endl;
+#endif
+    auto pDiff = p - previousP;
+#ifdef DEBUG_MODE
+    std::cout << "IsStopCondition pDiff = \n" << pDiff << std::endl;
+#endif
+    auto pDiffNorm = approximateOperations->NormValue(pDiff);
+#ifdef DEBUG_MODE
+    std::cout << "pDiffNorm = " << pDiffNorm << std::endl;
     auto stop = pDiffNorm < eps;
     std::cout << "CheckStopCondition = " << stop << std::endl;
 #endif

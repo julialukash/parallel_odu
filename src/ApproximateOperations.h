@@ -49,10 +49,23 @@ public:
 
     double NormValue(const DoubleMatrix& currentValues)
     {
-        auto minMax = std::minmax_element(&(currentValues.matrix[0][0]),
-                        &(currentValues.matrix[0][0]) + currentValues.size1() * currentValues.size2());
-        double min = fabs(*minMax.first);
-        double max = fabs(*minMax.second);
+        double min, max;
+        for (auto i = 0; i < currentValues.size1(); ++i)
+        {
+            for (auto j = 1; j < currentValues.size2(); ++j)
+            {
+                if (currentValues(i, j) > max)
+                {
+                    max = currentValues(i, j);
+                }
+                if (currentValues(i, j) < min)
+                {
+                    min = currentValues(i, j);
+                }
+            }
+        }
+        min = fabs(min);
+        max = fabs(max);
         std::cout << "MaxNormValue min = " << min << ", max = " << max << std::endl;
         return max > min ? max : min;
     }

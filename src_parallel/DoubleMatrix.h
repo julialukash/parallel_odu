@@ -34,7 +34,7 @@ public:
       {
           for (auto j = 0; j < colsCountValue; j++)
           {
-              matrix[i * rowsCountValue + j] = 0;
+              matrix[i * colsCountValue + j] = 0;
           }
       }
     }
