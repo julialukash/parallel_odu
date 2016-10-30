@@ -26,9 +26,9 @@ void writeValues(char* filename, const DoubleMatrix& values)
         exit(1);
     }
 
-    for (auto i = 0; i < values.rowsCount(); ++i)
+    for (int i = 0; i < values.rowsCount(); ++i)
     {
-        for (auto j = 0; j < values.colsCount(); ++j)
+        for (int j = 0; j < values.colsCount(); ++j)
         {
             outputFile << values(i,j) << " ";
         }
@@ -47,11 +47,11 @@ void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > glo
         exit(1);
     }
 
-    for (auto k = 0; k < globalValues.size(); ++k)
+    for (int k = 0; k < globalValues.size(); ++k)
     {
-        for (auto i = 0; i < globalValues[k]->rowsCount(); ++i)
+        for (int i = 0; i < globalValues[k]->rowsCount(); ++i)
         {
-            for (auto j = 0; j < globalValues[k]->colsCount(); ++j)
+            for (int j = 0; j < globalValues[k]->colsCount(); ++j)
             {
                 outputFile << globalValues[k]->operator()(i, j) << " ";
             }
