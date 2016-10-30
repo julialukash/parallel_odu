@@ -14,15 +14,6 @@ enum MessageTag
 };
 
 
-enum FlagType
-{
-  START_ITER,
-  TERMINATE,
-};
-
-void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag);
-std::shared_ptr<DoubleMatrix> receiveMatrix(int senderRank, int tag);
-
 double getMaxValueFromAllProcessors(double localValue);
 double getFractionValueFromAllProcessors(double numerator, double denominator);
 

@@ -31,9 +31,9 @@ public:
       colsCountValue = colCount;
 
       matrix = new double[rowsCountValue * colsCountValue];
-      for (auto i = 0; i < rowsCountValue; i++)
+      for (int i = 0; i < rowsCountValue; i++)
       {
-          for (auto j = 0; j < colsCountValue; j++)
+          for (int j = 0; j < colsCountValue; j++)
           {
               matrix[i * colsCountValue + j] = 0;
           }
@@ -45,9 +45,9 @@ public:
         rowsCountValue = otherMatrix.rowsCountValue;
         colsCountValue = otherMatrix.colsCountValue;
         matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
-        for (auto i = 0; i < rowsCountValue; i++)
+        for (int i = 0; i < rowsCountValue; i++)
         {
-            for (auto j = 0; j < colsCountValue; j++)
+            for (int j = 0; j < colsCountValue; j++)
             {
                 operator() (i, j) = otherMatrix(i, j);
             }
@@ -60,9 +60,9 @@ public:
         rowsCountValue = rowsCount;
         colsCountValue = colsCount;
         matrix = new double[rowsCount * colsCount];
-        for (auto i = 0; i < rowsCountValue; i++)
+        for (int i = 0; i < rowsCountValue; i++)
         {
-            for (auto j = 0; j < colsCountValue; j++)
+            for (int j = 0; j < colsCountValue; j++)
             {
                 operator() (i, j) = otherMatrix[i * colsCount + j];
             }
@@ -100,9 +100,9 @@ public:
         rowsCountValue = otherMatrix.rowsCountValue;
         colsCountValue = otherMatrix.colsCountValue;
         matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
-        for (auto i = 0; i < rowsCountValue; i++)
+        for (int i = 0; i < rowsCountValue; i++)
         {
-            for (auto j = 0; j < colsCountValue; j++)
+            for (int j = 0; j < colsCountValue; j++)
             {
                 operator() (i, j) = otherMatrix(i, j);
             }
@@ -116,9 +116,9 @@ public:
         {
             DoubleMatrix res(a.rowsCountValue, a.colsCountValue);
 
-            for (auto i = 0; i < a.rowsCountValue; i++)
+            for (int i = 0; i < a.rowsCountValue; i++)
             {
-                for (auto j = 0; j < a.colsCountValue; j++)
+                for (int j = 0; j < a.colsCountValue; j++)
                 {
                     res(i, j) = a(i, j) + b(i, j);
                 }
@@ -137,9 +137,9 @@ public:
         {
             DoubleMatrix res(a.rowsCountValue, a.colsCountValue);
 
-            for (auto i = 0; i < a.rowsCountValue; i++)
+            for (int i = 0; i < a.rowsCountValue; i++)
             {
-                for (auto j = 0; j < a.colsCountValue; j++)
+                for (int j = 0; j < a.colsCountValue; j++)
                 {
                     res(i, j) = a(i, j) - b(i, j);
                 }
@@ -154,9 +154,9 @@ public:
 
     DoubleMatrix& MultiplyByValue(const double value)
     {
-        for (auto i = 0; i < rowsCountValue; i++)
+        for (int i = 0; i < rowsCountValue; i++)
         {
-            for (auto j = 0; j < colsCountValue; j++)
+            for (int j = 0; j < colsCountValue; j++)
             {
                 operator()(i, j) *= value;
             }
@@ -191,10 +191,10 @@ public:
     std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount) const
     {
         auto res = std::make_shared<DoubleMatrix>(rowsCount, colsCountValue);
-        for (auto i = startRow; i < startRow + rowsCount; i++)
+        for (int i = startRow; i < startRow + rowsCount; i++)
         {
-            auto iIndex = i - startRow;
-            for (auto j = 0; j < colsCountValue; j++)
+            int iIndex = i - startRow;
+            for (int j = 0; j < colsCountValue; j++)
             {
                 (*res)(iIndex, j) = operator ()(i, j);
             }
@@ -205,9 +205,9 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const DoubleMatrix& dt)
     {
-        for (auto i = 0; i < dt.rowsCount(); ++i)
+        for (int i = 0; i < dt.rowsCount(); ++i)
         {
-            for (auto j = 0; j < dt.colsCount(); ++j)
+            for (int j = 0; j < dt.colsCount(); ++j)
             {
                 os << dt(i, j) << " ";
             }

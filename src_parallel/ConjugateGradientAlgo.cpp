@@ -18,10 +18,10 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, st
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 {
     auto values = std::make_shared<DoubleMatrix>(processorData->RowsCount(), netModel->yPointsCount);
-    for (auto i = 0; i < values->rowsCount(); ++i)
+    for (int i = 0; i < values->rowsCount(); ++i)
     {
-        auto iNetIndex = i + processorData->FirstRowIndex();
-        for (auto j = 0; j < values->colsCount(); ++j)
+        int iNetIndex = i + processorData->FirstRowIndex();
+        for (int j = 0; j < values->colsCount(); ++j)
         {
             (*values)(i, j) = diffModel->CalculateUValue(netModel->xValue(iNetIndex), netModel->yValue(j));
         }
@@ -32,13 +32,13 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 {
     auto values = std::make_shared<DoubleMatrix>(processorData->RowsCountWithBorders(), netModel->xPointsCount);
-    for (auto i = 0; i < values->rowsCount(); ++i)
+    for (int i = 0; i < values->rowsCount(); ++i)
     {
         auto iValueIndex = processorData->IsFirstProcessor() ? i + 1 : i;
         auto iNetIndex = i + processorData->FirstRowWithBordersIndex();
         if (iNetIndex  >= processorData->FirstRowIndex() && iNetIndex <= processorData->LastRowIndex())
         {
-            for (auto j = 0; j < values->colsCount(); ++j)
+            for (int j = 0; j < values->colsCount(); ++j)
             {
                 if (netModel->IsInnerPoint(iNetIndex, j))
                 {
@@ -146,9 +146,9 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
     std::cout << "CalculateTauValue laplassGrad\n " << laplassGrad << std::endl;
     std::cout << "CalculateTauValue grad\n " << grad << std::endl;
 #endif
-    auto numerator = approximateOperations->ScalarProduct(residuals, grad, processorData);
-    auto denominator = approximateOperations->ScalarProduct(laplassGrad, grad, processorData);
-    auto tauValue = getFractionValueFromAllProcessors(numerator, denominator);    
+    double numerator = approximateOperations->ScalarProduct(residuals, grad, processorData);
+    double denominator = approximateOperations->ScalarProduct(laplassGrad, grad, processorData);
+    double tauValue = getFractionValueFromAllProcessors(numerator, denominator);
 #ifdef DEBUG_MODE
     std::cout << "CalculateTauValue tauValue = " << tauValue << std::endl;
 #endif
@@ -162,9 +162,9 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
     std::cout << "CalculateAlphaValue laplassPreviousGrad\n " << laplassPreviousGrad << std::endl;
     std::cout << "CalculateAlphaValue previousGrad\n " << previousGrad << std::endl;
 #endif
-    auto numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad, processorData);
-    auto denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad, processorData);
-    auto alphaValue = getFractionValueFromAllProcessors(numerator, denominator);
+    double numerator = approximateOperations->ScalarProduct(laplassResiduals, previousGrad, processorData);
+    double denominator = approximateOperations->ScalarProduct(laplassPreviousGrad, previousGrad, processorData);
+    double alphaValue = getFractionValueFromAllProcessors(numerator, denominator);
 #ifdef DEBUG_MODE
     std::cout << "CalculateAlphaValue alphaValue = " << alphaValue << std::endl;
 #endif
@@ -181,12 +181,12 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
         std::cout << "CalculateResidual laplassP \n" << *laplassP << std::endl;
 #endif
     auto residuals = std::make_shared<DoubleMatrix>(laplassP->rowsCount(), laplassP->colsCount());
-    auto startIndex = 1;
-    auto endIndex = processorData->RowsCountWithBorders() - 2;
-    for (auto i = startIndex; i <= endIndex; ++i)
+    int startIndex = 1;
+    int endIndex = processorData->RowsCountWithBorders() - 2;
+    for (int i = startIndex; i <= endIndex; ++i)
     {
-        auto iNetIndex = i - startIndex + processorData->FirstRowIndex();
-        for (auto j = 0; j < residuals->colsCount(); ++j)
+        int iNetIndex = i - startIndex + processorData->FirstRowIndex();
+        for (int j = 0; j < residuals->colsCount(); ++j)
         {
             if (netModel->IsInnerPoint(iNetIndex, j))
             {
@@ -215,7 +215,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(const Dou
     }
     else
     {
-        auto alpha = CalculateAlphaValue(laplassResiduals, previousGrad, laplassPreviousGrad);
+        double alpha = CalculateAlphaValue(laplassResiduals, previousGrad, laplassPreviousGrad);
 #ifdef DEBUG_MODE
         std::cout << "Alpha = " << alpha << std::endl;
 #endif
@@ -251,8 +251,8 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
 #ifdef DEBUG_MODE
     std::cout << "psi = \n" << psi << std::endl;
 #endif
-    auto error = approximateOperations->MaxNormValue(psi);
-    auto globalError = getMaxValueFromAllProcessors(error);
+    double error = approximateOperations->MaxNormValue(psi);
+    double globalError = getMaxValueFromAllProcessors(error);
 
 #ifdef DEBUG_MODE
     std::cout << "error = " << error << ", global = " << globalError << std::endl;
@@ -280,7 +280,7 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
 #ifdef DEBUG_MODE
     std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;
 
-    auto stop = pDiffNormGlobal < eps;
+    bool stop = pDiffNormGlobal < eps;
     std::cout << "CheckStopCondition = " << stop << std::endl;
 #endif
     return pDiffNormGlobal < eps;

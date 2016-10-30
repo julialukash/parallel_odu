@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
         auto approximateValuesFilename = argv[2];
         auto pointsCount = std::stoi(argv[3]);
 
-        if (processorsCount <= 1)// || (processorsCount > (pointsCount + 1) / 2))
+        if (processorsCount <= 0)// || (processorsCount > (pointsCount + 1) / 2))
         {
             std::cerr << "Incorrect number of processors\n";
             exit(1);

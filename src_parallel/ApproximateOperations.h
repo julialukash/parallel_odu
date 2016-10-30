@@ -20,8 +20,8 @@ public:
     // note: calculates -laplass(currentValues)
     std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, std::shared_ptr<ProcessorsData> processorDataPtr)
     {
-        auto startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
-        auto endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
+        int startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
+        int endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
         std::cout <<"ApproximateOperations.CalculateLaplass startIndex = " << startIndex << ", endIndex = " << endIndex << std::endl;
@@ -30,15 +30,15 @@ public:
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
 #endif
-        for (auto i = startIndex; i <= endIndex; ++i)
+        for (int i = startIndex; i <= endIndex; ++i)
         {
-            auto iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
+            int iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
 
-            for (auto j = 1; j < laplassValues->colsCount() - 1; ++j)
+            for (int j = 1; j < laplassValues->colsCount() - 1; ++j)
             {
-                auto xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel->xStep(iNetIndex - 1) -
+                double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel->xStep(iNetIndex - 1) -
                              (currentValues(i + 1, j) - currentValues(i, j)) / netModel->xStep(iNetIndex);
-                auto yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel->yStep(j - 1) -
+                double yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel->yStep(j - 1) -
                              (currentValues(i, j + 1) - currentValues(i, j)) / netModel->yStep(j);
                 (*laplassValues)(i, j) = xPart / netModel->xAverageStep(iNetIndex) + yPart / netModel->yAverageStep(j);
 #ifdef DEBUG_MODE
@@ -54,14 +54,14 @@ public:
 
     double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues,  std::shared_ptr<ProcessorsData> processorDataPtr)
     {
-        auto startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
-        auto endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
+        int startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
+        int endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
 
         double prodValue = 0;
-        for (auto i = startIndex; i <= endIndex; ++i)
+        for (int i = startIndex; i <= endIndex; ++i)
         {
-            auto iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
-            for (auto j = 1; j < currentValues.colsCount() - 1; ++j)
+            int iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
+            for (int j = 1; j < currentValues.colsCount() - 1; ++j)
             {
                 prodValue = prodValue + netModel->xAverageStep(iNetIndex) * netModel->yAverageStep(j) *
                                         currentValues(i, j) * otherValues(i, j);

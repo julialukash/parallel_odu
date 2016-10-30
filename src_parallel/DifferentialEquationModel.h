@@ -22,20 +22,7 @@ public:
     double CalculateUValue(double x, double y)
     {
         return 1 + sin(x * y);
-    }
-
-    DoubleMatrix CalculateUValues(std::shared_ptr<NetModel> netModel)
-    {
-        auto values = DoubleMatrix(netModel->xPointsCount, netModel->yPointsCount);
-        for (auto i = 0; i < values.rowsCount(); ++i)
-        {
-            for (auto j = 0; j < values.colsCount(); ++j)
-            {
-                values(i, j) = CalculateUValue(netModel->xValue(i), netModel->yValue(j));
-            }
-        }
-        return values;
-    }
+    } 
 };
 
 #endif // MODEL_H
