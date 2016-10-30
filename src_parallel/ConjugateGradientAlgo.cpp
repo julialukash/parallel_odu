@@ -221,7 +221,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(const Dou
 #ifdef DEBUG_MODE
         std::cout << "Alpha = " << alpha << std::endl;
 #endif
-        gradient = residuals - alpha * previousGrad;
+        gradient = residuals - *(alpha * previousGrad);
     }
     return gradient;
 }
@@ -233,7 +233,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateNewP(const DoubleM
     std::cout << "CalculateNewP grad = \n" << grad << std::endl;
     std::cout << "CalculateNewP tau = " << tau << std::endl;
 #endif
-    return p - tau * grad;
+    return p - *(tau * grad);
 }
 
 double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const DoubleMatrix& p)

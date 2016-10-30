@@ -144,19 +144,12 @@ public:
         return *this;
     }
 
-    friend DoubleMatrix operator* (const DoubleMatrix & a, const double b)
+    friend std::shared_ptr<DoubleMatrix> operator* (const double b, const DoubleMatrix & a)
     {
-        DoubleMatrix res = a;
-        res.MultiplyByValue(b);
+        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(a));
+        res->MultiplyByValue(b);
         return res;
     }
-
-//    friend DoubleMatrix operator* (const double b, const DoubleMatrix & a)
-//    {
-//        DoubleMatrix res = a;
-//        res.MultiplyByValue(b);
-//        return res;
-//    }
 
     int rowsCount() const
     {
