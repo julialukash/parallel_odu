@@ -14,21 +14,21 @@ public:
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
     int xPointsCount, yPointsCount;
 
-    double xValue(int i)
+    double xValue(int i) const
     {
         return xMinBoundary + i * xStepValue;
     }
 
-    double yValue(int i)
+    double yValue(int i) const
     {
         return yMinBoundary + i * yStepValue;
     }
 
-    inline double xStep(int i) { return xStepValue; }
-    inline double yStep(int i) { return yStepValue; }
+    inline double xStep(int i) const { return xStepValue; }
+    inline double yStep(int i) const { return yStepValue; }
 
-    inline double xAverageStep(int i) { return xAverageStepValue; }
-    inline double yAverageStep(int i) { return yAverageStepValue; }
+    inline double xAverageStep(int i) const { return xAverageStepValue; }
+    inline double yAverageStep(int i) const { return yAverageStepValue; }
 
     NetModel()
     {
@@ -62,7 +62,7 @@ public:
         yStartStepValue = (yMaxBoundaryValue - yMinBoundaryValue) / denominator;
     }
 
-    bool IsInnerPoint(int i, int j)
+    bool IsInnerPoint(int i, int j) const
     {
         return i == 0 || i == xPointsCount - 1 || j == 0 || j == yPointsCount - 1;
     }

@@ -1,5 +1,4 @@
 #include "MPIOperations.h"
-#include <mpi.h>
 
 void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
 {

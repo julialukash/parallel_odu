@@ -1,46 +1,43 @@
 #ifndef DERIVATOR_H
 #define DERIVATOR_H
 
+#include <algorithm>
+
 #include "Interface.h"
 #include "ProcessorsData.h"
-#include <algorithm>
 
 //#define DEBUG_MODE = 1
 
 class ApproximateOperations
 {
 private:
-    std::shared_ptr<NetModel> netModel;
+    const NetModel& netModel;
 public:
-    ApproximateOperations(std::shared_ptr<NetModel> model)
+    ApproximateOperations(const NetModel& model): netModel(model)
     {
-        netModel = model;
     }
 
     // note: calculates -laplass(currentValues)
-    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, const ProcessorsData& processorDataPtr)
-    {
-        int startIndex = processorDataPtr.IsFirstProcessor() ? 2 : 1;
-        int endIndex = processorDataPtr.IsLastProcessor() ? processorDataPtr.RowsCountWithBorders() - 3 : processorDataPtr.RowsCountWithBorders() - 2;
+    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, const ProcessorsData& processorData) const
+    {        
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
         std::cout <<"ApproximateOperations.CalculateLaplass startIndex = " << startIndex << ", endIndex = " << endIndex << std::endl;
 #endif
-        auto laplassValues = std::make_shared<DoubleMatrix>(processorDataPtr.RowsCountWithBorders(), netModel->xPointsCount);
+        auto laplassValues = std::make_shared<DoubleMatrix>(processorData.RowsCountWithBorders(), netModel.xPointsCount);
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
 #endif
-        for (int i = startIndex; i <= endIndex; ++i)
+        for (int i = processorData.FirstRowRelativeIndex(); i <= processorData.LastRowRelativeIndex(); ++i)
         {
-            int iNetIndex = i - startIndex + processorDataPtr.FirstRowIndex();
-
+            int iNetIndex = i - processorData.FirstRowRelativeIndex() + processorData.FirstRowIndex();
             for (int j = 1; j < laplassValues->colsCount() - 1; ++j)
             {
-                double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel->xStep(iNetIndex - 1) -
-                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel->xStep(iNetIndex);
-                double yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel->yStep(j - 1) -
-                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel->yStep(j);
-                (*laplassValues)(i, j) = xPart / netModel->xAverageStep(iNetIndex) + yPart / netModel->yAverageStep(j);
+                double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.xStep(iNetIndex - 1) -
+                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel.xStep(iNetIndex);
+                double yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel.yStep(j - 1) -
+                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel.yStep(j);
+                (*laplassValues)(i, j) = xPart / netModel.xAverageStep(iNetIndex) + yPart / netModel.yAverageStep(j);
 #ifdef DEBUG_MODE
                 std::cout <<"ApproximateOperations.CalculateLaplass i = " << i << ", iNetIndex = " << iNetIndex << ", j = " << j << ", value = " << laplassValues(i, j) << std::endl;
 #endif
@@ -52,31 +49,23 @@ public:
         return laplassValues;
     }
 
-    double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues,  std::shared_ptr<ProcessorsData> processorDataPtr)
+    double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues, const ProcessorsData& processorData) const
     {
-        int startIndex = processorDataPtr->IsFirstProcessor() ? 2 : 1;
-        int endIndex = processorDataPtr->IsLastProcessor() ? processorDataPtr->RowsCountWithBorders() - 3 : processorDataPtr->RowsCountWithBorders() - 2;
-
         double prodValue = 0;
-        for (int i = startIndex; i <= endIndex; ++i)
+        for (int i = processorData.FirstRowRelativeIndex(); i <= processorData.LastRowRelativeIndex(); ++i)
         {
-            int iNetIndex = i - startIndex + processorDataPtr->FirstRowIndex();
+            int iNetIndex = i - processorData.FirstRowRelativeIndex() + processorData.FirstRowIndex();
             for (int j = 1; j < currentValues.colsCount() - 1; ++j)
             {
-                prodValue = prodValue + netModel->xAverageStep(iNetIndex) * netModel->yAverageStep(j) *
+                prodValue = prodValue + netModel.xAverageStep(iNetIndex) * netModel.yAverageStep(j) *
                                         currentValues(i, j) * otherValues(i, j);
             }
         }
         return prodValue;
     }
 
-//    double NormValueEq(const DoubleMatrix& currentValues)
-//    {
-//        return sqrt(ScalarProduct(currentValues, currentValues));
-//    }
 
-
-    double MaxNormValue(const DoubleMatrix& currentValues)
+    double MaxNormValue(const DoubleMatrix& currentValues) const
     {
         auto minMax = std::minmax_element(&(currentValues(0,0)),
                         &(currentValues(0,0)) + currentValues.rowsCount() * currentValues.colsCount());

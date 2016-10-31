@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <mpi.h>
 
 #include "ApproximateOperations.h"
 #include "ConjugateGradientAlgo.h"
@@ -38,32 +37,6 @@ void writeValues(char* filename, const DoubleMatrix& values)
     outputFile.close();
 }
 
-void writeValues(char* filename, std::vector<std::shared_ptr<DoubleMatrix> > globalValues)
-{
-    std::ofstream outputFile(filename);
-    if (!outputFile.is_open())
-    {
-        std::cerr << "Incorrect output file " << filename;
-        exit(1);
-    }
-
-    for (int k = 0; k < globalValues.size(); ++k)
-    {
-        for (int i = 0; i < globalValues[k]->rowsCount(); ++i)
-        {
-            for (int j = 0; j < globalValues[k]->colsCount(); ++j)
-            {
-                outputFile << globalValues[k]->operator()(i, j) << " ";
-            }
-            outputFile << "\n";
-        }
-    }
-
-    outputFile.close();
-}
-
-
-
 int main(int argc, char *argv[])
 {    
     if (argc < 4)
@@ -98,7 +71,7 @@ int main(int argc, char *argv[])
                                                                   yMinBoundary, yMaxBoundary,
                                                                   pointsCount, pointsCount));
         auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
-        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(netModelPtr));
+        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(*netModelPtr));
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -121,8 +94,8 @@ int main(int argc, char *argv[])
                   << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
-        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(netModelPtr, diffEquationPtr, approximateOperationsPtr,
-                                                          processorInfoPtr));
+        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
+                                                          *processorInfoPtr));
         auto uValuesApproximate = optimizationAlgoPtr->Init();
         auto uValues = optimizationAlgoPtr->CalculateU();
 #ifdef DEBUG_MAIN

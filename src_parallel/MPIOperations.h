@@ -5,6 +5,8 @@
 #include "Interface.h"
 #include "ProcessorsData.h"
 
+#include <mpi.h>
+
 enum MessageTag
 {
     UP,

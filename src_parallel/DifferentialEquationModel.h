@@ -9,17 +9,17 @@ private:
 public:
     DifferentialEquationModel() {}
 
-    double CalculateFunctionValue(double x, double y)
+    double CalculateFunctionValue(double x, double y) const
     {
         return (x * x + y * y) * sin(x * y);
     }
 
-    double CalculateBoundaryValue(double x, double y)
+    double CalculateBoundaryValue(double x, double y) const
     {
           return 1 + sin(x * y);
     }
 
-    double CalculateUValue(double x, double y)
+    double CalculateUValue(double x, double y) const
     {
         return 1 + sin(x * y);
     } 
