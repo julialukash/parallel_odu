@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "ConjugateGradientAlgo.h"
+#include "conjugate_gradient_algo.h"
+#include "mpi_operations.h"
 
-#include "MPIOperations.h"
 //#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const DifferentialEquationModel& modelDiff,

@@ -9,7 +9,7 @@ set(CXX_STANDARD_REQUIRED)
 SET(CMAKE_C_COMPILER mpicc)
 SET(CMAKE_CXX_COMPILER mpicxx)
 
-set(SOURCE_LIB ConjugateGradientAlgo.cpp MPIOperations.cpp)
+set(SOURCE_LIB conjugate_gradient_algo.cpp mpi_operations.cpp)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive")
 

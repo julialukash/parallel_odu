@@ -3,8 +3,8 @@
 
 #include <algorithm>
 
-#include "Interface.h"
-#include "ProcessorsData.h"
+#include "interface.h"
+#include "processors_data.h"
 
 //#define DEBUG_MODE = 1
 

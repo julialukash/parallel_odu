@@ -17,8 +17,8 @@ TEMPLATE = app
 
 SOURCES += \
     src_parallel/main.cpp \
-    src_parallel/ConjugateGradientAlgo.cpp \
-    src_parallel/MPIOperations.cpp
+    src_parallel/conjugate_gradient_algo.cpp \
+    src_parallel/mpi_operations.cpp
 core
 
 
@@ -36,11 +36,11 @@ QMAKE_CXXFLAGS += -Bsymbolic-functions
 
 
 HEADERS += \
-    src_parallel/NetModel.h \
-    src_parallel/ConjugateGradientAlgo.h \
-    src_parallel/DifferentialEquationModel.h \
-    src_parallel/ApproximateOperations.h \
-    src_parallel/Interface.h \
-    src_parallel/DoubleMatrix.h \
-    src_parallel/ProcessorsData.h \
-    src_parallel/MPIOperations.h
+    src_parallel/approximate_operations.h \
+    src_parallel/conjugate_gradient_algo.h \
+    src_parallel/differential_equation_model.h \
+    src_parallel/double_matrix.h \
+    src_parallel/interface.h \
+    src_parallel/mpi_operations.h \
+    src_parallel/net_model.h \
+    src_parallel/processors_data.h

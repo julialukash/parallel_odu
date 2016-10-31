@@ -1,10 +1,10 @@
 #ifndef CONJUGATEGRADIENTALGO_H
 #define CONJUGATEGRADIENTALGO_H
 
-#include "ApproximateOperations.h"
-#include "DifferentialEquationModel.h"
-#include "Interface.h"
-#include "ProcessorsData.h"
+#include "approximate_operations.h"
+#include "differential_equation_model.h"
+#include "interface.h"
+#include "processors_data.h"
 
 class ConjugateGradientAlgo
 {

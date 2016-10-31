@@ -2,8 +2,8 @@
 #ifndef MPIOPERATIONS_H
 #define MPIOPERATIONS_H
 
-#include "Interface.h"
-#include "ProcessorsData.h"
+#include "interface.h"
+#include "processors_data.h"
 
 #include <mpi.h>
 

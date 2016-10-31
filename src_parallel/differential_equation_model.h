@@ -1,7 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "Interface.h"
+#include "interface.h"
 
 class DifferentialEquationModel
 {

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "ApproximateOperations.h"
-#include "ConjugateGradientAlgo.h"
-#include "DifferentialEquationModel.h"
-#include "Interface.h"
-#include "MPIOperations.h"
-#include "ProcessorsData.h"
+#include "approximate_operations.h"
+#include "conjugate_gradient_algo.h"
+#include "differential_equation_model.h"
+#include "interface.h"
+#include "mpi_operations.h"
+#include "processors_data.h"
 
 const double xMinBoundary = 0;
 const double xMaxBoundary = 2;

@@ -1,7 +1,7 @@
 #ifndef PROCESSORSDATA_H
 #define PROCESSORSDATA_H
 
-#include "Interface.h"
+#include "interface.h"
 
 class ProcessorsData
 {
