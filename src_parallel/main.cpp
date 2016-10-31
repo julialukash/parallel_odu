@@ -14,8 +14,6 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 const double eps = 1e-4;
 
-//#define DEBUG_MAIN
-
 void writeValues(char* filename, const DoubleMatrix& values)
 {
     std::ofstream outputFile(filename);
@@ -72,67 +70,24 @@ int main(int argc, char *argv[])
                                                                   pointsCount, pointsCount));
         auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
         auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(*netModelPtr));
-
-#ifdef DEBUG_MAIN
-        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-        auto fileName = "out/out_rank" + std::to_string(processorInfoPtr->rank)  + ".txt";
-        std::ofstream out(fileName);
-        std::cout.rdbuf(out.rdbuf());
-#endif
         // init processors with their part of data
         auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
         processorInfoPtr->rowsCountValue = processorParameters.first;
         processorInfoPtr->startRowIndex = processorParameters.second;
-#ifdef DEBUG_MAIN
-        std::cout << "Finished" << std::endl;
-        std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
-                  << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
-                  << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
-                  << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
-                  << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
-                  << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
-                  << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
-        std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
-#endif
         auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
                                                           *processorInfoPtr));
         auto uValuesApproximate = optimizationAlgoPtr->Init();
         auto uValues = optimizationAlgoPtr->CalculateU();
-#ifdef DEBUG_MAIN
-        std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
-        std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
-#endif
-
-#ifdef DEBUG_MAIN
-        std::cout << "Created ConjugateGradientAlgo." << std::endl;
-#endif
         double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
         globalError = GetMaxValueFromAllProcessors(localError);
-
-#ifdef DEBUG_MAIN
-        std::cout << "Process finished, error = " << localError << ", global = "
-                  << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
-#endif
         // gather values
         auto globalUValues = GatherUApproximateValuesMatrix(*processorInfoPtr, *netModelPtr, *uValuesApproximate);
         if (processorInfoPtr->IsMainProcessor())
         {
-#ifdef DEBUG_MAIN
-            std::cout << "globalUValues = \n" << *globalUValues << std::endl;
-#endif
             elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
             std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
                       << "globalError: " << globalError << std::endl;
             writeValues(approximateValuesFilename, *globalUValues);
-        }
-#ifdef DEBUG_MAIN
-        std::cout.rdbuf(coutbuf); //reset to standard output again
-        out.close();
-#endif
-        if (processorInfoPtr->IsMainProcessor())
-        {
-            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
-                      << "globalError: " << globalError << std::endl;
         }
         MPI_Finalize();
     }
