@@ -133,22 +133,16 @@ public:
         }
     }
 
-    DoubleMatrix& MultiplyByValue(const double value)
-    {
-        for (int i = 0; i < rowsCountValue; i++)
-        {
-            for (int j = 0; j < colsCountValue; j++)
-            {
-                operator()(i, j) *= value;
-            }
-        }
-        return *this;
-    }
-
     friend std::shared_ptr<DoubleMatrix> operator* (const double b, const DoubleMatrix & a)
     {
-        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(a));
-        res->MultiplyByValue(b);
+        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(a.rowsCount(), a.colsCount()));
+        for (int i = 0; i < res->rowsCount(); i++)
+        {
+            for (int j = 0; j < res->colsCount(); j++)
+            {
+                (*res)(i, j) = a(i,j) * b;
+            }
+        }
         return res;
     }
 

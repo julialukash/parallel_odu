@@ -3,7 +3,7 @@
 #include "ConjugateGradientAlgo.h"
 
 #include "MPIOperations.h"
-#define DEBUG_MODE = 1
+//#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(std::shared_ptr<NetModel> model, std::shared_ptr<DifferentialEquationModel> modelDiff,
                   std::shared_ptr<ApproximateOperations> approximateOperationsPtr,
