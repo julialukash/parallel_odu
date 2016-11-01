@@ -6,6 +6,7 @@
 from __future__ import print_function
 from __future__ import division
 import ffnet
+import numpy as np
 
 
 class Autoencoder:
@@ -19,6 +20,11 @@ class Autoencoder:
         if self.net.layers[0].shape[0] != self.net.layers[-1].shape[1]:
             raise ValueError('In the given autoencoder number of inputs and outputs is different!')
 
+    def compute_loss_function(self, inputs, outputs):
+        n_objects = inputs.shape[1]
+        sum = np.sum(inputs - outputs)
+        return sum / n_objects
+
     def compute_loss(self, inputs):
         """
         Computes autoencoder loss value and loss gradient using given batch of data
@@ -26,7 +32,13 @@ class Autoencoder:
         :return loss: loss value, a number
         :return loss_grad: loss gradient, numpy vector of length num_params
         """
-        pass
+        outputs = self.net.compute_outputs(inputs)
+        # compute loss deriv on outputs
+        last_layer_output_derivs = outputs - inputs
+        loss_deriv = last_layer_output_derivs
+        loss_value = self.compute_loss_function(inputs, outputs)
+        loss_grad = self.net.compute_loss_grad(loss_deriv)
+        return loss_value, loss_grad, outputs
 
     def compute_hessvec(self, p):
         """

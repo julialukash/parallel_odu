@@ -35,8 +35,17 @@ class BaseActivationFunction(object):
         raise NotImplementedError('This function must be implemented within child class!')
 
 
+# equalent function
 class LinearActivationFunction(BaseActivationFunction):
-    pass
+    def val(self, inputs):
+        return inputs
+
+    def deriv(self, inputs):
+        return np.ones(inputs.shape)
+
+    def second_deriv(self, inputs):
+        return np.zeros(inputs.shape)
+
 
 
 class SigmoidActivationFunction(BaseActivationFunction):
