@@ -132,8 +132,8 @@ class FCLayer(BaseLayer):
         n_objects = inputs.shape[1]
         if self.use_bias:
             inputs = np.vstack((inputs, np.ones(1, n_objects)))
-        wx = self.weights.dot(inputs)
-        activated = self.afun.val(wx)
+        self.z = self.weights.dot(inputs)
+        activated = self.afun.val(self.z)
         self.u = activated
         return activated
 
@@ -144,8 +144,9 @@ class FCLayer(BaseLayer):
         :return input_derivs: loss derivatives w.r.t. layer inputs, numpy matrix of size num_inputs x num_objects
         :return w_derivs: loss derivatives w.r.t. layer parameters, numpy vector of length num_params
         """
-        raise NotImplementedError('This function must be implemented within child class!')
-
+        self.input_derivs = output_deriv * self.afun.deriv(self.u)
+        self.w_derivs = self.input_derivs .dot(self.z.transpose())
+        return  self.input_derivs, self.w_derivs.flatten()
 
     def Rp_forward(self, Rp_inputs):
         """
