@@ -111,7 +111,7 @@ class FCLayer(BaseLayer):
         e.g. matrix shape for fully-connected layer
         :param w: layer weights as a numpy one-dimensional vector
         """
-        if len(w) != self.get_params_number():
+        if w.shape[0] != self.get_params_number():
             raise AttributeError('Incorrect weight dimension, layer shape {}, given number of params = {}'.format(self.shape_bias, len(w)))
         self.weights = np.reshape(w, (self.shape_bias[1], self.shape_bias[0]))
 

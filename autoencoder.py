@@ -10,20 +10,32 @@ import numpy as np
 
 
 class Autoencoder:
-
-    def __init__(self, layers):
+    def __init__(self, layers, tie_weights=False):
         """
         :param layers: a list of fully-connected layers
         """
+        self.tie_weights = tie_weights
         self.net = ffnet.FFNet(layers)
 
         if self.net.layers[0].shape[0] != self.net.layers[-1].shape[1]:
             raise ValueError('In the given autoencoder number of inputs and outputs is different!')
 
+
+    def init_weights(self):
+        eps = 1e-2
+        init_weights = []
+        for layer in self.net.layers:
+            init_layer_weights = np.random.normal(0, eps, layer.get_params_number())
+            init_weights = np.concatenate((init_weights, init_layer_weights))
+        if self.tie_weights:
+            init_weights = init_weights # make the same weights on symmetric levels
+        self.net.set_weights(init_weights)
+        return
+
     def compute_loss_function(self, inputs, outputs):
         n_objects = inputs.shape[1]
-        sum = np.sum(inputs - outputs)
-        return sum / n_objects
+        sum = np.sum((inputs - outputs) * (inputs - outputs))
+        return sum / (n_objects * 2)
 
     def compute_loss(self, inputs):
         """
@@ -38,6 +50,8 @@ class Autoencoder:
         loss_deriv = last_layer_output_derivs
         loss_value = self.compute_loss_function(inputs, outputs)
         loss_grad = self.net.compute_loss_grad(loss_deriv)
+        if self.tie_weights:
+            loss_grad = loss_grad # process derivs on symmetric levels as sum
         return loss_value, loss_grad, outputs
 
     def compute_hessvec(self, p):
