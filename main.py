@@ -12,15 +12,15 @@ from layers import FCLayer
 from gradient_checker import GradientChecker
 
 plot_figures = False
-batch_size = 4
+batch_size = 101
 n_layers = 3
 eps = 1e-4
-gradient_check = True
+# gradient_check = True
+gradient_check = False
 
 
 def create_sample_batch():
     digits = load_digits()
-    print(digits.data.shape)
     batch = digits.data[0:batch_size]
     batch = batch.transpose()
     if plot_figures:
@@ -44,13 +44,14 @@ def main():
             autoencoder = Autoencoder(layers)
             autoencoder.init_weights()
             loss_value, loss_grad, output = autoencoder.compute_loss(batch)
+            p_vector = np.random.rand(1, autoencoder.net.params_number).flatten()
+            Rp_outputs = autoencoder.compute_hessvec(p_vector)
     except IOError as error:
         print('I/O error({}): {}, {}'.format(error.errno, error.strerror, error.args[0]))
     except AttributeError as error:
         print('Attribute error: {}'.format(error.args[0]))
     except:
         print('Unexpected error: {}'.format(sys.exc_info()[0]))
-
 
 if __name__ == '__main__':
     main()

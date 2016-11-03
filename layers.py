@@ -112,7 +112,7 @@ class FCLayer(BaseLayer):
         :param w: layer weights as a numpy one-dimensional vector
         """
         if w.shape[0] != self.get_params_number():
-            raise AttributeError('Incorrect weight dimension, layer shape {}, given number of params = {}'.format(self.shape_bias, len(w)))
+            raise AttributeError('Incorrect weight dimension, layer shape {}, given number of params = {}'.format(self.shape_bias, w.shape[0]))
         self.weights = np.reshape(w, (self.shape_bias[1], self.shape_bias[0]))
 
     def set_direction(self, p):
@@ -121,7 +121,9 @@ class FCLayer(BaseLayer):
         in convenient shape, e.g. matrix shape for fully-connected layer
         :param p: layer parameters direction vector, numpy vector
         """
-        raise NotImplementedError('This function must be implemented within child class!')
+        if p.shape[0] != self.get_params_number():
+            raise AttributeError('Incorrect weight dimension, layer shape {}, given number of params = {}'.format(self.shape_bias, p.shape[0]))
+        self.p = np.reshape(p, (self.shape_bias[1], self.shape_bias[0]))
 
     def forward(self, inputs):
         """
@@ -132,11 +134,10 @@ class FCLayer(BaseLayer):
         n_objects = inputs.shape[1]
         if self.use_bias:
             inputs = np.vstack((inputs, np.ones(1, n_objects)))
-        self.z_previous = inputs
+        self.inputs = inputs
         self.u = self.weights.dot(inputs)
-        activated = self.afun.val(self.u)
-        self.z = activated
-        return activated
+        self.z =  self.afun.val(self.u)
+        return self.z
 
     def backward(self, derivs):
         """
@@ -146,7 +147,7 @@ class FCLayer(BaseLayer):
         :return w_derivs: loss derivatives w.r.t. layer parameters, numpy vector of length num_params
         """
         self.input_derivs = derivs * self.afun.deriv(self.u)
-        self.w_derivs = self.input_derivs.dot(self.z_previous.transpose())
+        self.w_derivs = self.input_derivs.dot(self.inputs.transpose())
         self.output_derivs = self.weights.transpose().dot(self.input_derivs)
         return self.output_derivs, self.w_derivs.flatten()
 
@@ -156,7 +157,13 @@ class FCLayer(BaseLayer):
         :param Rp_inputs: Rp input batch, numpy matrix of size num_inputs x num_objects
         :return Rp_outputs: Rp layer activations, numpy matrix of size num_outputs x num_objects
         """
-        raise NotImplementedError('This function must be implemented within child class!')
+        n_objects = Rp_inputs.shape[1]
+        if self.use_bias:
+            Rp_inputs = np.vstack((Rp_inputs, np.ones(1, n_objects)))
+        self.rp_z_previous = Rp_inputs
+        self.rp_u = self.weights.dot(Rp_inputs) + self.p.dot(self.inputs)
+        self.rp_z = self.z * self.rp_u
+        return self.rp_z
 
     def Rp_backward(self, Rp_derivs):
         """

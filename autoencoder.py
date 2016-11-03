@@ -60,7 +60,11 @@ class Autoencoder:
         :param p: direction vector, a numpy vector of length num_params
         :return Hp: a numpy vector of length num_params
         """
-        pass
+        self.net.set_direction(p)
+        Rp_outputs = self.net.compute_Rp_outputs()
+        # loss_Rp_grad = self.net.compute_loss_Rp_grad(Rp_outputs)
+
+        return Rp_outputs
 
     def compute_gaussnewtonvec(self, p):
         """
