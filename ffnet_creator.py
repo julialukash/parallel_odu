@@ -20,3 +20,7 @@ class FFNetCreator:
             layer = FCLayer(shapes[n_layer], activation_functions[n_layer], use_bias_flags[n_layer])
             layers.append(layer)
         return layers
+
+     def create_p_vector(self, n_values):
+         # p_vector = np.ones((1, len(weights))).flatten()
+         return np.random.rand(1, n_values).flatten()

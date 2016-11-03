@@ -23,8 +23,7 @@ class GradientChecker:
         weights = autoencoder.net.get_weights()
         loss_value, loss_grad, output = autoencoder.compute_loss(inputs)
 
-        # p_vector = np.ones((1, len(weights))).flatten()
-        p_vector = np.random.rand(1, len(weights)).flatten()
+        p_vector = self.net_creator.create_p_vector(autoencoder.net.params_number)
 
         right = loss_grad.transpose().dot(p_vector) / n_objects
 
@@ -37,3 +36,7 @@ class GradientChecker:
         left = biased_loss_value.imag / eps
         diff = abs(left - right)
         return diff < eps, left, right
+
+
+    def check_hessvec(self, inputs):
+        print

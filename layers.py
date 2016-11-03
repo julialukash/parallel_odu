@@ -146,6 +146,7 @@ class FCLayer(BaseLayer):
         :return input_derivs: loss derivatives w.r.t. layer inputs, numpy matrix of size num_inputs x num_objects
         :return w_derivs: loss derivatives w.r.t. layer parameters, numpy vector of length num_params
         """
+        self.derivs = derivs
         self.input_derivs = derivs * self.afun.deriv(self.u)
         self.w_derivs = self.input_derivs.dot(self.inputs.transpose())
         self.output_derivs = self.weights.transpose().dot(self.input_derivs)
@@ -160,7 +161,7 @@ class FCLayer(BaseLayer):
         n_objects = Rp_inputs.shape[1]
         if self.use_bias:
             Rp_inputs = np.vstack((Rp_inputs, np.ones(1, n_objects)))
-        self.rp_z_previous = Rp_inputs
+        self.rp_inputs = Rp_inputs
         self.rp_u = self.weights.dot(Rp_inputs) + self.p.dot(self.inputs)
         self.rp_z = self.z * self.rp_u
         return self.rp_z
@@ -172,7 +173,10 @@ class FCLayer(BaseLayer):
         :return input_Rp_derivs: loss Rp derivatives w.r.t. layer inputs, numpy matrix of size num_inputs x num_objects
         :return w_Rp_derivs: loss Rp derivatives w.r.t. layer parameters, numpy vector of length num_params
         """
-        raise NotImplementedError('This function must be implemented within child class!')
+        self.rp_input_derivs = Rp_derivs * self.afun.deriv(self.u) + self.derivs * self.afun.second_deriv(self.u) * self.rp_u
+        self.rp_w_derivs = self.rp_input_derivs.dot(self.inputs.transpose()) + self.input_derivs.dot(self.rp_inputs.transpose())
+        self.rp_output_derivs = self.p.transpose().dot(self.input_derivs) + self.weights.transpose().dot(self.rp_input_derivs)
+        return self.output_derivs, self.rp_w_derivs.flatten()
 
     def get_activations(self):
         """

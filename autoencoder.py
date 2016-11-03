@@ -44,15 +44,16 @@ class Autoencoder:
         :return loss: loss value, a number
         :return loss_grad: loss gradient, numpy vector of length num_params
         """
-        outputs = self.net.compute_outputs(inputs)
+        self.outputs = self.net.compute_outputs(inputs)
         # compute loss deriv on outputs
-        last_layer_output_derivs = outputs - inputs
-        loss_deriv = last_layer_output_derivs
-        loss_value = self.compute_loss_function(inputs, outputs)
-        loss_grad = self.net.compute_loss_grad(loss_deriv)
+        last_layer_output_derivs = self.outputs - inputs
+        self.loss_deriv = last_layer_output_derivs
+        self.loss_value = self.compute_loss_function(inputs, self.outputs)
+        self.loss_grad = self.net.compute_loss_grad(self.loss_deriv)
         if self.tie_weights:
-            loss_grad = loss_grad # process derivs on symmetric levels as sum
-        return loss_value, loss_grad, outputs
+            loss_grad = self.loss_grad # process derivs on symmetric levels as sum
+
+        return self.loss_value, self.loss_grad, self.outputs
 
     def compute_hessvec(self, p):
         """
@@ -61,10 +62,10 @@ class Autoencoder:
         :return Hp: a numpy vector of length num_params
         """
         self.net.set_direction(p)
-        Rp_outputs = self.net.compute_Rp_outputs()
-        # loss_Rp_grad = self.net.compute_loss_Rp_grad(Rp_outputs)
-
-        return Rp_outputs
+        self.Rp_outputs = self.net.compute_Rp_outputs()
+        self.Rp_L = self.loss_deriv.transpose().dot(self.Rp_outputs)
+        self.loss_Rp_grad = self.net.compute_loss_Rp_grad(self.Rp_outputs)
+        return self.Rp_L, self.loss_Rp_grad, self.Rp_outputs
 
     def compute_gaussnewtonvec(self, p):
         """
