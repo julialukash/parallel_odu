@@ -133,7 +133,7 @@ class FCLayer(BaseLayer):
         """
         n_objects = inputs.shape[1]
         if self.use_bias:
-            inputs = np.vstack((inputs, np.ones(1, n_objects)))
+            inputs = np.vstack((inputs, np.ones((1, n_objects))))
         self.inputs = inputs
         self.u = self.weights.dot(inputs)
         self.z =  self.afun.val(self.u)
@@ -150,6 +150,8 @@ class FCLayer(BaseLayer):
         self.input_derivs = derivs * self.afun.deriv(self.u)
         self.w_derivs = self.input_derivs.dot(self.inputs.transpose())
         self.output_derivs = self.weights.transpose().dot(self.input_derivs)
+        if self.use_bias:
+            self.output_derivs = np.delete(self.output_derivs, (self.output_derivs.shape[0] - 1), axis=0)
         return self.output_derivs, self.w_derivs.flatten()
 
     def Rp_forward(self, Rp_inputs):

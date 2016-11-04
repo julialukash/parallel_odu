@@ -65,7 +65,7 @@ class Autoencoder:
         self.Rp_outputs = self.net.compute_Rp_outputs()
         self.Rp_L = self.loss_deriv.transpose().dot(self.Rp_outputs)
         self.loss_Rp_grad = self.net.compute_loss_Rp_grad(self.Rp_outputs)
-        return self.Rp_L, self.loss_Rp_grad, self.Rp_outputs
+        return self.loss_Rp_grad, self.Rp_L, self.Rp_outputs
 
     def compute_gaussnewtonvec(self, p):
         """

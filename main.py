@@ -15,8 +15,8 @@ plot_figures = False
 batch_size = 4
 n_layers = 3
 eps = 1e-4
-# gradient_check = True
-gradient_check = False
+gradient_check = True
+# gradient_check = False
 
 
 def create_sample_batch():
@@ -40,12 +40,12 @@ def main():
             is_correct, left, right = gradient_checker.check_gradient(batch)
             print (is_correct, left, right)
         else:
-            layers = net_creator.create_nn_layers_simple(n_features)
+            layers = net_creator.create_nn_three_layers_simple(n_features)
             autoencoder = Autoencoder(layers)
             autoencoder.init_weights()
             loss_value, loss_grad, output = autoencoder.compute_loss(batch)
             p_vector = net_creator.create_p_vector(autoencoder.net.params_number)
-            Rp_L, loss_Rp_grad, Rp_outputs = autoencoder.compute_hessvec(p_vector)
+            loss_Rp_grad, Rp_L, Rp_outputs = autoencoder.compute_hessvec(p_vector)
             print(Rp_L, loss_Rp_grad, Rp_outputs)
     except IOError as error:
         print('I/O error({}): {}, {}'.format(error.errno, error.strerror, error.args[0]))
