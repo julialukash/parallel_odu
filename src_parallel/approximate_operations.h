@@ -57,7 +57,7 @@ public:
         {
             for (int j = processorData.FirstInnerColRelativeIndex(); j <= processorData.LastInnerColRelativeIndex(); ++j)
             {
-                prodValue = prodValue + netModel.xAverageStep(j) * netModel.yAverageStep(i - 1) *
+                prodValue = prodValue + netModel.xAverageStep(j) * netModel.yAverageStep(i) *
                                         currentValues(i, j) * otherValues(i, j);
             }
         }

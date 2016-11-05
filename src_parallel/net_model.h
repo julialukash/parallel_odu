@@ -4,6 +4,8 @@
 #include "interface.h"
 #include <vector>
 
+#define DEBUG
+
 class NetModel
 {
 private:
@@ -19,18 +21,23 @@ public:
     double xValue(int i) const
     {
         auto tmp = xValues[i];
-        auto eq = fabs(tmp - xMinBoundary + i * xStepValue) < 1e-4;
-        std::cout << "i = " << i << ", xV[i] = " << xValues[i] << ", old = " << xMinBoundary + i * xStepValue << ", eq = " << eq << std::endl;
-//        return xMinBoundary + i * xStepValue;
+        auto eq = fabs(tmp - xMinBoundary - i * xStepValue) < 1e-4;
+#ifdef DEBUG
+//        std::cout << "i = " << i << ", xV[i] = " << xValues[i] << ", old = " << xMinBoundary + i * xStepValue << ", eq = " << eq << std::endl;
+#endif
+ //        return xMinBoundary + i * xStepValue;
         return tmp;
     }
 
     double yValue(int i) const
     {        
         auto tmp = yValues[i];
-        auto eq = fabs(tmp - yMinBoundary + i * yStepValue) < 1e-4;
-        std::cout << "j = " << i << ", yV[i] = " << yValues[i] << ", old = " << yMinBoundary + i * yStepValue << ", eq = " << eq << std::endl;
-//        return yMinBoundary + i * yStepValue;
+        auto eq = fabs(tmp - yMinBoundary - i * yStepValue) < 1e-4;
+#ifdef DEBUG
+//        std::cout << "j = " << i << ", yV[i] = " << yValues[i] << ", old = " <<
+//                     yMinBoundary + i * yStepValue << ", eq = " << eq << std::endl;
+#endif
+        //        return yMinBoundary + i * yStepValue;
         return tmp;
     }
 
@@ -44,23 +51,32 @@ public:
     {
         auto tmp = yValues[i + 1] - yValues[i];
         auto isEq = fabs(tmp - yStepValue) < 1e-4;
+#ifdef DEBUG
         std::cout << "i = " << i << ", yV + 1 = " << yValues[i + 1] << ", yValues[i] = "
                   << yValues[i] << ", tmp = " << tmp << ", old" << yStepValue
                   << ", isEq = " << isEq
                   << std::endl;
+#endif
         return tmp;
     }
 
     inline double xAverageStep(int i) const
     {
-        auto tmp = 0.5 * (xValues[i + 1] - xValues[i - 1]);
-        return xAverageStepValue;
+        auto tmp = 0.5 * (xStep(i) + xStep(i - 1));
+        return tmp;
     }
 
     inline double yAverageStep(int i) const
     {
-        auto tmp = 0.5 * (yValues[i + 1] - yValues[i - 1]);
-        return yAverageStepValue;
+        auto tmp = 0.5 * (yStep(i) + yStep(i - 1));
+        auto isEq = fabs(tmp - yAverageStepValue) < 1e-4;
+#ifdef DEBUG
+        std::cout << "i = " << i << ", yS = " << yStep(i) << ", yS - 1 = "
+                  << yStep(i - 1) << ", tmp = " << tmp << ", old = " << yAverageStepValue
+                  << ", isAEq = " << isEq
+                  << std::endl;
+#endif
+        return tmp;
     }
 
     NetModel()
