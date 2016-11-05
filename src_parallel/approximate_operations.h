@@ -30,9 +30,9 @@ public:
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
 #endif
-        for (int i = processorData.FirstRowRelativeIndex(); i <= processorData.LastRowRelativeIndex(); ++i)
+        for (int i = processorData.FirstInnerRowRelativeIndex(); i <= processorData.LastInnerRowRelativeIndex(); ++i)
         {
-            int iNetIndex = i - processorData.FirstRowRelativeIndex() + processorData.FirstRowIndex();
+            int iNetIndex = i - processorData.FirstInnerRowRelativeIndex() + processorData.FirstRowIndex();
             for (int j = 1; j < laplassValues->colsCount() - 1; ++j)
             {
                 double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.xStep(iNetIndex - 1) -
@@ -54,10 +54,9 @@ public:
     double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues) const
     {
         double prodValue = 0;
-        for (int i = processorData.FirstRowRelativeIndex(); i <= processorData.LastRowRelativeIndex(); ++i)
+        for (int i = processorData.FirstInnerRowRelativeIndex(); i <= processorData.LastInnerRowRelativeIndex(); ++i)
         {
-//            int iNetIndex = i - processorData.FirstRowRelativeIndex() + processorData.FirstRowIndex();
-            for (int j = 1; j < currentValues.colsCount() - 1; ++j)
+            for (int j = processorData.FirstInnerColRelativeIndex(); j <= processorData.LastInnerColRelativeIndex(); ++j)
             {
                 prodValue = prodValue + netModel.xAverageStep(j) * netModel.yAverageStep(i - 1) *
                                         currentValues(i, j) * otherValues(i, j);

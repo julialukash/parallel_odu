@@ -21,7 +21,6 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
                      values->colsCountValue <<", val = \n" << *values <<
                      std::endl;
 #endif
-
     for (int i = 0; i < values->rowsCount(); ++i)
     {
         for (int j = 0; j < values->colsCount(); ++j)
@@ -38,15 +37,11 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 {
     auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCount()));
-    int startIndex = 1;
-    int endIndex = values->rowsCount() - 2;
-    for (int i = startIndex; i <= endIndex; ++i)
+    for (int i = processorData.FirstOwnRowRelativeIndex(); i <= processorData.LastOwnRowRelativeIndex(); ++i)
     {
-        for (int j = 0; j < values->colsCount(); ++j)
+        for (int j = processorData.FirstOwnColRelativeIndex(); j <= processorData.LastOwnColRelativeIndex(); ++j)
         {
-            bool isInnerPoint = netModel.IsInnerPoint(j) ||
-                    (i == 1 && processorData.IsFirstProcessor()) ||
-                    (i == endIndex && processorData.IsLastProcessor());
+            bool isInnerPoint = processorData.IsInnerIndices(i, j);
             if (isInnerPoint)
             {
                 // i - 1 for y grid as startIndex is from 1
@@ -97,7 +92,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
         if (stopCondition)
         {
-            auto pCroppedPtr = p->CropMatrix(1, p->rowsCount() - 2);
+            auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.LastOwnRowRelativeIndex());
 //            p = std::make_shared<DoubleMatrix>(*pCroppedPtr);
             p.reset();
             p = pCroppedPtr;
@@ -208,16 +203,11 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
         std::cout << "CalculateResidual laplassP \n" << *laplassP << std::endl;
 #endif
     auto residuals = std::make_shared<DoubleMatrix>(laplassP->rowsCount(), laplassP->colsCount());
-    int startIndex = 1;
-    int endIndex = processorData.RowsCountWithBorders() - 2;
-    for (int i = startIndex; i <= endIndex; ++i)
+    for (int i = processorData.FirstOwnRowRelativeIndex(); i <= processorData.LastOwnRowRelativeIndex(); ++i)
     {
-//        int iNetIndex = i - startIndex + processorData.FirstRowIndex();
-        for (int j = 0; j < residuals->colsCount(); ++j)
+        for (int j = processorData.FirstOwnColRelativeIndex(); j <= processorData.LastOwnColRelativeIndex(); ++j)
         {
-            bool isInnerPoint = netModel.IsInnerPoint(j) ||
-                    (i == 1 && processorData.IsFirstProcessor()) ||
-                    (i == endIndex && processorData.IsLastProcessor());
+            bool isInnerPoint = processorData.IsInnerIndices(i, j);
             if (isInnerPoint)
             {
                 (*residuals)(i, j) = 0;
@@ -271,7 +261,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
     std::cout << "p = \n" << p << std::endl;
 #endif
 
-    auto pCropped = p.CropMatrix(1, p.rowsCount() - 2);
+    auto pCropped = p.CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.LastOwnRowRelativeIndex());
 #ifdef DEBUG_MODE
     std::cout << "uValues = \n" << uValues << std::endl;
     std::cout << "pCropped = \n" << *pCropped << std::endl;
@@ -298,7 +288,7 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
 #endif
 
     auto pDiff = p - previousP;
-    auto pDiffCropped = pDiff->CropMatrix(1, pDiff->rowsCount() - 2);
+    auto pDiffCropped = pDiff->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.LastOwnRowRelativeIndex());
 #ifdef DEBUG_MODE
     std::cout << "IsStopCondition pDiff = \n" << *pDiff << std::endl;
     std::cout << "IsStopCondition pDiffCropped = \n" << *pDiffCropped << std::endl;

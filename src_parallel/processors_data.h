@@ -35,8 +35,29 @@ public:
     inline int FirstRowWithBordersIndex() const { return startRowIndex - 1 >= 0 ? startRowIndex - 1 : 0; }
     inline int LastRowWithBordersIndex() const { return IsLastProcessor() ? LastRowIndex() : startRowIndex + rowsCountValue + 2 - 1; }
 
-    inline int FirstRowRelativeIndex () const { return IsFirstProcessor() ? 2 : 1; }
-    inline int LastRowRelativeIndex () const { return IsLastProcessor() ? RowsCountWithBorders() - 3 : RowsCountWithBorders() - 2; }
+    inline int FirstInnerRowRelativeIndex () const { return IsFirstProcessor() ? 2 : 1; }
+    inline int LastInnerRowRelativeIndex () const { return IsLastProcessor() ? RowsCountWithBorders() - 3 : RowsCountWithBorders() - 2; }
+    inline int FirstInnerColRelativeIndex () const { return 1; }
+    inline int LastInnerColRelativeIndex () const { return ColsCount() - 2; }
+
+
+    inline int FirstBorderRowRelativeIndex () const { return IsFirstProcessor() ? 1 : -1; }
+    inline int LastBorderRowRelativeIndex () const { return IsLastProcessor() ? RowsCountWithBorders() - 2 : -1; }
+    inline int FirstBorderColRelativeIndex () const { return 0; }
+    inline int LastBorderColRelativeIndex () const { return ColsCount() - 1; }
+
+    inline bool IsInnerIndices(int i, int j) const
+    {
+        return i == FirstBorderRowRelativeIndex() || i == LastBorderRowRelativeIndex() ||
+               j == FirstBorderColRelativeIndex() || j == LastBorderColRelativeIndex();
+    }
+
+    inline int FirstOwnRowRelativeIndex () const { return 1; }
+    inline int LastOwnRowRelativeIndex () const { return RowsCountWithBorders() - 2; }
+    inline int FirstOwnColRelativeIndex () const { return 0; }
+    inline int LastOwnColRelativeIndex () const { return ColsCount() - 1; }
+
+
 
     std::pair<int, int> static GetProcessorParameters(int pointsCount, int rankValue, int processorsCount)
     {
