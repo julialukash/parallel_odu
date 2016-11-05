@@ -4,12 +4,12 @@
 #include "interface.h"
 #include <vector>
 
-#define DEBUG
+//#define DEBUG
 
 class NetModel
 {
 private:
-    const double coefficient = 2.0/3.0;
+    const double q = 2.0/3.0;
     double xStepValue, yStepValue;
     double xAverageStepValue, yAverageStepValue;
     double xStartStepValue, yStartStepValue;
@@ -104,7 +104,7 @@ public:
         yAverageStepValue = yStepValue;        
     }
 
-    void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
+    void InitModelNorm(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
         for (int i = firstColIndex; i <= lastColIndex; ++i)
         {
@@ -116,6 +116,25 @@ public:
             yValues.push_back(yMinBoundary + i * yStepValue);
         }
     }
+
+    double f(double x)
+    {
+        return (pow(1.0 + x, q) - 1.0) / (pow(2.0, q) - 1.0);
+    }
+
+    void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
+    {
+        for (int i = firstColIndex; i <= lastColIndex; ++i)
+        {
+            xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1)));
+        }
+
+        for (int i = firstRowIndex - 1; i <= lastRowIndex + 1; ++i)
+        {
+            yValues.push_back(yMaxBoundary * f(1.0 * i / (yPointsCount - 1)));
+        }
+    }
+
 
     bool IsInnerPoint(int j) const
     {
