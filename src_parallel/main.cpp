@@ -14,7 +14,7 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 const double eps = 1e-4;
 
-//#define DEBUG_MAIN
+#define DEBUG_MAIN
 
 void writeValues(char* filename, const DoubleMatrix& values)
 {

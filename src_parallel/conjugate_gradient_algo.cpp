@@ -3,7 +3,7 @@
 #include "conjugate_gradient_algo.h"
 #include "mpi_operations.h"
 
-//#define DEBUG_MODE = 1
+#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const DifferentialEquationModel& modelDiff,
                                              const ApproximateOperations& approximateOperations,
@@ -67,7 +67,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
     {
 #ifdef DEBUG_MODE
         std::cout << "Process u vals = \n" << uValues << std::endl;
-        std::cout << "Process rank = " << processorData->rank << " iteration = " << iteration << std::endl;
+        std::cout << "Process rank = " << processorData.rank << " iteration = " << iteration << std::endl;
         std::cout << "===================================================================" << std::endl;
         std::cout << "Process iteration = " << iteration << ", error = " << error << std::endl;
         std::cout << "Process p = " << *p << std::endl;
@@ -220,7 +220,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(std::shar
                                 int k)
 {
 #ifdef DEBUG_MODE
-        std::cout << "CalculateGradient = \n" << residuals << std::endl;
+        std::cout << "CalculateGradient = \n" << *residuals << std::endl;
 #endif
     std::shared_ptr<DoubleMatrix> gradient;
     if (k == 0)

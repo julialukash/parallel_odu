@@ -1,17 +1,6 @@
 #include "mpi_operations.h"
 
-void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
-{
-    int rowsCount = values.rowsCount();
-    int colsCount = values.colsCount();
-    MPI_Send(&rowsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
-    MPI_Send(&colsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
-    for (int i = 0; i < rowsCount; ++i)
-    {
-        MPI_Send(&(values[i]), colsCount, MPI_DOUBLE, receiverRank, tag, MPI_COMM_WORLD);
-    }
-}
-
+#define DEBUG_MODE = 1
 std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
                                            const NetModel &netModelPtr,
                                            const DoubleMatrix& uValuesApproximate)
