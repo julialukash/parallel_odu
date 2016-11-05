@@ -32,14 +32,14 @@ public:
 #endif
         for (int i = processorData.FirstInnerRowRelativeIndex(); i <= processorData.LastInnerRowRelativeIndex(); ++i)
         {
-            int iNetIndex = i - processorData.FirstInnerRowRelativeIndex() + processorData.FirstRowIndex();
-            for (int j = 1; j < laplassValues->colsCount() - 1; ++j)
+//            int iNetIndex = i - processorData.FirstInnerRowRelativeIndex() + processorData.FirstRowIndex();
+            for (int j = processorData.FirstInnerColRelativeIndex(); j <= processorData.LastInnerColRelativeIndex(); ++j)
             {
-                double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.xStep(iNetIndex - 1) -
-                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel.xStep(iNetIndex);
-                double yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel.yStep(j - 1) -
-                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel.yStep(j);
-                (*laplassValues)(i, j) = xPart / netModel.xAverageStep(iNetIndex) + yPart / netModel.yAverageStep(j);
+                double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.xStep(j - 1) -
+                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel.xStep(j);
+                double yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel.yStep(i - 2) -
+                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel.yStep(i - 1);
+                (*laplassValues)(i, j) = xPart / netModel.xAverageStep(j) + yPart / netModel.yAverageStep(i - 1);
 #ifdef DEBUG_MODE
                 std::cout <<"ApproximateOperations.CalculateLaplass i = " << i << ", iNetIndex = " << iNetIndex << ", j = " << j << ", value = " << laplassValues(i, j) << std::endl;
 #endif
