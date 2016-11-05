@@ -3,7 +3,7 @@
 #include "conjugate_gradient_algo.h"
 #include "mpi_operations.h"
 
-//#define DEBUG_MODE = 1
+#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const DifferentialEquationModel& modelDiff,
                                              const ApproximateOperations& approximateOperations,
@@ -44,7 +44,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
                 }
                 else
                 {
-                    (*values)(iValueIndex, j) = 0.05;//diffModel->CalculateFunctionValue(netModel->xValue(iNetIndex), netModel->yValue(j));
+                    (*values)(iValueIndex, j) = 0.05;
                 }
             }
         }
@@ -67,7 +67,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
     {
 #ifdef DEBUG_MODE
         std::cout << "Process u vals = \n" << uValues << std::endl;
-        std::cout << "Process rank = " << processorData->rank << " iteration = " << iteration << std::endl;
+        std::cout << "Process rank = " << processorData.rank << " iteration = " << iteration << std::endl;
         std::cout << "===================================================================" << std::endl;
         std::cout << "Process iteration = " << iteration << ", error = " << error << std::endl;
         std::cout << "Process p = " << *p << std::endl;
@@ -106,7 +106,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 #ifdef DEBUG_MODE
         std::cout << "Process Residuals = \n" << *residuals << std::endl;
 #endif
-        auto laplassResiduals = approximateOperations.CalculateLaplass(*residuals, processorData);
+        auto laplassResiduals = approximateOperations.CalculateLaplass(*residuals);
         RenewBoundRows(*laplassResiduals);
 
 #ifdef DEBUG_MODE
@@ -120,7 +120,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 #ifdef DEBUG_MODE
         std::cout << "Process CalculateGradient finished" << std::endl;
 #endif
-        laplassGrad = approximateOperations.CalculateLaplass(*grad, processorData);
+        laplassGrad = approximateOperations.CalculateLaplass(*grad);
 
 #ifdef DEBUG_MODE
         std::cout << "Process CalculateLaplass finished" << std::endl;
@@ -160,8 +160,8 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
     std::cout << "CalculateTauValue laplassGrad\n " << laplassGrad << std::endl;
     std::cout << "CalculateTauValue grad\n " << grad << std::endl;
 #endif
-    double numerator = approximateOperations.ScalarProduct(residuals, grad, processorData);
-    double denominator = approximateOperations.ScalarProduct(laplassGrad, grad, processorData);
+    double numerator = approximateOperations.ScalarProduct(residuals, grad);
+    double denominator = approximateOperations.ScalarProduct(laplassGrad, grad);
     double tauValue = GetFractionValueFromAllProcessors(numerator, denominator);
 #ifdef DEBUG_MODE
     std::cout << "CalculateTauValue tauValue = " << tauValue << std::endl;
@@ -176,8 +176,8 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
     std::cout << "CalculateAlphaValue laplassPreviousGrad\n " << laplassPreviousGrad << std::endl;
     std::cout << "CalculateAlphaValue previousGrad\n " << previousGrad << std::endl;
 #endif
-    double numerator = approximateOperations.ScalarProduct(laplassResiduals, previousGrad, processorData);
-    double denominator = approximateOperations.ScalarProduct(laplassPreviousGrad, previousGrad, processorData);
+    double numerator = approximateOperations.ScalarProduct(laplassResiduals, previousGrad);
+    double denominator = approximateOperations.ScalarProduct(laplassPreviousGrad, previousGrad);
     double alphaValue = GetFractionValueFromAllProcessors(numerator, denominator);
 #ifdef DEBUG_MODE
     std::cout << "CalculateAlphaValue alphaValue = " << alphaValue << std::endl;
@@ -190,7 +190,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
 #ifdef DEBUG_MODE
         std::cout << "CalculateResidual ..." << std::endl;
 #endif
-    auto laplassP = approximateOperations.CalculateLaplass(p, processorData);
+    auto laplassP = approximateOperations.CalculateLaplass(p);
 #ifdef DEBUG_MODE
         std::cout << "CalculateResidual laplassP \n" << *laplassP << std::endl;
 #endif

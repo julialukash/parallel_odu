@@ -12,13 +12,15 @@ class ApproximateOperations
 {
 private:
     const NetModel& netModel;
+    const ProcessorsData& processorData;
 public:
-    ApproximateOperations(const NetModel& model): netModel(model)
+    ApproximateOperations(const NetModel& model, const ProcessorsData& processorData):
+        netModel(model), processorData(processorData)
     {
     }
 
     // note: calculates -laplass(currentValues)
-    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues, const ProcessorsData& processorData) const
+    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues) const
     {        
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
@@ -49,7 +51,7 @@ public:
         return laplassValues;
     }
 
-    double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues, const ProcessorsData& processorData) const
+    double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues) const
     {
         double prodValue = 0;
         for (int i = processorData.FirstRowRelativeIndex(); i <= processorData.LastRowRelativeIndex(); ++i)

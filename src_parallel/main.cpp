@@ -14,7 +14,7 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 const double eps = 1e-4;
 
-//#define DEBUG_MAIN
+#define DEBUG_MAIN
 
 void writeValues(char* filename, const DoubleMatrix& values)
 {
@@ -65,13 +65,20 @@ int main(int argc, char *argv[])
         }
         std::cout << "rank = " << rank << std::endl;
 
-        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount));
 
         auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
                                                                   yMinBoundary, yMaxBoundary,
                                                                   pointsCount, pointsCount));
+
+        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount));      
+        // init processors with their part of data
+        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
+        processorInfoPtr->rowsCountValue = processorParameters.first;
+        processorInfoPtr->startRowIndex = processorParameters.second;
+
         auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
-        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(*netModelPtr));
+        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(
+                    new ApproximateOperations(*netModelPtr, *processorInfoPtr));
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -79,10 +86,6 @@ int main(int argc, char *argv[])
         std::ofstream out(fileName);
         std::cout.rdbuf(out.rdbuf());
 #endif
-        // init processors with their part of data
-        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
-        processorInfoPtr->rowsCountValue = processorParameters.first;
-        processorInfoPtr->startRowIndex = processorParameters.second;
 #ifdef DEBUG_MAIN
         std::cout << "Finished" << std::endl;
         std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl

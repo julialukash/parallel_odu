@@ -46,20 +46,7 @@ public:
         xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCountValue;
         yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCountValue;
         xAverageStepValue = xStepValue;
-        yAverageStepValue = yStepValue;
-        double denominator = 0.0;
-        for (int i = 0; i < xPointsCountValue; ++i)
-        {
-            denominator += pow(coefficient, i);
-        }
-        xStartStepValue = (xMaxBoundaryValue - xMinBoundaryValue) / denominator;
-
-        denominator = 0;
-        for (int i = 0; i < yPointsCountValue; ++i)
-        {
-            denominator += pow(coefficient, i);
-        }
-        yStartStepValue = (yMaxBoundaryValue - yMinBoundaryValue) / denominator;
+        yAverageStepValue = yStepValue;        
     }
 
     bool IsInnerPoint(int i, int j) const
