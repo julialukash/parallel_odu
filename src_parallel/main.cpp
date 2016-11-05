@@ -65,27 +65,41 @@ int main(int argc, char *argv[])
         }
         std::cout << "rank = " << rank << std::endl;
 
+#ifdef DEBUG_MAIN
+        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+        auto fileName = "out/out_rank" + std::to_string(rank)  + ".txt";
+        std::ofstream out(fileName);
+        std::cout.rdbuf(out.rdbuf());
+#endif
 
         auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
                                                                   yMinBoundary, yMaxBoundary,
                                                                   pointsCount, pointsCount));
 
-        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount));      
+        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(
+                    new ProcessorsData(rank, processorsCount, netModelPtr->yPointsCount));
         // init processors with their part of data
         auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
         processorInfoPtr->rowsCountValue = processorParameters.first;
         processorInfoPtr->startRowIndex = processorParameters.second;
+        netModelPtr->InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
+                               processorInfoPtr->FirstColIndex(), processorInfoPtr->LastColIndex());
 
+        std::cout << "XS = \n";
+        for (int i = 0; i < netModelPtr->xValues.size(); ++i)
+        {
+            std::cout << netModelPtr->xValues[i] << " ";
+        }
+        std::cout << "\nYS = \n";
+        for (int i = 0; i < netModelPtr->yValues.size(); ++i)
+        {
+            std::cout << netModelPtr->yValues[i] << " ";
+        }
+        std::cout << std::endl;
         auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
         auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(
                     new ApproximateOperations(*netModelPtr, *processorInfoPtr));
 
-#ifdef DEBUG_MAIN
-        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-        auto fileName = "out/out_rank" + std::to_string(processorInfoPtr->rank)  + ".txt";
-        std::ofstream out(fileName);
-        std::cout.rdbuf(out.rdbuf());
-#endif
 #ifdef DEBUG_MAIN
         std::cout << "Finished" << std::endl;
         std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl

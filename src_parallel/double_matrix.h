@@ -8,8 +8,8 @@
 class DoubleMatrix
 {
 private:
-    int rowsCountValue, colsCountValue;
 public:
+    int rowsCountValue, colsCountValue;
     double *matrix;
 
     DoubleMatrix()

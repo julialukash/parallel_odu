@@ -15,13 +15,21 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const Dif
 
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 {
-    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCount(), netModel.yPointsCount));
+    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCount(), processorData.ColsCount()));
+#ifdef DEBUG_MODE
+        std::cout << "rc = " << values->rowsCountValue << ", cc = " <<
+                     values->colsCountValue <<", val = \n" << *values <<
+                     std::endl;
+#endif
+
     for (int i = 0; i < values->rowsCount(); ++i)
     {
-        int iNetIndex = i + processorData.FirstRowIndex();
         for (int j = 0; j < values->colsCount(); ++j)
         {
-            (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(iNetIndex), netModel.yValue(j));
+#ifdef DEBUG_MODE
+//        std::cout << "i = " << i << ", j = " << j << std::endl;
+#endif
+            (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(j), netModel.yValue(i));
         }
     }
     return values;
@@ -29,26 +37,31 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 {
-    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCountWithBorders(), netModel.xPointsCount));
-    for (int i = 0; i < values->rowsCount(); ++i)
+    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCount()));
+    int startIndex = 1;
+    int endIndex = values->rowsCount() - 2;
+    for (int i = startIndex; i <= endIndex; ++i)
     {
-        auto iValueIndex = processorData.IsFirstProcessor() ? i + 1 : i;
-        auto iNetIndex = i + processorData.FirstRowWithBordersIndex();
-        if (iNetIndex  >= processorData.FirstRowIndex() && iNetIndex <= processorData.LastRowIndex())
+        for (int j = 0; j < values->colsCount(); ++j)
         {
-            for (int j = 0; j < values->colsCount(); ++j)
+            bool isInnerPoint = netModel.IsInnerPoint(j) ||
+                    (i == 1 && processorData.IsFirstProcessor()) ||
+                    (i == endIndex && processorData.IsLastProcessor());
+            if (isInnerPoint)
             {
-                if (netModel.IsInnerPoint(iNetIndex, j))
-                {
-                    (*values)(iValueIndex, j) = diffModel.CalculateBoundaryValue(netModel.xValue(iNetIndex), netModel.yValue(j));
-                }
-                else
-                {
-                    (*values)(iValueIndex, j) = 0.05;
-                }
+                // i - 1 for y grid as startIndex is from 1
+                (*values)(i, j) = diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i - 1));
+            }
+            else
+            {
+                (*values)(i, j) = 0.05;
             }
         }
     }
+
+#ifdef DEBUG_MODE
+        std::cout << "init \n" << *values << std::endl;
+#endif
     return values;
 }
 
@@ -199,16 +212,19 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
     int endIndex = processorData.RowsCountWithBorders() - 2;
     for (int i = startIndex; i <= endIndex; ++i)
     {
-        int iNetIndex = i - startIndex + processorData.FirstRowIndex();
+//        int iNetIndex = i - startIndex + processorData.FirstRowIndex();
         for (int j = 0; j < residuals->colsCount(); ++j)
         {
-            if (netModel.IsInnerPoint(iNetIndex, j))
+            bool isInnerPoint = netModel.IsInnerPoint(j) ||
+                    (i == 1 && processorData.IsFirstProcessor()) ||
+                    (i == endIndex && processorData.IsLastProcessor());
+            if (isInnerPoint)
             {
                 (*residuals)(i, j) = 0;
             }
             else
             {
-                (*residuals)(i, j) = (*laplassP)(i, j) - diffModel.CalculateFunctionValue(netModel.xValue(j), netModel.yValue(iNetIndex));
+                (*residuals)(i, j) = (*laplassP)(i, j) - diffModel.CalculateFunctionValue(netModel.xValue(j), netModel.yValue(i - 1));
             }
         }
     }
@@ -220,7 +236,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(std::shar
                                 int k)
 {
 #ifdef DEBUG_MODE
-        std::cout << "CalculateGradient = \n" << residuals << std::endl;
+        std::cout << "CalculateGradient = \n" << *residuals << std::endl;
 #endif
     std::shared_ptr<DoubleMatrix> gradient;
     if (k == 0)
@@ -263,7 +279,7 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
     auto psi = uValues - *pCropped;
 
 #ifdef DEBUG_MODE
-    std::cout << "psi = \n" << psi << std::endl;
+    std::cout << "psi = \n" << *psi << std::endl;
 #endif
     double error = approximateOperations.MaxNormValue(*psi);
     double globalError = GetMaxValueFromAllProcessors(error);

@@ -11,10 +11,11 @@ public:
     int startRowIndex, endRowIndex, rowsCountValue;
     int yPoints;
 
-    ProcessorsData(int rankValue, int processorsCountValue)
+    ProcessorsData(int rankValue, int processorsCountValue, int yPointsValue)
     {
         rank = rankValue;
         processorsCount = processorsCountValue;
+        yPoints = yPointsValue;
     }
 
     inline bool IsMainProcessor() const { return rank == mainProcessorRank; }
@@ -22,10 +23,14 @@ public:
     inline bool IsLastProcessor() const { return rank == processorsCount - 1; }
 
     inline int RowsCount() const { return rowsCountValue; }
+    inline int ColsCount() const { return yPoints; }
     inline int RowsCountWithBorders() const { return rowsCountValue + 2; }
 
     inline int FirstRowIndex() const { return startRowIndex; }
     inline int LastRowIndex() const { return startRowIndex + rowsCountValue - 1; }
+
+    inline int FirstColIndex() const { return 0; }
+    inline int LastColIndex() const { return yPoints - 1; }
 
     inline int FirstRowWithBordersIndex() const { return startRowIndex - 1 >= 0 ? startRowIndex - 1 : 0; }
     inline int LastRowWithBordersIndex() const { return IsLastProcessor() ? LastRowIndex() : startRowIndex + rowsCountValue + 2 - 1; }

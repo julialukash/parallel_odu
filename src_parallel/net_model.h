@@ -2,6 +2,7 @@
 #define NETMODEL_H
 
 #include "interface.h"
+#include <vector>
 
 class NetModel
 {
@@ -11,17 +12,26 @@ private:
     double xAverageStepValue, yAverageStepValue;
     double xStartStepValue, yStartStepValue;
 public:
+    std::vector<double> xValues, yValues;
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
     int xPointsCount, yPointsCount;
 
     double xValue(int i) const
     {
-        return xMinBoundary + i * xStepValue;
+        auto tmp = xValues[i];
+        auto eq = tmp == xMinBoundary + i * xStepValue;
+        std::cout << "i = " << i << ", xV[i] = " << xValues[i] << ", old = " << xMinBoundary + i * xStepValue << ", eq = " << eq << std::endl;
+//        return xMinBoundary + i * xStepValue;
+        return tmp;
     }
 
     double yValue(int i) const
-    {
-        return yMinBoundary + i * yStepValue;
+    {        
+        auto tmp = yValues[i];
+        auto eq = tmp == yMinBoundary + i * yStepValue;
+        std::cout << "j = " << i << ", yV[i] = " << yValues[i] << ", old = " << yMinBoundary + i * yStepValue << ", eq = " << eq << std::endl;
+//        return yMinBoundary + i * yStepValue;
+        return tmp;
     }
 
     inline double xStep(int i) const { return xStepValue; }
@@ -32,6 +42,12 @@ public:
 
     NetModel()
     {
+    }
+
+    ~NetModel()
+    {
+        xValues.clear();
+        yValues.clear();
     }
 
     NetModel(double xMinBoundaryValue, double xMaxBoundaryValue, double yMinBoundaryValue, double yMaxBoundaryValue,
@@ -49,9 +65,22 @@ public:
         yAverageStepValue = yStepValue;        
     }
 
-    bool IsInnerPoint(int i, int j) const
+    void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
-        return i == 0 || i == xPointsCount - 1 || j == 0 || j == yPointsCount - 1;
+        for (int i = firstColIndex; i <= lastColIndex; ++i)
+        {
+            xValues.push_back(xMinBoundary + i * xStepValue);
+        }
+
+        for (int i = firstRowIndex; i <= lastRowIndex; ++i)
+        {
+            yValues.push_back(yMinBoundary + i * yStepValue);
+        }
+    }
+
+    bool IsInnerPoint(int j) const
+    {
+        return j == 0 || j == yPointsCount - 1;
     }
 };
 

@@ -56,10 +56,10 @@ public:
         double prodValue = 0;
         for (int i = processorData.FirstRowRelativeIndex(); i <= processorData.LastRowRelativeIndex(); ++i)
         {
-            int iNetIndex = i - processorData.FirstRowRelativeIndex() + processorData.FirstRowIndex();
+//            int iNetIndex = i - processorData.FirstRowRelativeIndex() + processorData.FirstRowIndex();
             for (int j = 1; j < currentValues.colsCount() - 1; ++j)
             {
-                prodValue = prodValue + netModel.xAverageStep(iNetIndex) * netModel.yAverageStep(j) *
+                prodValue = prodValue + netModel.xAverageStep(j) * netModel.yAverageStep(i - 1) *
                                         currentValues(i, j) * otherValues(i, j);
             }
         }
