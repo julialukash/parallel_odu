@@ -28,7 +28,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 #ifdef DEBUG_MODE
 //        std::cout << "i = " << i << ", j = " << j << std::endl;
 #endif
-            (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(j), netModel.yValue(i));
+            (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(j), netModel.yValue(i + 1));
         }
     }
     return values;
@@ -45,7 +45,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
             if (isInnerPoint)
             {
                 // i - 1 for y grid as startIndex is from 1
-                (*values)(i, j) = diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i - 1));
+                (*values)(i, j) = diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i));
             }
             else
             {
@@ -214,7 +214,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
             }
             else
             {
-                (*residuals)(i, j) = (*laplassP)(i, j) - diffModel.CalculateFunctionValue(netModel.xValue(j), netModel.yValue(i - 1));
+                (*residuals)(i, j) = (*laplassP)(i, j) - diffModel.CalculateFunctionValue(netModel.xValue(j), netModel.yValue(i));
             }
         }
     }

@@ -19,7 +19,7 @@ public:
     double xValue(int i) const
     {
         auto tmp = xValues[i];
-        auto eq = tmp == xMinBoundary + i * xStepValue;
+        auto eq = fabs(tmp - xMinBoundary + i * xStepValue) < 1e-4;
         std::cout << "i = " << i << ", xV[i] = " << xValues[i] << ", old = " << xMinBoundary + i * xStepValue << ", eq = " << eq << std::endl;
 //        return xMinBoundary + i * xStepValue;
         return tmp;
@@ -28,17 +28,40 @@ public:
     double yValue(int i) const
     {        
         auto tmp = yValues[i];
-        auto eq = tmp == yMinBoundary + i * yStepValue;
+        auto eq = fabs(tmp - yMinBoundary + i * yStepValue) < 1e-4;
         std::cout << "j = " << i << ", yV[i] = " << yValues[i] << ", old = " << yMinBoundary + i * yStepValue << ", eq = " << eq << std::endl;
 //        return yMinBoundary + i * yStepValue;
         return tmp;
     }
 
-    inline double xStep(int i) const { return xStepValue; }
-    inline double yStep(int i) const { return yStepValue; }
+    inline double xStep(int i) const
+    {
+        auto tmp = xValues[i + 1] - xValues[i];
+        return tmp;
+    }
 
-    inline double xAverageStep(int i) const { return xAverageStepValue; }
-    inline double yAverageStep(int i) const { return yAverageStepValue; }
+    inline double yStep(int i) const
+    {
+        auto tmp = yValues[i + 1] - yValues[i];
+        auto isEq = fabs(tmp - yStepValue) < 1e-4;
+        std::cout << "i = " << i << ", yV + 1 = " << yValues[i + 1] << ", yValues[i] = "
+                  << yValues[i] << ", tmp = " << tmp << ", old" << yStepValue
+                  << ", isEq = " << isEq
+                  << std::endl;
+        return tmp;
+    }
+
+    inline double xAverageStep(int i) const
+    {
+        auto tmp = 0.5 * (xValues[i + 1] - xValues[i - 1]);
+        return xAverageStepValue;
+    }
+
+    inline double yAverageStep(int i) const
+    {
+        auto tmp = 0.5 * (yValues[i + 1] - yValues[i - 1]);
+        return yAverageStepValue;
+    }
 
     NetModel()
     {
@@ -72,7 +95,7 @@ public:
             xValues.push_back(xMinBoundary + i * xStepValue);
         }
 
-        for (int i = firstRowIndex; i <= lastRowIndex; ++i)
+        for (int i = firstRowIndex - 1; i <= lastRowIndex + 1; ++i)
         {
             yValues.push_back(yMinBoundary + i * yStepValue);
         }
