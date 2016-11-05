@@ -1,5 +1,6 @@
 #include "mpi_operations.h"
 
+#define DEBUG_MODE
 void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
 {
     int rowsCount = values.rowsCount();

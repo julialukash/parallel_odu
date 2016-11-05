@@ -15,12 +15,8 @@ const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 const double eps = 1e-4;
 
+#define DEBUG_MAIN
 #define Print
-
-
-#define BLOCK_LOW(id,p,n)   ((id)*(n)/(p))
-#define BLOCK_HIGH(id,p,n)  (BLOCK_LOW((id)+1,p,n)-1)
-#define BLOCK_SIZE(id,p,n)  (BLOCK_HIGH(id,p,n)-BLOCK_LOW(id,p,n)+1)
 
 void writeValues(char* filename, const DoubleMatrix& values)
 {
@@ -46,6 +42,7 @@ void writeValues(char* filename, const DoubleMatrix& values)
             outputFile << "\n";
         }
     }
+
 
     outputFile.close();
 }
@@ -105,12 +102,7 @@ int SplitFunction(int N0, int N1, int p)
 
 
 int main(int argc, char *argv[])
-{    
-    if (argc < 4)
-    {
-        std::cerr << "Not enough input arguments\n";
-        exit(1);
-    }
+{        
     int rank, processorsCount;
     try
     {
@@ -151,6 +143,13 @@ int main(int argc, char *argv[])
         n0 = N0 >> p0;                      n1 = N1 >> p1;
         k0 = N0 - dims[0]*n0;               k1 = N1 - dims[1]*n1;
 
+#ifdef DEBUG_MAIN
+        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+        auto fileName = "out/out_rank" + std::to_string(rank)  + ".txt";
+        std::ofstream out(fileName);
+        std::cout.rdbuf(out.rdbuf());
+#endif
+
 #ifdef Print
         if(rank == 0)
         {
@@ -177,22 +176,50 @@ int main(int argc, char *argv[])
         MPI_Cart_shift(Grid_Comm, 0, 1, &left, &right);
         MPI_Cart_shift(Grid_Comm, 1, 1, &down, &up);
 
-        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
-                                                                  yMinBoundary, yMaxBoundary,
-                                                                  N0, N0));
         auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount,
                                                                                    left, right,
                                                                                    down, up));
 
-        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
-        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(*netModelPtr));
         // init processors with their part of data
         auto processorParameters = ProcessorsData::GetProcessorRowsParameters(n1, k1, Coords[1]);
-        processorInfoPtr->rowsCountValue = processorParameters.first;
-        processorInfoPtr->startRowIndex = processorParameters.second;
+        processorInfoPtr->InitRowsParameters(processorParameters);
         processorParameters = ProcessorsData::GetProcessorColsParameters(n0, k0, Coords[0]);
-        processorInfoPtr->colsCountValue = processorParameters.first;
-        processorInfoPtr->startColIndex = processorParameters.second;
+        processorInfoPtr->InitColsParameters(processorParameters);
+
+        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
+                                                                  yMinBoundary, yMaxBoundary,
+                                                                  N0, N1));
+        netModelPtr->InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
+                               processorInfoPtr->FirstColIndex(), processorInfoPtr->LastColIndex());
+
+#ifdef DEBUG_MAIN
+        std::cout << "XS = \n";
+        for (int i = 0; i < netModelPtr->xValues.size(); ++i)
+        {
+            std::cout << netModelPtr->xValues[i] << " ";
+        }
+        std::cout << "\nYS = \n";
+        for (int i = 0; i < netModelPtr->yValues.size(); ++i)
+        {
+            std::cout << netModelPtr->yValues[i] << " ";
+        }
+        std::cout << std::endl;
+#endif
+        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
+        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(
+                    new ApproximateOperations(*netModelPtr, *processorInfoPtr));
+
+#ifdef DEBUG_MAIN
+        std::cout << "Finished" << std::endl;
+        std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
+                  << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
+                  << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
+                  << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
+                  << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
+                  << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
+                  << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
+        std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
+#endif
         auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
                                                           *processorInfoPtr));
 
@@ -201,6 +228,7 @@ int main(int argc, char *argv[])
         if(Coords[1] < k1)
             ++n1;
 
+            
 #ifdef Print
         printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
                "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
@@ -209,20 +237,45 @@ int main(int argc, char *argv[])
                processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
                processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
 #endif
-
-
-//        auto uValuesApproximate = optimizationAlgoPtr->Init();
-//        auto uValues = optimizationAlgoPtr->CalculateU();
+#ifdef DEBUG_MAIN
+        std::cout << "My Rank in Grid_Comm is " << rank << ". My topological coords is (" <<
+                  Coords[0] << "," << Coords[1] << "). Domain size is " <<
+                  n0 << "x" << n1 << " nodes.\n" <<
+                  "My neighbours: left = " << left << ", right = " << right <<
+                  ", down = " << down << ", up = " << up << ".\n" <<
+                  "My block info: startColIndex = " << processorInfoPtr->startColIndex <<
+                  ", colsCount = " << processorInfoPtr->colsCountValue << ", startRowIndex = " <<
+                  processorInfoPtr->startRowIndex << ", rowsCount = " << processorInfoPtr->rowsCountValue <<
+                  "\n";
+        std::cout << "Created ConjugateGradientAlgo." << std::endl;
+#endif
 //        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
 //        globalError = GetMaxValueFromAllProcessors(localError);
+
+//#ifdef DEBUG_MAIN
+//        std::cout << "Process finished, error = " << localError << ", global = "
+//                  << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
+//#endif
 //        // gather values
 //        auto globalUValues = GatherUApproximateValuesMatrix(*processorInfoPtr, *netModelPtr, *uValuesApproximate);
 //        if (processorInfoPtr->IsMainProcessor())
 //        {
+//#ifdef DEBUG_MAIN
+//            std::cout << "globalUValues = \n" << *globalUValues << std::endl;
+//#endif
 //            elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
 //            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
 //                      << "globalError: " << globalError << std::endl;
 //            writeValues(approximateValuesFilename, *globalUValues);
+//        }
+#ifdef DEBUG_MAIN
+        std::cout.rdbuf(coutbuf); //reset to standard output again
+        out.close();
+#endif
+//        if (processorInfoPtr->IsMainProcessor())
+//        {
+//            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
+//                      << "globalError: " << globalError << std::endl;
 //        }
         MPI_Finalize();
     }
