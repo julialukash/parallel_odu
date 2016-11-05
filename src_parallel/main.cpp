@@ -154,15 +154,16 @@ int main(int argc, char *argv[])
 #ifdef Print
         if(rank == 0)
         {
+            printf("k0 = %d, k1 = %d, n0 = %d, n1 = %d\n", k0, k1, n0, n1);
             printf("The number of processes ProcNum = 2^%d. It is split into %d x %d processes.\n"
                    "The number of nodes N0 = %d, N1 = %d. Blocks B(i,j) have size:\n", power, dims[0],dims[1], N0,N1);
 
             if((k0 > 0)&&(k1 > 0))
-                printf("-->\t %d x %d iff i = 0 .. %d, j = 0 .. %d;\n", n0+1,n1+1, k0-1,k1-1);
+                printf("1 -->\t %d x %d iff i = 0 .. %d, j = 0 .. %d;\n", n0+1,n1+1, k0-1,k1-1);
             if(k1 > 0)
-                printf("-->\t %d x %d iff i = %d .. %d, j = 0 .. %d;\n", n0,n1+1, k0,dims[0]-1, k1-1);
+                printf("2 -->\t %d x %d iff i = %d .. %d, j = 0 .. %d;\n", n0,n1+1, k0,dims[0]-1, k1-1);
             if(k0 > 0)
-                printf("-->\t %d x %d iff i = 0 .. %d, j = %d .. %d;\n", n0+1,n1, k0-1, k1,dims[1]-1);
+                printf("3 -->\t %d x %d iff i = 0 .. %d, j = %d .. %d;\n", n0+1,n1, k0-1, k1,dims[1]-1);
 
             printf("-->\t %d x %d iff i = %d .. %d, j = %d .. %d.\n", n0,n1, k0,dims[0]-1, k1,dims[1]-1);
         }
@@ -173,39 +174,43 @@ int main(int argc, char *argv[])
         MPI_Comm_rank(Grid_Comm, &rank);
         MPI_Cart_coords(Grid_Comm, rank, ndims, Coords);
 
+        MPI_Cart_shift(Grid_Comm, 0, 1, &left, &right);
+        MPI_Cart_shift(Grid_Comm, 1, 1, &down, &up);
+
+        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
+                                                                  yMinBoundary, yMaxBoundary,
+                                                                  N0, N0));
+        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount,
+                                                                                   left, right,
+                                                                                   down, up));
+
+        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
+        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(*netModelPtr));
+        // init processors with their part of data
+        auto processorParameters = ProcessorsData::GetProcessorRowsParameters(n1, k1, Coords[1]);
+        processorInfoPtr->rowsCountValue = processorParameters.first;
+        processorInfoPtr->startRowIndex = processorParameters.second;
+        processorParameters = ProcessorsData::GetProcessorColsParameters(n0, k0, Coords[0]);
+        processorInfoPtr->colsCountValue = processorParameters.first;
+        processorInfoPtr->startColIndex = processorParameters.second;
+        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
+                                                          *processorInfoPtr));
+
         if(Coords[0] < k0)
             ++n0;
         if(Coords[1] < k1)
             ++n1;
 
-        MPI_Cart_shift(Grid_Comm, 0, 1, &left, &right);
-        MPI_Cart_shift(Grid_Comm, 1, 1, &down, &up);
-
 #ifdef Print
-        int lo,h,r,l;
-        lo = BLOCK_LOW(Coords[0], dims[0], N0*N1);
-        h = BLOCK_LOW(Coords[0], dims[1], N0*N1);
-        r = BLOCK_LOW(Coords[1], dims[0], N0*N1);
-        l = BLOCK_LOW(Coords[1], dims[1], N0*N1);
         printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
                "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
-               "My block info: low = %d, high = %d, r = %d, l = %d.\n",
-               rank, Coords[0], Coords[1], n0, n1, left,right, down,up,
-               lo,h,r,l);
+               "My block info: startColIndex = %d, colsCount = %d, startRowIndex = %d, rowsCount = %d.\n",
+               rank, Coords[0], Coords[1], n0, n1, left, right, down,up,
+               processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
+               processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
 #endif
-//        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount));
 
-//        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
-//                                                                  yMinBoundary, yMaxBoundary,
-//                                                                  N0, N0));
-//        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
-//        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(new ApproximateOperations(*netModelPtr));
-//        // init processors with their part of data
-//        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr->yPointsCount, processorInfoPtr->rank, processorInfoPtr->processorsCount);
-//        processorInfoPtr->rowsCountValue = processorParameters.first;
-//        processorInfoPtr->startRowIndex = processorParameters.second;
-//        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
-//                                                          *processorInfoPtr));
+
 //        auto uValuesApproximate = optimizationAlgoPtr->Init();
 //        auto uValues = optimizationAlgoPtr->CalculateU();
 //        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
