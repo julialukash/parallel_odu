@@ -29,10 +29,18 @@ void writeValues(char* filename, const DoubleMatrix& values)
     {
         for (int j = 0; j < values.colsCount(); ++j)
         {
-            outputFile << values(i,j) << " ";
+            outputFile << values(i,j);
+            if (j != values.colsCount() - 1)
+            {
+                outputFile << ", ";
+            }
         }
-        outputFile << "\n";
+        if (i != values.rowsCount() - 1)
+        {
+            outputFile << "\n";
+        }
     }
+
 
     outputFile.close();
 }
