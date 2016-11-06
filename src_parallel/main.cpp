@@ -121,8 +121,8 @@ int main(int argc, char *argv[])
         }
         auto groundValuesFilename = argv[1];
         auto approximateValuesFilename = argv[2];
-        auto N0 = std::stoi(argv[3]);
-        auto N1 = std::stoi(argv[4]);
+        auto N0 = std::stoi(argv[3]) + 1;
+        auto N1 = std::stoi(argv[4]) + 1;
 
         MPI_Comm Grid_Comm;             // this is a handler of a new communicator.
         int dims[2], Coords[2];

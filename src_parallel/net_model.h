@@ -96,10 +96,10 @@ public:
         xMaxBoundary = xMaxBoundaryValue;
         yMinBoundary = yMinBoundaryValue;
         yMaxBoundary = yMaxBoundaryValue;
-        xPointsCount = xPointsCountValue + 1;
-        yPointsCount = yPointsCountValue + 1;
-        xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCountValue;
-        yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCountValue;
+        xPointsCount = xPointsCountValue;
+        yPointsCount = yPointsCountValue;
+        xStepValue = (xMaxBoundary - xMinBoundary) / (xPointsCountValue - 1);
+        yStepValue = (yMaxBoundary - yMinBoundary) / (yPointsCountValue - 1);
         xAverageStepValue = xStepValue;
         yAverageStepValue = yStepValue;        
     }
@@ -124,7 +124,7 @@ public:
 
     void InitModelNorm(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
-        for (int i = firstColIndex; i <= lastColIndex; ++i)
+        for (int i = firstColIndex; i <= lastColIndex + 1; ++i)
         {
             xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1)));
         }
