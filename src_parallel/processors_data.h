@@ -14,7 +14,7 @@ public:
     int startColIndex, endColIndex, colsCountValue;
     int left, right, down, up;
     int n1, k1, n0, k0, N0, N1;
-    MPI_Comm gridComm;
+    MPI_Comm gridComm, rowComm, colComm;
 
     ProcessorsData(int rankValue, int processorsCountValue,
                    int leftIndex, int rightIndex,
@@ -86,6 +86,11 @@ public:
     void InitCartCoordinates(int i, int j)
     {
         iCartIndex = i; jCartIndex = j;
+    }
+
+    void InitComms(MPI_Comm gridCommValue, MPI_Comm rowCommValue, MPI_Comm colCommValue)
+    {
+        gridComm  = gridCommValue; rowComm = rowCommValue; colComm = colCommValue;
     }
 
     std::pair<int, int> static GetProcessorParameters(int pointsCount, int rankValue, int processorsCount)

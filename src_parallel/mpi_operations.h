@@ -28,5 +28,6 @@ double GetMaxValueFromAllProcessors(double localValue);
 double GetFractionValueFromAllProcessors(double numerator, double denominator);
 
 void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
+void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
 
 #endif // MPIOPERATIONS_H

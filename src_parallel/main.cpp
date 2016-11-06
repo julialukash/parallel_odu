@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         auto N0 = std::stoi(argv[3]) + 1;
         auto N1 = std::stoi(argv[4]) + 1;
 
-        MPI_Comm Grid_Comm;             // this is a handler of a new communicator.
+        MPI_Comm gridComm;             // this is a handler of a new communicator.
         int dims[2], Coords[2];
         int periods[2] = {0,0};         // it is used for creating processes topology.
         int left, right, up, down;
@@ -169,18 +169,27 @@ int main(int argc, char *argv[])
 #endif
 
         // the cartesian topology of processes is being created ...
-        MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, true, &Grid_Comm);
-        MPI_Comm_rank(Grid_Comm, &rank);
-        MPI_Cart_coords(Grid_Comm, rank, ndims, Coords);
+        MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, true, &gridComm);
+        MPI_Comm_rank(gridComm, &rank);
+        MPI_Cart_coords(gridComm, rank, ndims, Coords);
 
-        MPI_Cart_shift(Grid_Comm, 0, 1, &left, &right);
-        MPI_Cart_shift(Grid_Comm, 1, 1, &down, &up);
+        MPI_Cart_shift(gridComm, 0, 1, &left, &right);
+        MPI_Cart_shift(gridComm, 1, 1, &down, &up);
+
+        // setup row and col com
+        MPI_Comm colComm, rowComm;
+        int remainDims[2];
+        remainDims[0] = 0; remainDims[1] = 1;
+        MPI_Cart_sub(gridComm, remainDims, &rowComm);
+        remainDims[0] = 1; remainDims[1] = 0;
+        MPI_Cart_sub(gridComm, remainDims, &colComm);
 
         auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount,
                                                                                    left, right,
                                                                                    down, up));
 
         // init processors with their part of data
+        processorInfoPtr->InitComms(gridComm, rowComm, colComm);
         processorInfoPtr->InitCartParameters(n0, k0, n1, k1, N0, N1);
         processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
         auto processorParameters = ProcessorsData::GetProcessorRowsParameters(processorInfoPtr->N1, processorInfoPtr->n1, processorInfoPtr->k1, processorInfoPtr->jCartIndex);
