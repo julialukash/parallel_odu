@@ -45,6 +45,12 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
             bool isInnerPoint = processorData.IsInnerIndices(i, j);
             if (isInnerPoint)
             {
+
+#ifdef DEBUG_MODE
+        std::cout << "i = " << i << ", yVal = " <<  netModel.yValue(i) <<
+                     ", j = " << j << ", xVal = " << netModel.xValue(j) <<
+                     ", val = " << diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i)) << std::endl;
+#endif
                 // i - 1 for y grid as startIndex is from 1
                 (*values)(i, j) = diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i));
             }

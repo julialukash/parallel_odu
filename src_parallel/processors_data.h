@@ -13,7 +13,7 @@ public:
     int startRowIndex, endRowIndex, rowsCountValue;
     int startColIndex, endColIndex, colsCountValue;
     int left, right, down, up;
-    int n1, k1, n0, k0;
+    int n1, k1, n0, k0, N0, N1;
     MPI_Comm gridComm;
 
     ProcessorsData(int rankValue, int processorsCountValue,
@@ -76,10 +76,11 @@ public:
         startColIndex = colsParams.second;
     }
 
-    void InitCartParameters(int n0Value, int k0Value, int n1Value, int k1Value)
+    void InitCartParameters(int n0Value, int k0Value, int n1Value, int k1Value, int N0Value, int N1Value)
     {
         n0 = n0Value; n1 = n1Value;
         k0 = k0Value; k1 = k1Value;
+        N0 = N0Value; N1 = N1Value;
     }
 
     void InitCartCoordinates(int i, int j)
@@ -94,7 +95,7 @@ public:
     }
 
 
-    std::pair<int, int> static GetProcessorRowsParameters(int n1, int k1, int jProcessorIndex)
+    std::pair<int, int> static GetProcessorRowsParameters(int N1, int n1, int k1, int jProcessorIndex)
     {
         int rowsCount, firstRowIndex;
         if (k1 == 0 || (k1 > 0 && jProcessorIndex >= k1))
@@ -107,6 +108,9 @@ public:
             firstRowIndex = jProcessorIndex * (n1 + 1);
             rowsCount = n1 + 1;
         }
+        // reverse, as we want matrix to start in left up corner
+        auto lastRowIndex = firstRowIndex + rowsCount - 1;
+        firstRowIndex = N1 - lastRowIndex - 1;
         return std::make_pair(rowsCount, firstRowIndex);
     }
 

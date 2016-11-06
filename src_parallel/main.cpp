@@ -181,9 +181,9 @@ int main(int argc, char *argv[])
                                                                                    down, up));
 
         // init processors with their part of data
-        processorInfoPtr->InitCartParameters(n0, k0, n1, k1);
+        processorInfoPtr->InitCartParameters(n0, k0, n1, k1, N0, N1);
         processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
-        auto processorParameters = ProcessorsData::GetProcessorRowsParameters(processorInfoPtr->n1, processorInfoPtr->k1, processorInfoPtr->jCartIndex);
+        auto processorParameters = ProcessorsData::GetProcessorRowsParameters(processorInfoPtr->N1, processorInfoPtr->n1, processorInfoPtr->k1, processorInfoPtr->jCartIndex);
         processorInfoPtr->InitRowsParameters(processorParameters);
         processorParameters = ProcessorsData::GetProcessorColsParameters(processorInfoPtr->n0, processorInfoPtr->k0, processorInfoPtr->iCartIndex);
         processorInfoPtr->InitColsParameters(processorParameters);
