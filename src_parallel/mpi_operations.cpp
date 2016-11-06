@@ -102,14 +102,14 @@ void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorD
 
     // send to next processor last "no border" line
     // receive from prev processor first "border" line
-    MPI_Sendrecv(&(values[processorData.RowsCountWithBorders() - 2]), netModel.xPointsCount, MPI_DOUBLE, downProcessorRank, UP,
-                 &(values[0]), netModel.xPointsCount, MPI_DOUBLE, upProcessorRank, UP,
-                 processorData.rowComm, &status);
+    MPI_Sendrecv(&(values[processorData.RowsCountWithBorders() - 2]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, UP,
+                 &(values[0]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, UP,
+                 processorData.gridComm, &status);
     // send to prev processor first "no border" line
     // receive from next processor last "border" line
-    MPI_Sendrecv(&(values[1]), netModel.xPointsCount, MPI_DOUBLE, upProcessorRank, DOWN,
-                 &(values[processorData.RowsCountWithBorders() - 1]), netModel.xPointsCount, MPI_DOUBLE, downProcessorRank, DOWN,
-                 processorData.rowComm, &status);
+    MPI_Sendrecv(&(values[1]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, DOWN,
+                 &(values[processorData.RowsCountWithBorders() - 1]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, DOWN,
+                 processorData.gridComm, &status);
 #ifdef DEBUG_MODE
     std::cout << "RenewBoundRows finished \n" << values << std::endl;
 #endif
@@ -121,8 +121,8 @@ void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorD
     std::cout << "RenewBoundCols \n" << values << std::endl;
 #endif
     MPI_Status status;
-    int leftProcessorRank = processorData.left < 0 ? MPI_PROC_NULL : processorData.down;
-    int rightProcessorRank = processorData.right < 0 ? MPI_PROC_NULL : processorData.down;
+    int leftProcessorRank = processorData.left < 0 ? MPI_PROC_NULL : processorData.left;
+    int rightProcessorRank = processorData.right < 0 ? MPI_PROC_NULL : processorData.right;
 
 #ifdef DEBUG_MODE
     std::cout << "leftProcessorRank = " << leftProcessorRank << ", rightProcessorRank = " << rightProcessorRank << std::endl;
@@ -142,7 +142,7 @@ void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorD
     // receive from left processor first "border" line
     MPI_Sendrecv(&((*rightOwn)[0]), leftOwn->rowsCount(), MPI_DOUBLE, rightProcessorRank, LEFT,
                  &((*leftBorder)[0]), leftOwn->rowsCount(), MPI_DOUBLE, leftProcessorRank, LEFT,
-                 processorData.colComm, &status);
+                 processorData.gridComm, &status);
 #ifdef DEBUG_MODE
 //    std::cout << "first change status = " << &status << std::endl;
 #endif
@@ -150,10 +150,12 @@ void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorD
     // receive from next processor last "border" line
     MPI_Sendrecv(&((*leftOwn)[0]), leftOwn->rowsCount(), MPI_DOUBLE, leftProcessorRank, RIGHT,
                  &((*rightBorder)[0]), leftOwn->rowsCount(), MPI_DOUBLE, rightProcessorRank, RIGHT,
-                 processorData.colComm, &status);
+                 processorData.gridComm, &status);
 #ifdef DEBUG_MODE
 //    std::cout << "second change status = " << &status << std::endl;
 #endif
+    values.SetNewColumn(*leftBorder, 0);
+    values.SetNewColumn(*rightBorder, processorData.ColsCountWithBorders() - 1);
 #ifdef DEBUG_MODE
     std::cout << "after change \n" << std::endl;
     std::cout << "leftOwn = \n" << *leftOwn << ", rightOwn = \n" << *rightOwn << std::endl;

@@ -179,9 +179,9 @@ int main(int argc, char *argv[])
         // setup row and col com
         MPI_Comm colComm, rowComm;
         int remainDims[2];
-        remainDims[0] = 0; remainDims[1] = 1;
-        MPI_Cart_sub(gridComm, remainDims, &rowComm);
         remainDims[0] = 1; remainDims[1] = 0;
+        MPI_Cart_sub(gridComm, remainDims, &rowComm);
+        remainDims[0] = 0; remainDims[1] = 1;
         MPI_Cart_sub(gridComm, remainDims, &colComm);
 
         auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount,

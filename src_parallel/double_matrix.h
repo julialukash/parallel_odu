@@ -171,6 +171,18 @@ public:
         return res;
     }
 
+    void SetNewColumn(const DoubleMatrix& column, int columnIndex)
+    {
+        if (column.rowsCount() != rowsCount() || column.colsCount() != 1 || columnIndex >= colsCount())
+        {
+            std::cerr << "Incorrect column\n" << std::endl;
+            throw "Incorrect column\n";
+        }
+        for (int i = 0; i < rowsCount(); ++i)
+        {
+            operator() (i, columnIndex) = column(i, 0);
+        }
+    }
 
 
     friend std::ostream& operator<<(std::ostream& os, const DoubleMatrix& dt)
