@@ -26,7 +26,7 @@ public:
         std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
         std::cout <<"ApproximateOperations.CalculateLaplass startIndex = " << startIndex << ", endIndex = " << endIndex << std::endl;
 #endif
-        auto laplassValues = std::make_shared<DoubleMatrix>(processorData.RowsCountWithBorders(), netModel.xPointsCount);
+        auto laplassValues = std::make_shared<DoubleMatrix>(processorData.RowsCountWithBorders(), processorData.ColsCountWithBorders());
 #ifdef DEBUG_MODE
         std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
 #endif

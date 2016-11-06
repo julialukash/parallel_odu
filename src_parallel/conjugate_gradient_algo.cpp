@@ -97,7 +97,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 
         // check stop condition
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
-        if (stopCondition || iteration == 0)
+        if (stopCondition)// || iteration == 1)
         {
             auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
                                              processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
@@ -150,6 +150,9 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 
         ++iteration;        
     }
+#ifdef DEBUG_MODE
+        std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
+#endif
     return error;
 }
 
