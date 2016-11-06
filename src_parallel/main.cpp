@@ -277,23 +277,20 @@ int main(int argc, char *argv[])
 #ifdef DEBUG_MAIN
         std::cout << "Process finished, error = " << localError << ", global = "
                   << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
+        outFileName = "../output/finish/p_fin_rank" + std::to_string(rank)  + ".txt";
+        writeValues(outFileName.c_str(), *uValuesApproximate);
 #endif
-//        // gather values
-//        auto globalUValues = GatherUApproximateValuesMatrix(*processorInfoPtr, *netModelPtr, *uValuesApproximate);
-//        if (processorInfoPtr->IsMainProcessor())
-//        {
-//#ifdef DEBUG_MAIN
-//            std::cout << "globalUValues = \n" << *globalUValues << std::endl;
-//#endif
-//            elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
-//            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
-//                      << "globalError: " << globalError << std::endl;
-//            writeValues(approximateValuesFilename, *globalUValues);
-//        }
 #ifdef DEBUG_MAIN
         std::cout.rdbuf(coutbuf); //reset to standard output again
         out.close();
 #endif
+        if (processorInfoPtr->IsMainProcessor())
+        {
+            elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
+            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
+                      << "globalError: " << globalError << std::endl;
+        }
+
 //        if (processorInfoPtr->IsMainProcessor())
 //        {
 //            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
