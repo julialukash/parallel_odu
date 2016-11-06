@@ -156,15 +156,16 @@ public:
         return colsCountValue;
     }
 
-    std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount) const
+    std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount, int startCol, int colsCount) const
     {
-        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCountValue));
+        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
         for (int i = startRow; i < startRow + rowsCount; i++)
         {
             int iIndex = i - startRow;
-            for (int j = 0; j < colsCountValue; j++)
+            for (int j = startCol; j < startCol + colsCount; j++)
             {
-                (*res)(iIndex, j) = operator ()(i, j);
+                int jIndex = j - startCol;
+                (*res)(iIndex, jIndex) = operator ()(i, j);
             }
         }
         return res;

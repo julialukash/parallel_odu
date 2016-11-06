@@ -262,13 +262,13 @@ int main(int argc, char *argv[])
         outFileName = "../output/true/u_rank" + std::to_string(rank)  + ".txt";
         writeValues(outFileName.c_str(), *uValues);
 #endif
-//        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
-//        globalError = GetMaxValueFromAllProcessors(localError);
+        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
+        globalError = GetMaxValueFromAllProcessors(localError);
 
-//#ifdef DEBUG_MAIN
-//        std::cout << "Process finished, error = " << localError << ", global = "
-//                  << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
-//#endif
+#ifdef DEBUG_MAIN
+        std::cout << "Process finished, error = " << localError << ", global = "
+                  << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
+#endif
 //        // gather values
 //        auto globalUValues = GatherUApproximateValuesMatrix(*processorInfoPtr, *netModelPtr, *uValuesApproximate);
 //        if (processorInfoPtr->IsMainProcessor())

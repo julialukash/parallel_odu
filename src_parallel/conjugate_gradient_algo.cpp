@@ -47,9 +47,9 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
             {
 
 #ifdef DEBUG_MODE
-        std::cout << "i = " << i << ", yVal = " <<  netModel.yValue(i) <<
-                     ", j = " << j << ", xVal = " << netModel.xValue(j) <<
-                     ", val = " << diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i)) << std::endl;
+//        std::cout << "i = " << i << ", yVal = " <<  netModel.yValue(i) <<
+//                     ", j = " << j << ", xVal = " << netModel.xValue(j) <<
+//                     ", val = " << diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i)) << std::endl;
 #endif
                 // i - 1 for y grid as startIndex is from 1
                 (*values)(i, j) = diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i));
@@ -97,9 +97,10 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 
         // check stop condition
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
-        if (stopCondition)// || iteration == 2)
+        if (stopCondition || iteration == 1)
         {
-            auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.LastOwnRowRelativeIndex());
+            auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
+                                             processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
 //            p = std::make_shared<DoubleMatrix>(*pCroppedPtr);
             p.reset();
             p = pCroppedPtr;
@@ -251,8 +252,8 @@ double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const 
     std::cout << "CalculateError..." << std::endl;
     std::cout << "p = \n" << p << std::endl;
 #endif
-
-    auto pCropped = p.CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.LastOwnRowRelativeIndex());
+    auto pCropped = p.CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
+                                 processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
 #ifdef DEBUG_MODE
     std::cout << "uValues = \n" << uValues << std::endl;
     std::cout << "pCropped = \n" << *pCropped << std::endl;
@@ -279,7 +280,9 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
 #endif
 
     auto pDiff = p - previousP;
-    auto pDiffCropped = pDiff->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.LastOwnRowRelativeIndex());
+
+    auto pDiffCropped = pDiff->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
+                                          processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
 #ifdef DEBUG_MODE
     std::cout << "IsStopCondition pDiff = \n" << *pDiff << std::endl;
     std::cout << "IsStopCondition pDiffCropped = \n" << *pDiffCropped << std::endl;
