@@ -226,8 +226,8 @@ int main(int argc, char *argv[])
                   << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
                   << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
                   << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
-                  << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
-                  << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
+//                  << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
+//                  << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
                   << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif

@@ -67,9 +67,10 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
     return values;
 }
 
-void ConjugateGradientAlgo::RenewBoundRows(DoubleMatrix& values)
+void ConjugateGradientAlgo::RenewBounds(DoubleMatrix& values)
 {
     RenewMatrixBoundRows(values, processorData, netModel);
+    RenewMatrixBoundCols(values, processorData, netModel);
 }
 
 double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const DoubleMatrix& uValues)
@@ -88,7 +89,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
         std::cout << "Process p = " << *p << std::endl;
 #endif
 
-        RenewBoundRows(*p);
+        RenewBounds(*p);
 #ifdef DEBUG_MODE
         std::cout << "Process renewed p = \n" << *p << std::endl;
 #endif
@@ -97,7 +98,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 
         // check stop condition
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
-        if (stopCondition || iteration == 0)
+        if (stopCondition)// || iteration == 1)
         {
             auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
                                              processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
@@ -117,12 +118,12 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 #endif
 
         auto residuals = CalculateResidual(*p);
-        RenewBoundRows(*residuals);
+        RenewBounds(*residuals);
 #ifdef DEBUG_MODE
         std::cout << "Process Residuals = \n" << *residuals << std::endl;
 #endif
         auto laplassResiduals = approximateOperations.CalculateLaplass(*residuals);
-        RenewBoundRows(*laplassResiduals);
+        RenewBounds(*laplassResiduals);
 
 #ifdef DEBUG_MODE
         std::cout << "Process Laplass Residuals = " << *laplassResiduals << std::endl;
@@ -140,7 +141,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 #ifdef DEBUG_MODE
         std::cout << "Process CalculateLaplass finished" << std::endl;
 #endif
-        RenewBoundRows(*laplassGrad);
+        RenewBounds(*laplassGrad);
 #ifdef DEBUG_MODE
     std::cout << "Process RenewBoundRows finished" << std::endl;
 #endif

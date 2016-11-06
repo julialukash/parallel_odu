@@ -11,6 +11,8 @@ enum MessageTag
 {
     UP,
     DOWN,
+    LEFT,
+    RIGHT,
     APPROXIMATE_MATRIX,
     GROUND_MATRIX
 };

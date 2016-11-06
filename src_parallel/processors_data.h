@@ -39,8 +39,8 @@ public:
     inline int FirstColIndex() const { return startColIndex; }
     inline int LastColIndex() const { return startColIndex + colsCountValue - 1; }
 
-    inline int FirstRowWithBordersIndex() const { return startRowIndex - 1 >= 0 ? startRowIndex - 1 : 0; }
-    inline int LastRowWithBordersIndex() const { return IsLastProcessor() ? LastRowIndex() : startRowIndex + rowsCountValue + 2 - 1; }
+//    inline int FirstRowWithBordersIndex() const { return startRowIndex - 1 >= 0 ? startRowIndex - 1 : 0; }
+//    inline int LastRowWithBordersIndex() const { return IsLastProcessor() ? LastRowIndex() : startRowIndex + rowsCountValue + 2 - 1; }
 
     inline int FirstInnerRowRelativeIndex () const { return IsFirstProcessor() ? 2 : 1; }
     inline int LastInnerRowRelativeIndex () const { return IsLastProcessor() ? RowsCountWithBorders() - 3 : RowsCountWithBorders() - 2; }

@@ -31,7 +31,7 @@ public:
     std::shared_ptr<DoubleMatrix> Init();
     std::shared_ptr<DoubleMatrix> CalculateU();
     double Process(std::shared_ptr<DoubleMatrix>& initP, const DoubleMatrix &uValues);
-    void RenewBoundRows(DoubleMatrix &values);
+    void RenewBounds(DoubleMatrix &values);
 };
 
 #endif // CONJUGATEGRADIENTALGO_H

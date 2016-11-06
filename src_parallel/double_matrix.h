@@ -172,6 +172,7 @@ public:
     }
 
 
+
     friend std::ostream& operator<<(std::ostream& os, const DoubleMatrix& dt)
     {
         for (int i = 0; i < dt.rowsCount(); ++i)
