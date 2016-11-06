@@ -28,7 +28,8 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 #ifdef DEBUG_MODE
 //        std::cout << "i = " << i << ", j = " << j << std::endl;
 #endif
-            (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(j), netModel.yValue(i + 1));
+            // +1 as bound rows go first (0)
+            (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(j + 1), netModel.yValue(i + 1));
         }
     }
     return values;
@@ -36,7 +37,7 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
 
 std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 {
-    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCount()));
+    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCountWithBorders()));
     for (int i = processorData.FirstOwnRowRelativeIndex(); i <= processorData.LastOwnRowRelativeIndex(); ++i)
     {
         for (int j = processorData.FirstOwnColRelativeIndex(); j <= processorData.LastOwnColRelativeIndex(); ++j)

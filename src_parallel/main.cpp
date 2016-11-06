@@ -18,7 +18,7 @@ const double eps = 1e-4;
 #define DEBUG_MAIN
 #define Print
 
-void writeValues(char* filename, const DoubleMatrix& values)
+void writeValues(const char* filename, const DoubleMatrix& values)
 {
     std::ofstream outputFile(filename);
     if (!outputFile.is_open())
@@ -181,9 +181,11 @@ int main(int argc, char *argv[])
                                                                                    down, up));
 
         // init processors with their part of data
-        auto processorParameters = ProcessorsData::GetProcessorRowsParameters(n1, k1, Coords[1]);
+        processorInfoPtr->InitCartParameters(n0, k0, n1, k1);
+        processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
+        auto processorParameters = ProcessorsData::GetProcessorRowsParameters(processorInfoPtr->n1, processorInfoPtr->k1, processorInfoPtr->jCartIndex);
         processorInfoPtr->InitRowsParameters(processorParameters);
-        processorParameters = ProcessorsData::GetProcessorColsParameters(n0, k0, Coords[0]);
+        processorParameters = ProcessorsData::GetProcessorColsParameters(processorInfoPtr->n0, processorInfoPtr->k0, processorInfoPtr->iCartIndex);
         processorInfoPtr->InitColsParameters(processorParameters);
 
         auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
@@ -248,6 +250,17 @@ int main(int argc, char *argv[])
                   processorInfoPtr->startRowIndex << ", rowsCount = " << processorInfoPtr->rowsCountValue <<
                   "\n";
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
+#endif
+
+        auto uValuesApproximate = optimizationAlgoPtr->Init();
+        auto uValues = optimizationAlgoPtr->CalculateU();
+#ifdef DEBUG_MAIN
+        std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
+        std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
+        auto outFileName = "../output/init/init_rank" + std::to_string(rank)  + ".txt";
+        writeValues(outFileName.c_str(), *uValuesApproximate);
+        outFileName = "../output/true/u_rank" + std::to_string(rank)  + ".txt";
+        writeValues(outFileName.c_str(), *uValues);
 #endif
 //        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
 //        globalError = GetMaxValueFromAllProcessors(localError);
