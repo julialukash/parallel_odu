@@ -51,7 +51,7 @@ class Autoencoder:
         self.loss_value = self.compute_loss_function(inputs, self.outputs)
         self.loss_grad = self.net.compute_loss_grad(self.loss_deriv)
         if self.tie_weights:
-            loss_grad = self.loss_grad # process derivs on symmetric levels as sum
+            self.loss_grad = self.loss_grad # process derivs on symmetric levels as sum
 
         return self.loss_value, self.loss_grad, self.outputs
 
@@ -63,9 +63,9 @@ class Autoencoder:
         """
         self.net.set_direction(p)
         self.Rp_outputs = self.net.compute_Rp_outputs()
-        self.Rp_L = self.loss_deriv.transpose().dot(self.Rp_outputs)
+        # self.Rp_L = self.loss_deriv.transpose().dot(self.Rp_outputs)
         self.loss_Rp_grad = self.net.compute_loss_Rp_grad(self.Rp_outputs)
-        return self.loss_Rp_grad, self.Rp_L, self.Rp_outputs
+        return self.loss_Rp_grad #, self.Rp_L, self.Rp_outputs
 
     def compute_gaussnewtonvec(self, p):
         """

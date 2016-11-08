@@ -37,16 +37,16 @@ def main():
         net_creator = FFNetCreator()
         if gradient_check:
             gradient_checker = GradientChecker()
-            is_correct, left, right = gradient_checker.check_gradient(batch)
-            print (is_correct, left, right)
+            gradient_checker.run_tests(batch)
+            gradient_checker.run_rp_tests(batch)
         else:
             layers = net_creator.create_nn_three_layers_simple(n_features)
             autoencoder = Autoencoder(layers)
             autoencoder.init_weights()
             loss_value, loss_grad, output = autoencoder.compute_loss(batch)
             p_vector = net_creator.create_p_vector(autoencoder.net.params_number)
-            loss_Rp_grad, Rp_L, Rp_outputs = autoencoder.compute_hessvec(p_vector)
-            print(Rp_L, loss_Rp_grad, Rp_outputs)
+            loss_Rp_grad  = autoencoder.compute_hessvec(p_vector)
+            print(loss_Rp_grad)
     except IOError as error:
         print('I/O error({}): {}, {}'.format(error.errno, error.strerror, error.args[0]))
     except AttributeError as error:

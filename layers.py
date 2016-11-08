@@ -162,10 +162,10 @@ class FCLayer(BaseLayer):
         """
         n_objects = Rp_inputs.shape[1]
         if self.use_bias:
-            Rp_inputs = np.vstack((Rp_inputs, np.ones(1, n_objects)))
+            Rp_inputs = np.vstack((Rp_inputs, np.zeros(1, n_objects)))
         self.rp_inputs = Rp_inputs
-        self.rp_u = self.weights.dot(Rp_inputs) + self.p.dot(self.inputs)
-        self.rp_z = self.z * self.rp_u
+        self.rp_u = self.weights.dot(self.rp_inputs) + self.p.dot(self.inputs)
+        self.rp_z = self.afun.deriv(self.u) * self.rp_u
         return self.rp_z
 
     def Rp_backward(self, Rp_derivs):
@@ -178,7 +178,9 @@ class FCLayer(BaseLayer):
         self.rp_input_derivs = Rp_derivs * self.afun.deriv(self.u) + self.derivs * self.afun.second_deriv(self.u) * self.rp_u
         self.rp_w_derivs = self.rp_input_derivs.dot(self.inputs.transpose()) + self.input_derivs.dot(self.rp_inputs.transpose())
         self.rp_output_derivs = self.p.transpose().dot(self.input_derivs) + self.weights.transpose().dot(self.rp_input_derivs)
-        return self.output_derivs, self.rp_w_derivs.flatten()
+        if self.use_bias:
+            self.rp_output_derivs = np.delete(self.rp_output_derivs, (self.rp_output_derivs.shape[0] - 1), axis=0)
+        return self.rp_output_derivs, self.rp_w_derivs.flatten()
 
     def get_activations(self):
         """
