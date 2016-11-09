@@ -104,7 +104,7 @@ public:
         yAverageStepValue = yStepValue;        
     }
 
-    void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
+    void InitModelNorm(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
         for (int i = firstColIndex - 1; i <= lastColIndex + 1; ++i)
         {
@@ -122,7 +122,7 @@ public:
         return (pow(1.0 + x, q) - 1.0) / (pow(2.0, q) - 1.0);
     }
 
-    void InitModelNorm(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
+    void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
         for (int i = firstColIndex; i <= lastColIndex + 1; ++i)
         {
