@@ -86,7 +86,6 @@ int SplitFunction(int N0, int N1, int p)
 
     for(i = 0; i < p; i++)
     {
-
         if(n0 > n1)
         {
             n0 = n0 / 2.0;

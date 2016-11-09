@@ -1,17 +1,6 @@
 #include "mpi_operations.h"
 
-#define DEBUG_MODE
-void sendMatrix(const DoubleMatrix& values, int receiverRank, int tag)
-{
-    int rowsCount = values.rowsCount();
-    int colsCount = values.colsCount();
-    MPI_Send(&rowsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
-    MPI_Send(&colsCount, 1, MPI_INT, receiverRank, tag, MPI_COMM_WORLD);
-    for (int i = 0; i < rowsCount; ++i)
-    {
-        MPI_Send(&(values[i]), colsCount, MPI_DOUBLE, receiverRank, tag, MPI_COMM_WORLD);
-    }
-}
+//#define DEBUG_MODE
 
 std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
                                            const NetModel &netModelPtr,
@@ -102,12 +91,12 @@ void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorD
 
     // send to next processor last "no border" line
     // receive from prev processor first "border" line
-    MPI_Sendrecv(&(values[processorData.RowsCountWithBorders() - 2]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, UP,
+    MPI_Sendrecv(&(values[processorData.LastOwnRowRelativeIndex()]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, UP,
                  &(values[0]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, UP,
                  processorData.gridComm, &status);
     // send to prev processor first "no border" line
     // receive from next processor last "border" line
-    MPI_Sendrecv(&(values[1]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, DOWN,
+    MPI_Sendrecv(&(values[processorData.FirstOwnRowRelativeIndex()]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, DOWN,
                  &(values[processorData.RowsCountWithBorders() - 1]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, DOWN,
                  processorData.gridComm, &status);
 #ifdef DEBUG_MODE

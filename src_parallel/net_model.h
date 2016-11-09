@@ -134,12 +134,6 @@ public:
             yValues.push_back(yMaxBoundary * f(1.0 * i / (yPointsCount - 1)));
         }
     }
-
-
-    bool IsInnerPoint(int j) const
-    {
-        return j == 0 || j == yPointsCount - 1;
-    }
 };
 
 #endif // NETMODEL_H

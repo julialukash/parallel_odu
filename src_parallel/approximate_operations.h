@@ -34,10 +34,10 @@ public:
         {
             for (int j = processorData.FirstInnerColRelativeIndex(); j <= processorData.LastInnerColRelativeIndex(); ++j)
             {
-                double xPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.xStep(j - 1) -
-                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel.xStep(j);
-                double yPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel.yStep(i - 1) -
-                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel.yStep(i);
+                double xPart = (currentValues(i, j) - currentValues(i, j - 1)) / netModel.xStep(j - 1) -
+                             (currentValues(i, j + 1) - currentValues(i, j)) / netModel.xStep(j);
+                double yPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.yStep(i - 1) -
+                             (currentValues(i + 1, j) - currentValues(i, j)) / netModel.yStep(i);
                 (*laplassValues)(i, j) = xPart / netModel.xAverageStep(j) + yPart / netModel.yAverageStep(i);
 #ifdef DEBUG_MODE
                 std::cout <<"ApproximateOperations.CalculateLaplass i = " << i << ", iNetIndex = " << iNetIndex << ", j = " << j << ", value = " << laplassValues(i, j) << std::endl;
