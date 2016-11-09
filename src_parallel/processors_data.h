@@ -6,6 +6,32 @@
 
 class ProcessorsData
 {
+private:
+    int SplitFunction(int N0, int N1, int p)
+    // This is the splitting procedure of proc. number p. The integer p0
+    // is calculated such that abs(N0/p0 - N1/(p-p0)) --> min.
+    {
+        float n0, n1;
+        int p0, i;
+
+        n0 = (float) N0; n1 = (float) N1;
+        p0 = 0;
+
+        for(i = 0; i < p; i++)
+        {
+            if(n0 > n1)
+            {
+                n0 = n0 / 2.0;
+                ++p0;
+            }
+            else
+            {
+                n1 = n1 / 2.0;
+            }
+        }
+        return(p0);
+    }
+
 public:
     const int mainProcessorRank = 0;
     int rank, processorsCount;
@@ -14,14 +40,10 @@ public:
     int startColIndex, endColIndex, colsCountValue;
     int left, right, down, up;
     int n1, k1, n0, k0, N0, N1;
+    int dims[2];
     MPI_Comm gridComm, rowComm, colComm;
 
-    ProcessorsData(int rankValue, int processorsCountValue,
-                   int leftIndex, int rightIndex,
-                   int downIndex, int upIndex):
-        rank(rankValue), processorsCount(processorsCountValue),
-        left(leftIndex), right(rightIndex),
-        down(downIndex), up(upIndex) { }
+    ProcessorsData(int processorsCountValue): processorsCount(processorsCountValue){ }
 
     inline bool IsMainProcessor() const { return rank == mainProcessorRank; }
     inline bool IsFirstProcessor() const { return up == -1; }
@@ -38,9 +60,6 @@ public:
     inline int LastRowIndex() const { return startRowIndex + rowsCountValue - 1; }
     inline int FirstColIndex() const { return startColIndex; }
     inline int LastColIndex() const { return startColIndex + colsCountValue - 1; }
-
-//    inline int FirstRowWithBordersIndex() const { return startRowIndex - 1 >= 0 ? startRowIndex - 1 : 0; }
-//    inline int LastRowWithBordersIndex() const { return IsLastProcessor() ? LastRowIndex() : startRowIndex + rowsCountValue + 2 - 1; }
 
     inline int FirstInnerRowRelativeIndex () const { return IsFirstProcessor() ? 2 : 1; }
     inline int LastInnerRowRelativeIndex () const { return IsLastProcessor() ? RowsCountWithBorders() - 3 : RowsCountWithBorders() - 2; }
@@ -76,11 +95,15 @@ public:
         startColIndex = colsParams.second;
     }
 
-    void InitCartParameters(int n0Value, int k0Value, int n1Value, int k1Value, int N0Value, int N1Value)
+    void InitCartParameters(int power, int N0Value, int N1Value)
     {
-        n0 = n0Value; n1 = n1Value;
-        k0 = k0Value; k1 = k1Value;
-        N0 = N0Value; N1 = N1Value;
+        int p0 = SplitFunction(N0Value, N1Value, power);
+        int p1 = power - p0;
+
+        dims[0] = (unsigned int) 1 << p0;   dims[1] = (unsigned int) 1 << p1;
+        N0 = N0Value;                       N1 = N1Value;
+        n0 = N0 >> p0;                      n1 = N1 >> p1;
+        k0 = N0 - dims[0]*n0;               k1 = N1 - dims[1]*n1;
     }
 
     void InitCartCoordinates(int i, int j)
@@ -88,9 +111,9 @@ public:
         iCartIndex = i; jCartIndex = j;
     }
 
-    void InitComms(MPI_Comm gridCommValue, MPI_Comm rowCommValue, MPI_Comm colCommValue)
+    void InitComms(MPI_Comm gridCommValue)
     {
-        gridComm  = gridCommValue; rowComm = rowCommValue; colComm = colCommValue;
+        gridComm  = gridCommValue;
     }
 
     std::pair<int, int> static GetProcessorParameters(int pointsCount, int rankValue, int processorsCount)

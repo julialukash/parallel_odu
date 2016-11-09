@@ -2,58 +2,12 @@
 
 //#define DEBUG_MODE
 
-std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
-                                           const NetModel &netModelPtr,
-                                           const DoubleMatrix& uValuesApproximate)
-{
-    auto globalUValues = std::make_shared<DoubleMatrix>(1,1);
-    if (processorInfoPtr.IsMainProcessor())
-    {
-        globalUValues = std::make_shared<DoubleMatrix>(netModelPtr.yPointsCount, netModelPtr.xPointsCount);
-    }
-    int recvcounts[processorInfoPtr.processorsCount], displs[processorInfoPtr.processorsCount];
-    for (auto i = 0; i < processorInfoPtr.processorsCount; ++i)
-    {
-        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr.yPointsCount, i, processorInfoPtr.processorsCount);
-        recvcounts[i] = processorParameters.first * netModelPtr.xPointsCount;
-        displs[i] = processorParameters.second * netModelPtr.xPointsCount;
-    }
-    MPI_Gatherv(&(uValuesApproximate(0, 0)), recvcounts[processorInfoPtr.rank], MPI_DOUBLE,
-                &((*globalUValues)(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr.mainProcessorRank, MPI_COMM_WORLD);
-    return globalUValues;
-}
-
-
 std::pair<int, int> GetProcessorCoordsByRank(int rank, MPI_Comm gridComm, int ndims=2)
 {
     int Coords[2];
     MPI_Cart_coords(gridComm, rank, ndims, Coords);
     return std::make_pair(Coords[0], Coords[1]);
 }
-
-std::shared_ptr<DoubleMatrix> GatherUValuesMatrix(const ProcessorsData& processorInfoPtr,
-                                           const NetModel &netModelPtr,
-                                           const DoubleMatrix& uValues)
-{
-    auto globalUValues = std::make_shared<DoubleMatrix>(1,1);
-//    if (processorInfoPtr.IsMainProcessor())
-//    {
-//        globalUValues = std::make_shared<DoubleMatrix>(netModelPtr.xPointsCount, netModelPtr.yPointsCount);
-//    }
-//    int recvcounts[processorInfoPtr.processorsCount], displs[processorInfoPtr.processorsCount];
-//    for (auto i = 0; i < processorInfoPtr.processorsCount; ++i)
-//    {
-//        auto processorCoordinates = GetProcessorCoordsByRank(i, processorInfoPtr.gridComm);
-//        auto rowProcessorParameters = ProcessorsData::GetProcessorRowsParameters(processorCoordinates.second);
-//        auto colProcessorParameters = ProcessorsData::GetProcessorColsParameters(processorCoordinates.first);
-//        recvcounts[i] = processorParameters.first * netModelPtr.xPointsCount;
-//        displs[i] = processorParameters.second * netModelPtr.xPointsCount;
-//    }
-//    MPI_Gatherv(&(uValuesApproximate(0, 0)), recvcounts[processorInfoPtr.rank], MPI_DOUBLE,
-//                &((*globalUValues)(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr.mainProcessorRank, MPI_COMM_WORLD);
-    return globalUValues;
-}
-
 
 double GetMaxValueFromAllProcessors(double localValue)
 {

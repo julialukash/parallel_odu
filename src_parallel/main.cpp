@@ -18,7 +18,7 @@ const double eps = 1e-4;
 #define DEBUG_MAIN
 #define Print
 
-void writeValues(const char* filename, const DoubleMatrix& values)
+void WriteValues(const char* filename, const DoubleMatrix& values)
 {
     std::ofstream outputFile(filename);
     if (!outputFile.is_open())
@@ -74,30 +74,6 @@ int IsPower(int number)
 }
 
 
-int SplitFunction(int N0, int N1, int p)
-// This is the splitting procedure of proc. number p. The integer p0
-// is calculated such that abs(N0/p0 - N1/(p-p0)) --> min.
-{
-    float n0, n1;
-    int p0, i;
-
-    n0 = (float) N0; n1 = (float) N1;
-    p0 = 0;
-
-    for(i = 0; i < p; i++)
-    {
-        if(n0 > n1)
-        {
-            n0 = n0 / 2.0;
-            ++p0;
-        }
-        else
-        {
-            n1 = n1 / 2.0;
-        }
-    }
-    return(p0);
-}
 
 
 int main(int argc, char *argv[])
@@ -124,23 +100,20 @@ int main(int argc, char *argv[])
         auto N1 = std::stoi(argv[4]) + 1;
 
         MPI_Comm gridComm;             // this is a handler of a new communicator.
-        int dims[2], Coords[2];
+        int Coords[2];
         int periods[2] = {0,0};         // it is used for creating processes topology.
         int left, right, up, down;
-        int power, p0, p1, n0, k0, n1, k1;
-        if ((power = IsPower(processorsCount)) < 0)// || (processorsCount > (pointsCount + 1) / 2))
+        int power = IsPower(processorsCount);
+        if (power < 0)// || (processorsCount > (pointsCount + 1) / 2))
         {
             std::cerr << "Incorrect number of processors. The number of procs must be a power of 2.\n";
             MPI_Finalize();
             exit(1);
         }
 
-        p0 = SplitFunction(N0, N1, power);
-        p1 = power - p0;
-
-        dims[0] = (unsigned int) 1 << p0;   dims[1] = (unsigned int) 1 << p1;
-        n0 = N0 >> p0;                      n1 = N1 >> p1;
-        k0 = N0 - dims[0]*n0;               k1 = N1 - dims[1]*n1;
+        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
+        processorInfoPtr->rank = rank;
+        processorInfoPtr->InitCartParameters(power, N0, N1);
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -152,44 +125,39 @@ int main(int argc, char *argv[])
 #ifdef Print
         if(rank == 0)
         {
-            printf("k0 = %d, k1 = %d, n0 = %d, n1 = %d\n", k0, k1, n0, n1);
+            printf("k0 = %d, k1 = %d, n0 = %d, n1 = %d\n", processorInfoPtr->k0, processorInfoPtr->k1, processorInfoPtr->n0, processorInfoPtr->n1);
             printf("The number of processes ProcNum = 2^%d. It is split into %d x %d processes.\n"
-                   "The number of nodes N0 = %d, N1 = %d. Blocks B(i,j) have size:\n", power, dims[0],dims[1], N0,N1);
+                   "The number of nodes N0 = %d, N1 = %d. Blocks B(i,j) have size:\n", power,
+                   processorInfoPtr->dims[0], processorInfoPtr->dims[1], N0,N1);
 
-            if((k0 > 0)&&(k1 > 0))
-                printf("1 -->\t %d x %d iff i = 0 .. %d, j = 0 .. %d;\n", n0+1,n1+1, k0-1,k1-1);
-            if(k1 > 0)
-                printf("2 -->\t %d x %d iff i = %d .. %d, j = 0 .. %d;\n", n0,n1+1, k0,dims[0]-1, k1-1);
-            if(k0 > 0)
-                printf("3 -->\t %d x %d iff i = 0 .. %d, j = %d .. %d;\n", n0+1,n1, k0-1, k1,dims[1]-1);
+            if((processorInfoPtr->k0 > 0) && (processorInfoPtr->k1 > 0))
+                printf("1 -->\t %d x %d iff i = 0 .. %d, j = 0 .. %d;\n", processorInfoPtr->n0 + 1,
+                       processorInfoPtr->n1 + 1, processorInfoPtr->k0 - 1, processorInfoPtr->k1 - 1);
+            if(processorInfoPtr->k1 > 0)
+                printf("2 -->\t %d x %d iff i = %d .. %d, j = 0 .. %d;\n", processorInfoPtr->n0, processorInfoPtr->n1 + 1,
+                       processorInfoPtr->k0, processorInfoPtr->dims[0] - 1, processorInfoPtr->k1 - 1);
+            if(processorInfoPtr->k0 > 0)
+                printf("3 -->\t %d x %d iff i = 0 .. %d, j = %d .. %d;\n", processorInfoPtr->n0 + 1, processorInfoPtr->n1,
+                       processorInfoPtr->k0 - 1, processorInfoPtr->k1, processorInfoPtr->dims[1] - 1);
 
-            printf("-->\t %d x %d iff i = %d .. %d, j = %d .. %d.\n", n0,n1, k0,dims[0]-1, k1,dims[1]-1);
+            printf("-->\t %d x %d iff i = %d .. %d, j = %d .. %d.\n", processorInfoPtr->n0, processorInfoPtr->n1,
+                   processorInfoPtr->k0, processorInfoPtr->dims[0] - 1, processorInfoPtr->k1, processorInfoPtr->dims[1] - 1);
         }
 #endif
 
         // the cartesian topology of processes is being created ...
-        MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, true, &gridComm);
+        MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
         MPI_Comm_rank(gridComm, &rank);
         MPI_Cart_coords(gridComm, rank, ndims, Coords);
 
         MPI_Cart_shift(gridComm, 0, 1, &left, &right);
         MPI_Cart_shift(gridComm, 1, 1, &down, &up);
 
-        // setup row and col com
-        MPI_Comm colComm, rowComm;
-        int remainDims[2];
-        remainDims[0] = 1; remainDims[1] = 0;
-        MPI_Cart_sub(gridComm, remainDims, &rowComm);
-        remainDims[0] = 0; remainDims[1] = 1;
-        MPI_Cart_sub(gridComm, remainDims, &colComm);
-
-        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(rank, processorsCount,
-                                                                                   left, right,
-                                                                                   down, up));
+        processorInfoPtr->left = left; processorInfoPtr->right = right;
+        processorInfoPtr->up = up; processorInfoPtr->down = down;
 
         // init processors with their part of data
-        processorInfoPtr->InitComms(gridComm, rowComm, colComm);
-        processorInfoPtr->InitCartParameters(n0, k0, n1, k1, N0, N1);
+        processorInfoPtr->InitComms(gridComm);
         processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
         auto processorParameters = ProcessorsData::GetProcessorRowsParameters(processorInfoPtr->N1, processorInfoPtr->n1, processorInfoPtr->k1, processorInfoPtr->jCartIndex);
         processorInfoPtr->InitRowsParameters(processorParameters);
@@ -233,24 +201,24 @@ int main(int argc, char *argv[])
         auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
                                                           *processorInfoPtr));
 
-        if(Coords[0] < k0)
-            ++n0;
-        if(Coords[1] < k1)
-            ++n1;
+//        if(Coords[0] < k0)
+//            ++n0;
+//        if(Coords[1] < k1)
+//            ++n1;
 
             
 #ifdef Print
         printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
                "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
                "My block info: startColIndex = %d, colsCount = %d, startRowIndex = %d, rowsCount = %d.\n",
-               rank, Coords[0], Coords[1], n0, n1, left, right, down,up,
+               rank, Coords[0], Coords[1], processorInfoPtr->n0, processorInfoPtr->n1, left, right, down,up,
                processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
                processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
 #endif
 #ifdef DEBUG_MAIN
         std::cout << "My Rank in Grid_Comm is " << rank << ". My topological coords is (" <<
                   Coords[0] << "," << Coords[1] << "). Domain size is " <<
-                  n0 << "x" << n1 << " nodes.\n" <<
+                  processorInfoPtr->n0 << "x" << processorInfoPtr->n1 << " nodes.\n" <<
                   "My neighbours: left = " << left << ", right = " << right <<
                   ", down = " << down << ", up = " << up << ".\n" <<
                   "My block info: startColIndex = " << processorInfoPtr->startColIndex <<
@@ -266,9 +234,9 @@ int main(int argc, char *argv[])
         std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
         std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
         auto outFileName = "../output/init/init_rank" + std::to_string(rank)  + ".txt";
-        writeValues(outFileName.c_str(), *uValuesApproximate);
+        WriteValues(outFileName.c_str(), *uValuesApproximate);
         outFileName = "../output/true/u_rank" + std::to_string(rank)  + ".txt";
-        writeValues(outFileName.c_str(), *uValues);
+        WriteValues(outFileName.c_str(), *uValues);
 #endif
         double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
         globalError = GetMaxValueFromAllProcessors(localError);
@@ -277,7 +245,7 @@ int main(int argc, char *argv[])
         std::cout << "Process finished, error = " << localError << ", global = "
                   << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
         outFileName = "../output/finish/p_fin_rank" + std::to_string(rank)  + ".txt";
-        writeValues(outFileName.c_str(), *uValuesApproximate);
+        WriteValues(outFileName.c_str(), *uValuesApproximate);
 #endif
 #ifdef DEBUG_MAIN
         std::cout.rdbuf(coutbuf); //reset to standard output again
