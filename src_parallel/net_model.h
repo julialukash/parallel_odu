@@ -124,7 +124,7 @@ public:
 
     void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
-        for (int i = firstColIndex; i <= lastColIndex + 1; ++i)
+        for (int i = firstColIndex - 1; i <= lastColIndex + 1; ++i)
         {
             xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1)));
         }
