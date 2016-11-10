@@ -41,7 +41,7 @@ public:
     int left, right, down, up;
     int n1, k1, n0, k0, N0, N1;
     int dims[2];
-    MPI_Comm gridComm, rowComm, colComm;
+    MPI_Comm gridComm;
 
     ProcessorsData(int processorsCountValue): processorsCount(processorsCountValue){ }
 

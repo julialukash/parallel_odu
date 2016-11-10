@@ -2,6 +2,39 @@
 
 //#define DEBUG_MODE
 
+const int ndims = 2;
+
+std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power)
+{
+    MPI_Comm gridComm;             // this is a handler of a new communicator.
+    int Coords[2];
+    int periods[2] = {0,0};         // it is used for creating processes topology.
+    int rank, left, right, up, down;
+
+    auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
+//    processorInfoPtr->rank = rank;
+    processorInfoPtr->InitCartParameters(power, N0, N1);
+
+    // the cartesian topology of processes is being created ...
+    MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
+    MPI_Comm_rank(gridComm, &rank);
+    MPI_Cart_coords(gridComm, rank, ndims, Coords);
+
+    MPI_Cart_shift(gridComm, 0, 1, &left, &right);
+    MPI_Cart_shift(gridComm, 1, 1, &down, &up);
+
+    processorInfoPtr->left = left;      processorInfoPtr->right = right;
+    processorInfoPtr->up = up;          processorInfoPtr->down = down;
+
+    // init processors with their part of data
+    processorInfoPtr->rank = rank;
+    processorInfoPtr->InitComms(gridComm);
+    processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
+    processorInfoPtr->InitProcessorRowsParameters();
+    processorInfoPtr->InitProcessorColsParameters();
+    return processorInfoPtr;
+}
+
 std::pair<int, int> GetProcessorCoordsByRank(int rank, MPI_Comm gridComm, int ndims=2)
 {
     int Coords[2];

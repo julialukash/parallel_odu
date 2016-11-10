@@ -8,7 +8,6 @@
 #include "mpi_operations.h"
 #include "processors_data.h"
 
-const int ndims = 2;
 const double xMinBoundary = 0;
 const double xMaxBoundary = 2;
 const double yMinBoundary = 0;
@@ -96,10 +95,10 @@ int main(int argc, char *argv[])
         auto N0 = std::stoi(argv[3]) + 1;
         auto N1 = std::stoi(argv[4]) + 1;
 
-        MPI_Comm gridComm;             // this is a handler of a new communicator.
-        int Coords[2];
-        int periods[2] = {0,0};         // it is used for creating processes topology.
-        int left, right, up, down;
+//        MPI_Comm gridComm;             // this is a handler of a new communicator.
+//        int Coords[2];
+//        int periods[2] = {0,0};         // it is used for creating processes topology.
+//        int left, right, up, down;
         int power = IsPower(processorsCount);
         if (power < 0)// || (processorsCount > (pointsCount + 1) / 2))
         {
@@ -108,9 +107,9 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
-        processorInfoPtr->rank = rank;
-        processorInfoPtr->InitCartParameters(power, N0, N1);
+        auto processorInfoPtr = CreateProcessorData(processorsCount, N0, N1, power);
+//        processorInfoPtr->rank = rank;
+//        processorInfoPtr->InitCartParameters(power, N0, N1);
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -120,22 +119,22 @@ int main(int argc, char *argv[])
 #endif
 
 
-        // the cartesian topology of processes is being created ...
-        MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
-        MPI_Comm_rank(gridComm, &rank);
-        MPI_Cart_coords(gridComm, rank, ndims, Coords);
+//        // the cartesian topology of processes is being created ...
+//        MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
+//        MPI_Comm_rank(gridComm, &rank);
+//        MPI_Cart_coords(gridComm, rank, ndims, Coords);
 
-        MPI_Cart_shift(gridComm, 0, 1, &left, &right);
-        MPI_Cart_shift(gridComm, 1, 1, &down, &up);
+//        MPI_Cart_shift(gridComm, 0, 1, &left, &right);
+//        MPI_Cart_shift(gridComm, 1, 1, &down, &up);
 
-        processorInfoPtr->left = left; processorInfoPtr->right = right;
-        processorInfoPtr->up = up; processorInfoPtr->down = down;
+//        processorInfoPtr->left = left; processorInfoPtr->right = right;
+//        processorInfoPtr->up = up; processorInfoPtr->down = down;
 
-        // init processors with their part of data
-        processorInfoPtr->InitComms(gridComm);
-        processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
-        processorInfoPtr->InitProcessorRowsParameters();
-        processorInfoPtr->InitProcessorColsParameters();
+//        // init processors with their part of data
+//        processorInfoPtr->InitComms(gridComm);
+//        processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
+//        processorInfoPtr->InitProcessorRowsParameters();
+//        processorInfoPtr->InitProcessorColsParameters();
 
         auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
                                                                   yMinBoundary, yMaxBoundary,
@@ -204,16 +203,18 @@ int main(int argc, char *argv[])
         printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
                "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
                "My block info: startColIndex = %d, colsCount = %d, startRowIndex = %d, rowsCount = %d.\n",
-               rank, Coords[0], Coords[1], processorInfoPtr->n0, processorInfoPtr->n1, left, right, down,up,
+               processorInfoPtr->rank, processorInfoPtr->iCartIndex, processorInfoPtr->jCartIndex,
+               processorInfoPtr->n0, processorInfoPtr->n1,
+               processorInfoPtr->left, processorInfoPtr->right, processorInfoPtr->down, processorInfoPtr->up,
                processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
                processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
 #endif
 #ifdef DEBUG_MAIN
         std::cout << "My Rank in Grid_Comm is " << rank << ". My topological coords is (" <<
-                  Coords[0] << "," << Coords[1] << "). Domain size is " <<
+                  processorInfoPtr->iCartIndex << "," << processorInfoPtr->jCartIndex << "). Domain size is " <<
                   processorInfoPtr->n0 << "x" << processorInfoPtr->n1 << " nodes.\n" <<
-                  "My neighbours: left = " << left << ", right = " << right <<
-                  ", down = " << down << ", up = " << up << ".\n" <<
+                  "My neighbours: left = " << processorInfoPtr->left << ", right = " << processorInfoPtr->right <<
+                  ", down = " << processorInfoPtr->down << ", up = " << processorInfoPtr->up << ".\n" <<
                   "My block info: startColIndex = " << processorInfoPtr->startColIndex <<
                   ", colsCount = " << processorInfoPtr->colsCountValue << ", startRowIndex = " <<
                   processorInfoPtr->startRowIndex << ", rowsCount = " << processorInfoPtr->rowsCountValue <<
