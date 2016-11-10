@@ -94,15 +94,6 @@ public:
         k0 = N0 - dims[0]*n0;               k1 = N1 - dims[1]*n1;
     }
 
-    void InitCartCoordinates(int i, int j)
-    {
-        iCartIndex = i; jCartIndex = j;
-    }
-
-    void InitComms(MPI_Comm gridCommValue)
-    {
-        gridComm  = gridCommValue;
-    }
 
     void InitProcessorRowsParameters()
     {

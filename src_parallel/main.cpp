@@ -95,10 +95,6 @@ int main(int argc, char *argv[])
         auto N0 = std::stoi(argv[3]) + 1;
         auto N1 = std::stoi(argv[4]) + 1;
 
-//        MPI_Comm gridComm;             // this is a handler of a new communicator.
-//        int Coords[2];
-//        int periods[2] = {0,0};         // it is used for creating processes topology.
-//        int left, right, up, down;
         int power = IsPower(processorsCount);
         if (power < 0)// || (processorsCount > (pointsCount + 1) / 2))
         {
@@ -108,8 +104,6 @@ int main(int argc, char *argv[])
         }
 
         auto processorInfoPtr = CreateProcessorData(processorsCount, N0, N1, power);
-//        processorInfoPtr->rank = rank;
-//        processorInfoPtr->InitCartParameters(power, N0, N1);
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
@@ -117,24 +111,6 @@ int main(int argc, char *argv[])
         std::ofstream out(fileName);
         std::cout.rdbuf(out.rdbuf());
 #endif
-
-
-//        // the cartesian topology of processes is being created ...
-//        MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
-//        MPI_Comm_rank(gridComm, &rank);
-//        MPI_Cart_coords(gridComm, rank, ndims, Coords);
-
-//        MPI_Cart_shift(gridComm, 0, 1, &left, &right);
-//        MPI_Cart_shift(gridComm, 1, 1, &down, &up);
-
-//        processorInfoPtr->left = left; processorInfoPtr->right = right;
-//        processorInfoPtr->up = up; processorInfoPtr->down = down;
-
-//        // init processors with their part of data
-//        processorInfoPtr->InitComms(gridComm);
-//        processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
-//        processorInfoPtr->InitProcessorRowsParameters();
-//        processorInfoPtr->InitProcessorColsParameters();
 
         auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
                                                                   yMinBoundary, yMaxBoundary,
@@ -193,8 +169,6 @@ int main(int argc, char *argv[])
                   << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
                   << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
                   << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
-//                  << "FirstRowWithBordersIndex = " << processorInfoPtr->FirstRowWithBordersIndex()
-//                  << ", LastRowWithBordersIndex = " << processorInfoPtr->LastRowWithBordersIndex()
                   << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
@@ -251,12 +225,6 @@ int main(int argc, char *argv[])
             std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
                       << "globalError: " << globalError << std::endl;
         }
-
-//        if (processorInfoPtr->IsMainProcessor())
-//        {
-//            std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
-//                      << "globalError: " << globalError << std::endl;
-//        }
         MPI_Finalize();
     }
     catch (const std::exception& e)

@@ -12,7 +12,6 @@ std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0,
     int rank, left, right, up, down;
 
     auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
-//    processorInfoPtr->rank = rank;
     processorInfoPtr->InitCartParameters(power, N0, N1);
 
     // the cartesian topology of processes is being created ...
@@ -23,13 +22,14 @@ std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0,
     MPI_Cart_shift(gridComm, 0, 1, &left, &right);
     MPI_Cart_shift(gridComm, 1, 1, &down, &up);
 
-    processorInfoPtr->left = left;      processorInfoPtr->right = right;
-    processorInfoPtr->up = up;          processorInfoPtr->down = down;
+    processorInfoPtr->left = left;       processorInfoPtr->up = up;
+    processorInfoPtr->right = right;     processorInfoPtr->down = down;
 
     // init processors with their part of data
     processorInfoPtr->rank = rank;
-    processorInfoPtr->InitComms(gridComm);
-    processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
+    processorInfoPtr->gridComm = gridComm;
+    processorInfoPtr->iCartIndex = Coords[0];
+    processorInfoPtr->jCartIndex = Coords[1];
     processorInfoPtr->InitProcessorRowsParameters();
     processorInfoPtr->InitProcessorColsParameters();
     return processorInfoPtr;
