@@ -21,6 +21,20 @@ class FFNetCreator:
             layers.append(layer)
         return layers
 
+    def create_nn_three_layers_linear(self, n_features):
+        np.random.seed(1984)
+        n_middle_layer_neurons = 32
+        shapes = [(n_features, n_features)]
+        activation_functions = [act.LinearActivationFunction()]
+        use_bias_flags = [False]
+        n_layers = len(shapes)
+        layers = []
+        for n_layer in xrange(n_layers):
+            layer = FCLayer(shapes[n_layer], activation_functions[n_layer], use_bias_flags[n_layer])
+            layers.append(layer)
+        return layers
+
+
     def create_nn_five_layers_simple(self, n_features):
         np.random.seed(1984)
         shapes = [(n_features, 32),

@@ -12,7 +12,7 @@ from layers import FCLayer
 from gradient_checker import GradientChecker
 
 plot_figures = False
-batch_size = 4
+batch_size = 10
 n_layers = 3
 eps = 1e-4
 gradient_check = True
@@ -39,6 +39,7 @@ def main():
             gradient_checker = GradientChecker()
             gradient_checker.run_tests(batch)
             gradient_checker.run_rp_tests(batch)
+            gradient_checker.run_gaussnewtonvec_tests(batch)
         else:
             layers = net_creator.create_nn_three_layers_simple(n_features)
             autoencoder = Autoencoder(layers)

@@ -62,7 +62,7 @@ class GradientChecker:
         biased_loss_value, biased_loss_grad, biased_output = biased_autoencoder.compute_loss(inputs)
         right = np.imag(biased_loss_grad)  / self.eps
         is_equal = np.allclose(left, right, self.eps)
-        print(is_equal, np.sum(loss_Rp_grad), np.sum(np.imag(biased_loss_grad) / self.eps))
+        print(is_equal, np.sum(left), np.sum(right))
         return is_equal
 
     def run_rp_tests(self, inputs):
@@ -71,4 +71,29 @@ class GradientChecker:
         is_correct = self.check_rp_img(layers, inputs)
         layers = self.net_creator.create_nn_five_layers_simple(n_features)
         is_correct = self.check_rp_img(layers, inputs)
+        layers = self.net_creator.create_nn_three_layers_linear(n_features)
+        is_correct = self.check_rp_img(layers, inputs)
+        return
+
+
+    def check_gaussnewtonvec(self, layers, inputs):
+        n_objects = inputs.shape[1]
+        autoencoder = Autoencoder(layers)
+        p_vector = self.net_creator.create_p_vector(autoencoder.net.params_number)
+
+        autoencoder.init_weights()
+        autoencoder.compute_loss(inputs)
+        loss_Rp_grad  = autoencoder.compute_hessvec(p_vector)
+        left = loss_Rp_grad
+
+        Gp = autoencoder.compute_gaussnewtonvec(p_vector)
+        right = Gp
+        is_equal = np.allclose(left, right, self.eps)
+        print(is_equal, np.sum(left), np.sum(right))
+        return is_equal
+
+    def run_gaussnewtonvec_tests(self, inputs):
+        n_features = inputs.shape[0]
+        layers = self.net_creator.create_nn_three_layers_linear(n_features)
+        is_correct = self.check_gaussnewtonvec(layers, inputs)
         return

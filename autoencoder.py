@@ -33,9 +33,9 @@ class Autoencoder:
         return
 
     def compute_loss_function(self, inputs, outputs):
-        n_objects = inputs.shape[1]
+        self.n_objects = inputs.shape[1]
         sum = np.sum((inputs - outputs) * (inputs - outputs))
-        return sum / (n_objects * 2)
+        return sum / (self.n_objects  * 2)
 
     def compute_loss(self, inputs):
         """
@@ -73,7 +73,11 @@ class Autoencoder:
         :param p: direction vector, a numpy vector of length num_params
         :return Gp: a numpy vector of length num_params
         """
-        pass
+        q = self.Rp_outputs
+        new_loss_deriv = q
+        Gp = self.net.compute_loss_grad(new_loss_deriv)
+        return Gp
+
 
     def run_adam(self, inputs, step_size=0.1, max_epoch=300, minibatch_size=20, l2_coef=1e-5, test_inputs=None):
         """
