@@ -73,9 +73,6 @@ int IsPower(int number)
     }
 }
 
-
-
-
 int main(int argc, char *argv[])
 {        
     int rank, processorsCount;
@@ -122,6 +119,51 @@ int main(int argc, char *argv[])
         std::cout.rdbuf(out.rdbuf());
 #endif
 
+
+        // the cartesian topology of processes is being created ...
+        MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
+        MPI_Comm_rank(gridComm, &rank);
+        MPI_Cart_coords(gridComm, rank, ndims, Coords);
+
+        MPI_Cart_shift(gridComm, 0, 1, &left, &right);
+        MPI_Cart_shift(gridComm, 1, 1, &down, &up);
+
+        processorInfoPtr->left = left; processorInfoPtr->right = right;
+        processorInfoPtr->up = up; processorInfoPtr->down = down;
+
+        // init processors with their part of data
+        processorInfoPtr->InitComms(gridComm);
+        processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
+        processorInfoPtr->InitProcessorRowsParameters();
+        processorInfoPtr->InitProcessorColsParameters();
+
+        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
+                                                                  yMinBoundary, yMaxBoundary,
+                                                                  N0, N1));
+        netModelPtr->InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
+                               processorInfoPtr->FirstColIndex(), processorInfoPtr->LastColIndex());
+
+        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
+        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(
+                    new ApproximateOperations(*netModelPtr, *processorInfoPtr));
+
+        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
+                                                          *processorInfoPtr));
+
+#ifdef DEBUG_MAIN
+        std::cout << "XS = \n";
+        for (int i = 0; i < netModelPtr->xValues.size(); ++i)
+        {
+            std::cout << netModelPtr->xValues[i] << " ";
+        }
+        std::cout << "\nYS = \n";
+        for (int i = 0; i < netModelPtr->yValues.size(); ++i)
+        {
+            std::cout << netModelPtr->yValues[i] << " ";
+        }
+        std::cout << std::endl;
+#endif
+
 #ifdef Print
         if(rank == 0)
         {
@@ -145,47 +187,6 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        // the cartesian topology of processes is being created ...
-        MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
-        MPI_Comm_rank(gridComm, &rank);
-        MPI_Cart_coords(gridComm, rank, ndims, Coords);
-
-        MPI_Cart_shift(gridComm, 0, 1, &left, &right);
-        MPI_Cart_shift(gridComm, 1, 1, &down, &up);
-
-        processorInfoPtr->left = left; processorInfoPtr->right = right;
-        processorInfoPtr->up = up; processorInfoPtr->down = down;
-
-        // init processors with their part of data
-        processorInfoPtr->InitComms(gridComm);
-        processorInfoPtr->InitCartCoordinates(Coords[0], Coords[1]);
-        auto processorParameters = ProcessorsData::GetProcessorRowsParameters(processorInfoPtr->N1, processorInfoPtr->n1, processorInfoPtr->k1, processorInfoPtr->jCartIndex);
-        processorInfoPtr->InitRowsParameters(processorParameters);
-        processorParameters = ProcessorsData::GetProcessorColsParameters(processorInfoPtr->n0, processorInfoPtr->k0, processorInfoPtr->iCartIndex);
-        processorInfoPtr->InitColsParameters(processorParameters);
-
-        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
-                                                                  yMinBoundary, yMaxBoundary,
-                                                                  N0, N1));
-        netModelPtr->InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
-                               processorInfoPtr->FirstColIndex(), processorInfoPtr->LastColIndex());
-
-#ifdef DEBUG_MAIN
-        std::cout << "XS = \n";
-        for (int i = 0; i < netModelPtr->xValues.size(); ++i)
-        {
-            std::cout << netModelPtr->xValues[i] << " ";
-        }
-        std::cout << "\nYS = \n";
-        for (int i = 0; i < netModelPtr->yValues.size(); ++i)
-        {
-            std::cout << netModelPtr->yValues[i] << " ";
-        }
-        std::cout << std::endl;
-#endif
-        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
-        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(
-                    new ApproximateOperations(*netModelPtr, *processorInfoPtr));
 
 #ifdef DEBUG_MAIN
         std::cout << "Finished" << std::endl;
@@ -198,15 +199,7 @@ int main(int argc, char *argv[])
                   << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
-        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
-                                                          *processorInfoPtr));
 
-//        if(Coords[0] < k0)
-//            ++n0;
-//        if(Coords[1] < k1)
-//            ++n1;
-
-            
 #ifdef Print
         printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
                "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"

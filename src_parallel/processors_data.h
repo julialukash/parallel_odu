@@ -72,27 +72,15 @@ public:
     inline int FirstBorderColRelativeIndex () const { return IsLeftProcessor() ? 1 : -1; }
     inline int LastBorderColRelativeIndex () const { return IsRightProcessor() ? ColsCountWithBorders() - 2 : -1; }
 
-    inline bool IsInnerIndices(int i, int j) const
-    {
-        return i == FirstBorderRowRelativeIndex() || i == LastBorderRowRelativeIndex() ||
-               j == FirstBorderColRelativeIndex() || j == LastBorderColRelativeIndex();
-    }
-
     inline int FirstOwnRowRelativeIndex () const { return 1; }
     inline int LastOwnRowRelativeIndex () const { return RowsCountWithBorders() - 2; }
     inline int FirstOwnColRelativeIndex () const { return 1; }
     inline int LastOwnColRelativeIndex () const { return ColsCountWithBorders() - 2; }
 
-    void InitRowsParameters(std::pair<int, int> rowsParams)
+    inline bool IsInnerIndices(int i, int j) const
     {
-        rowsCountValue = rowsParams.first;
-        startRowIndex = rowsParams.second;
-    }
-
-    void InitColsParameters(std::pair<int, int> colsParams)
-    {
-        colsCountValue = colsParams.first;
-        startColIndex = colsParams.second;
+        return i == FirstBorderRowRelativeIndex() || i == LastBorderRowRelativeIndex() ||
+               j == FirstBorderColRelativeIndex() || j == LastBorderColRelativeIndex();
     }
 
     void InitCartParameters(int power, int N0Value, int N1Value)
@@ -116,46 +104,37 @@ public:
         gridComm  = gridCommValue;
     }
 
-    std::pair<int, int> static GetProcessorParameters(int pointsCount, int rankValue, int processorsCount)
+    void InitProcessorRowsParameters()
     {
-        std::cerr << "err" << std::endl;
-        return std::make_pair(-1, -1);
-    }
-
-
-    std::pair<int, int> static GetProcessorRowsParameters(int N1, int n1, int k1, int jProcessorIndex)
-    {
-        int rowsCount, firstRowIndex;
-        if (k1 == 0 || (k1 > 0 && jProcessorIndex >= k1))
+        if (k1 == 0 || (k1 > 0 && jCartIndex >= k1))
         {
-            firstRowIndex = k1 * (n1 + 1) + (jProcessorIndex - k1) * n1;
-            rowsCount = n1;
+            startRowIndex  = k1 * (n1 + 1) + (jCartIndex - k1) * n1;
+            rowsCountValue = n1;
         }
         else // k1 > 0, last coubs
         {
-            firstRowIndex = jProcessorIndex * (n1 + 1);
-            rowsCount = n1 + 1;
+            startRowIndex  = jCartIndex * (n1 + 1);
+            rowsCountValue = n1 + 1;
         }
         // reverse, as we want matrix to start in left up corner
-        auto lastRowIndex = firstRowIndex + rowsCount - 1;
-        firstRowIndex = N1 - lastRowIndex - 1;
-        return std::make_pair(rowsCount, firstRowIndex);
+        auto lastRowIndex = startRowIndex  + rowsCountValue - 1;
+        startRowIndex = N1 - lastRowIndex - 1;
+        return;
     }
 
-    std::pair<int, int> static GetProcessorColsParameters(int n0, int k0, int iProcessorIndex)
+    void InitProcessorColsParameters()
     {
-        int colsCount, firstColIndex;
-        if (k0 == 0 || (k0 > 0 && iProcessorIndex >= k0))
+        if (k0 == 0 || (k0 > 0 && iCartIndex >= k0))
         {
-            firstColIndex = k0 * (n0 + 1) + (iProcessorIndex - k0) * n0;
-            colsCount = n0;
+            startColIndex = k0 * (n0 + 1) + (iCartIndex - k0) * n0;
+            colsCountValue = n0;
         }
         else // k0 > 0, last coubs
         {
-            firstColIndex = iProcessorIndex * (n0 + 1);
-            colsCount = n0 + 1;
+            startColIndex = iCartIndex * (n0 + 1);
+            colsCountValue = n0 + 1;
         }
-        return std::make_pair(colsCount, firstColIndex);
+        return;
     }
 };
 
