@@ -4,7 +4,7 @@ class PrintHelper:
         pass
 
     def print_scores(self, artm_model, output_file_name):
-        string = 'perplexity_score = {}\nsparsity_phi_score = {}\nsparsity_theta_score ={}\ntopic_kernel_score ={}\n'\
+        string = 'perplexity_score = {}\nsparsity_phi_score = {}\nsparsity_theta_score = {}\ntopic_kernel_score = {}\n'\
                  .format(artm_model.score_tracker['perplexity_score'].value,
                          artm_model.score_tracker['sparsity_phi_score'].value,
                          artm_model.score_tracker['sparsity_theta_score'].value,
@@ -45,6 +45,7 @@ class PrintHelper:
             str_model = str_model + ', n_top_tokens = {}'.format(n_top_tokens)
         if p_threshold != -1:
             str_model = str_model + ', p_threshold = {}'.format(p_threshold)
+        str_model = str_model + '\n'
         if output_file != None:
             output_file.write(str_model)
         print str_model
