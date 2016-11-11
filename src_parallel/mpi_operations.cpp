@@ -4,6 +4,31 @@
 
 const int ndims = 2;
 
+int SplitFunction(int N0, int N1, int p)
+// This is the splitting procedure of proc. number p. The integer p0
+// is calculated such that abs(N0/p0 - N1/(p-p0)) --> min.
+{
+    float n0, n1;
+    int p0, i;
+
+    n0 = (float) N0; n1 = (float) N1;
+    p0 = 0;
+
+    for(i = 0; i < p; i++)
+    {
+        if(n0 > n1)
+        {
+            n0 = n0 / 2.0;
+            ++p0;
+        }
+        else
+        {
+            n1 = n1 / 2.0;
+        }
+    }
+    return p0;
+}
+
 std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power)
 {
     MPI_Comm gridComm;             // this is a handler of a new communicator.
@@ -11,8 +36,11 @@ std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0,
     int periods[2] = {0,0};         // it is used for creating processes topology.
     int rank, left, right, up, down;
 
+    int p0 = SplitFunction(N0, N1, power);
+    int p1 = power - p0;
+
     auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
-    processorInfoPtr->InitCartParameters(power, N0, N1);
+    processorInfoPtr->InitCartParameters(p0, p1, N0, N1);
 
     // the cartesian topology of processes is being created ...
     MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);

@@ -41,11 +41,8 @@ void WriteValues(const char* filename, const DoubleMatrix& values)
             outputFile << "\n";
         }
     }
-
-
     outputFile.close();
 }
-
 
 int IsPower(int number)
 // the function returns log_{2}(Number) if it is integer. If not it returns (-1).

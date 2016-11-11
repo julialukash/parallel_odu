@@ -7,31 +7,6 @@
 class ProcessorsData
 {
 private:
-    int SplitFunction(int N0, int N1, int p)
-    // This is the splitting procedure of proc. number p. The integer p0
-    // is calculated such that abs(N0/p0 - N1/(p-p0)) --> min.
-    {
-        float n0, n1;
-        int p0, i;
-
-        n0 = (float) N0; n1 = (float) N1;
-        p0 = 0;
-
-        for(i = 0; i < p; i++)
-        {
-            if(n0 > n1)
-            {
-                n0 = n0 / 2.0;
-                ++p0;
-            }
-            else
-            {
-                n1 = n1 / 2.0;
-            }
-        }
-        return(p0);
-    }
-
 public:
     const int mainProcessorRank = 0;
     int rank, processorsCount;
@@ -83,10 +58,8 @@ public:
                j == FirstBorderColRelativeIndex() || j == LastBorderColRelativeIndex();
     }
 
-    void InitCartParameters(int power, int N0Value, int N1Value)
+    void InitCartParameters(int p0, int p1, int N0Value, int N1Value)
     {
-        int p0 = SplitFunction(N0Value, N1Value, power);
-        int p1 = power - p0;
 
         dims[0] = (unsigned int) 1 << p0;   dims[1] = (unsigned int) 1 << p1;
         N0 = N0Value;                       N1 = N1Value;
