@@ -2,8 +2,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 class PlotMaker:
-    def __init__(self):
-        pass
+    def __init__(self, show_plots=False):
+        # Turn interactive plotting off
+        self.show_plots = show_plots
+        if not self.show_plots:
+            plt.ioff()
+
 
     def make_perplexity_plot(self, perplexity_values, title='',
                          start_iteration=1, end_iteration=-1):
@@ -25,7 +29,8 @@ class PlotMaker:
         iterations = range(start_iteration, end_iteration)
         values = perplexity_values[start_iteration : end_iteration]
         plt.plot(iterations, values, 'bo-')
-        plt.show()
+        if self.show_plots:
+            plt.show()
 
 
     def make_perplexity_sparsity_plot(self, perplexity_values, sparse_phi_values, sparse_theta_values=[],
@@ -61,10 +66,11 @@ class PlotMaker:
             lines = lines + plot3
         ax2.set_ylabel('sparsity', fontsize=9)
         ax1.legend(lines, [l.get_label() for l in lines], bbox_to_anchor=(1.15, 1), loc=2, borderaxespad=0.)
-        plt.show()
+        if self.show_plots:
+            plt.show()
         if model_name != '':
             fig.savefig(model_name + '_pv', transparent=True, bbox_inches='tight', pad_inches=0)
-
+            plt.close(fig)
 
     def make_kernel_size_purity_contrast_plot(self, topic_kernel_score, model_name='', title='',
                                               start_iteration=0, end_iteration=-1):
@@ -98,11 +104,11 @@ class PlotMaker:
             lines = lines + plot3
         ax2.set_ylabel('purity and contrast', fontsize=9)
         ax1.legend(lines, [l.get_label() for l in lines], bbox_to_anchor=(1.15, 1), loc=2, borderaxespad=0.)
-    #     ax1.legend(lines, [l.get_label() for l in lines], bbox_to_anchor=(0, 1), loc=3, borderaxespad=0.)
-        plt.show()
+        if self.show_plots:
+            plt.show()
         if model_name != '':
             fig.savefig(model_name + '_ksp', transparent=True, bbox_inches='tight', pad_inches=0)
-
+            plt.close(fig)
 
     def make_tm_plots(self, artm_model, model_name=''):
         self.make_perplexity_sparsity_plot(artm_model.score_tracker['perplexity_score'].value,
