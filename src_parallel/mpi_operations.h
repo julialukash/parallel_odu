@@ -11,18 +11,19 @@ enum MessageTag
 {
     UP,
     DOWN,
+    LEFT,
+    RIGHT,
     APPROXIMATE_MATRIX,
     GROUND_MATRIX
 };
 
 
-std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
-                                           const NetModel& netModelPtr,
-                                           const DoubleMatrix& uValuesApproximate);
-
 double GetMaxValueFromAllProcessors(double localValue);
 double GetFractionValueFromAllProcessors(double numerator, double denominator);
 
 void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
+void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
+
+std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power);
 
 #endif // MPIOPERATIONS_H
