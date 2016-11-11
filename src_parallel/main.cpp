@@ -109,29 +109,26 @@ int main(int argc, char *argv[])
         std::cout.rdbuf(out.rdbuf());
 #endif
 
-        auto netModelPtr = std::shared_ptr<NetModel>(new NetModel(xMinBoundary, xMaxBoundary,
-                                                                  yMinBoundary, yMaxBoundary,
-                                                                  N0, N1));
-        netModelPtr->InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
+        auto netModel = NetModel(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, N0, N1);
+        netModel.InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
                                processorInfoPtr->FirstColIndex(), processorInfoPtr->LastColIndex());
 
-        auto diffEquationPtr = std::shared_ptr<DifferentialEquationModel>(new DifferentialEquationModel());
-        auto approximateOperationsPtr = std::shared_ptr<ApproximateOperations>(
-                    new ApproximateOperations(*netModelPtr, *processorInfoPtr));
+        auto diffEquation = DifferentialEquationModel();
+        auto approximateOperations = ApproximateOperations(netModel, *processorInfoPtr);
 
-        auto optimizationAlgoPtr = std::shared_ptr<ConjugateGradientAlgo>(new ConjugateGradientAlgo(*netModelPtr, *diffEquationPtr, *approximateOperationsPtr,
-                                                          *processorInfoPtr));
+        auto optimizationAlgo = ConjugateGradientAlgo(netModel, diffEquation,
+                                                      approximateOperations, *processorInfoPtr);
 
 #ifdef DEBUG_MAIN
         std::cout << "XS = \n";
-        for (int i = 0; i < netModelPtr->xValues.size(); ++i)
+        for (int i = 0; i < netModel.xValues.size(); ++i)
         {
-            std::cout << netModelPtr->xValues[i] << " ";
+            std::cout << netModel.xValues[i] << " ";
         }
         std::cout << "\nYS = \n";
-        for (int i = 0; i < netModelPtr->yValues.size(); ++i)
+        for (int i = 0; i < netModel.yValues.size(); ++i)
         {
-            std::cout << netModelPtr->yValues[i] << " ";
+            std::cout << netModel.yValues[i] << " ";
         }
         std::cout << std::endl;
 #endif
@@ -193,8 +190,8 @@ int main(int argc, char *argv[])
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
 
-        auto uValuesApproximate = optimizationAlgoPtr->Init();
-        auto uValues = optimizationAlgoPtr->CalculateU();
+        auto uValuesApproximate = optimizationAlgo.Init();
+        auto uValues = optimizationAlgo.CalculateU();
 #ifdef DEBUG_MAIN
         std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
         std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
@@ -203,7 +200,7 @@ int main(int argc, char *argv[])
         outFileName = "../output/true/u_rank" + std::to_string(rank)  + ".txt";
         WriteValues(outFileName.c_str(), *uValues);
 #endif
-        double localError = optimizationAlgoPtr->Process(uValuesApproximate, *uValues);
+        double localError = optimizationAlgo.Process(uValuesApproximate, *uValues);
         globalError = GetMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
