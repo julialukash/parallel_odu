@@ -73,12 +73,13 @@ void ConjugateGradientAlgo::RenewBounds(DoubleMatrix& values)
     RenewMatrixBoundCols(values, processorData);
 }
 
-double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const DoubleMatrix& uValues)
+std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Process(double* error, const DoubleMatrix& uValues)
 {
+    std::shared_ptr<DoubleMatrix> p = Init();
     std::shared_ptr<DoubleMatrix> previousP, grad, laplassGrad, laplassPreviousGrad;
     previousP = p; laplassGrad = p; laplassPreviousGrad = p; grad = p;
     int iteration = 0;
-    double error = -1.0;
+    double errorValue = -1.0;
     while (true)
     {
 
@@ -95,9 +96,9 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
         std::cout << "Process renewed p = \n" << *p << std::endl;
 #endif
 
-        error = CalculateError(uValues, *p);
+        errorValue = CalculateError(uValues, *p);
 
-        std::cout << "Process iteration = " << iteration << ", error = " << error << std::endl;
+        std::cout << "Process iteration = " << iteration << ", error = " << errorValue << std::endl;
 
         // check stop condition
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
@@ -156,7 +157,8 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 //#ifdef DEBUG_MODE
         std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
 //#endif
-    return error;
+    *error = errorValue;
+    return p;
 }
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)

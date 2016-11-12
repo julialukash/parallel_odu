@@ -24,14 +24,14 @@ private:
     std::shared_ptr<DoubleMatrix> CalculateNewP(const DoubleMatrix &p, const DoubleMatrix &grad, double tau);
     double CalculateError(const DoubleMatrix &uValues, const DoubleMatrix &p);
     bool IsStopCondition(const DoubleMatrix &p, const DoubleMatrix &previousP);
+    std::shared_ptr<DoubleMatrix> Init();
+    void RenewBounds(DoubleMatrix &values);
 public:
     ConjugateGradientAlgo(const NetModel& model, const DifferentialEquationModel& modelDiff,
                           const ApproximateOperations& approximateOperationsPtr,
                           const ProcessorsData& processorDataPtr);
-    std::shared_ptr<DoubleMatrix> Init();
     std::shared_ptr<DoubleMatrix> CalculateU();
-    double Process(std::shared_ptr<DoubleMatrix>& initP, const DoubleMatrix &uValues);
-    void RenewBounds(DoubleMatrix &values);
+    std::shared_ptr<DoubleMatrix> Process(double* error, const DoubleMatrix &uValues);
 };
 
 #endif // CONJUGATEGRADIENTALGO_H

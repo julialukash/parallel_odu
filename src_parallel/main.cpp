@@ -73,26 +73,25 @@ int main(int argc, char *argv[])
     int rank, processorsCount;
     try
     {
-        double beginTime, elapsedTime, globalError;
-        beginTime = clock();
+        double startTime, finishTime, elapsedTime, globalError;
 
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &processorsCount);
 
-        if (argc <= 4)
+        startTime = MPI_Wtime();
+
+        if (argc <= 2)
         {
             std::cerr << "Incorrect number of input params.\n";
             MPI_Finalize();
             exit(1);
         }
-        auto groundValuesFilename = argv[1];
-        auto approximateValuesFilename = argv[2];
-        auto N0 = std::stoi(argv[3]) + 1;
-        auto N1 = std::stoi(argv[4]) + 1;
+        auto N0 = std::stoi(argv[1]) + 1;
+        auto N1 = std::stoi(argv[2]) + 1;
 
         int power = IsPower(processorsCount);
-        if (power < 0)// || (processorsCount > (pointsCount + 1) / 2))
+        if (power < 0)
         {
             std::cerr << "Incorrect number of processors. The number of procs must be a power of 2.\n";
             MPI_Finalize();
@@ -158,20 +157,11 @@ int main(int argc, char *argv[])
         std::cout << "Created ConjugateGradientAlgo." << std::endl;
 #endif
 
-        auto uValuesApproximate = optimizationAlgo.Init();
         auto uValues = optimizationAlgo.CalculateU();
-#ifdef DEBUG_MAIN
-//        std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
-//        std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
-#endif
-        double localError = optimizationAlgo.Process(uValuesApproximate, *uValues);
-        globalError = GetMaxValueFromAllProcessors(localError);
+        auto uValuesApproximate = optimizationAlgo.Process(&globalError, *uValues);
 
 #ifdef DEBUG_MAIN
-        std::cout << "Process finished, error = " << localError << ", global = "
-                  << globalError
-//                  << ", u!!! = \n" << *uValuesApproximate
-                  << std::endl;
+        std::cout << "Process finished, global error = " << globalError << std::endl;
         char outFileName[35];
         sprintf(outFileName, "../output/true/u_%dx%d_%d__rank%d.txt", N0 - 1, N1 - 1,
                 processorInfoPtr->processorsCount, processorInfoPtr->rank);
@@ -187,7 +177,8 @@ int main(int argc, char *argv[])
 #endif
         if (processorInfoPtr->IsMainProcessor())
         {
-            elapsedTime = double(clock() - beginTime) / CLOCKS_PER_SEC;
+            finishTime = MPI_Wtime();
+            elapsedTime = finishTime - startTime;
             std::cout << "Elapsed time: " <<  elapsedTime  << " sec." << std::endl
                       << "globalError: " << globalError << std::endl;
         }
