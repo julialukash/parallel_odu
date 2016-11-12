@@ -46,3 +46,84 @@ scp julialukashkina_1854@lomonosov.parallel.ru:_scratch/JuliaLukashkina/build/ou
 
 
 scp -r julialukashkina_1854@lomonosov.parallel.ru:_scratch/JuliaLukashkina/src_parallel ~/parallel/task2/tmp
+
+*******************\
+ssh julialukashkina_1854@compiler.lomonosov.parallel.ru -i ~/.ssh/id_rsa
+module avail
+module add openmpi/1.8.4-icc
+module add intel/15.0.090 
+
+
+cd ../../..
+rm -r JuliaLukashkina/
+mkdir JuliaLukashkina
+
+
+cd JuliaLukashkina/src_parallel/build/
+CC=mpicc CXX=mpicxx cmake ..
+make
+
+
+cd ..
+rm -r build
+mkdir build
+cd build
+CC=mpicc CXX=mpicxx cmake ..
+make
+
+
+cd ..
+sh compile
+
+ssh julialukashkina_1854@lomonosov.parallel.ru -i ~/.ssh/id_rsa
+module add openmpi/1.8.4-icc
+module add slurm/2.5.6
+export LD_LIBRARY_PATH=/opt/intel/lib/intel64
+
+
+cd ..
+rm -r output
+mkdir output
+cd output
+mkdir true
+mkdir finish
+cd ../build
+mkdir out
+
+
+cd ../../..
+cd JuliaLukashkina/src_parallel/build/
+
+
+scp -r ~/parallel/task2/src_parallel julialukashkina_1854@lomonosov.parallel.ru:_scratch/JuliaLukashkina
+
+mkdir 
+rm -r build
+
+CC=mpicc CXX=mpicxx cmake ..
+make
+
+sbatch -n 3 -p test main 
+
+-p test --- очередь задач, можно ещё regular4 и regular6, но они долгие. В тесте запустят быстро, до 64 ядер, таймлимит -- 5 минут.
+
+
+sudo mpirun -l -n 1 ./main output/uValues.csv output/uValuesApproximate_100.csv 100
+
+
+sbatch -n3 -p test ompi main output/uValues.csv output/uValuesApproximate_100.csv 100 
+
+sbatch -n4 -p test ompi main p p 150 150 
+
+squeue | grep julialukashkina_1854
+
+cat slurm-1334318.out	
+
+scp julialukashkina_1854@lomonosov.parallel.ru:_scratch/JuliaLukashkina/build/output/uValuesApproximate_1000_32.csv ~/parallel/task2/output/uValuesApproximate_1000_32.csv
+
+
+scp -r julialukashkina_1854@lomonosov.parallel.ru:_scratch/JuliaLukashkina/src_parallel/output  ~/parallel/task2/output_lomo
+
+
+
+scp -r julialukashkina_1854@lomonosov.parallel.ru:_scratch/JuliaLukashkina/src_parallel ~/parallel/task2/tmp

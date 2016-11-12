@@ -97,8 +97,8 @@ void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorD
     std::cout << "RenewBoundRows \n" << values << std::endl;
 #endif
     MPI_Status status;
-    int downProcessorRank = processorData.down < 0 ? MPI_PROC_NULL : processorData.down;
-    int upProcessorRank = processorData.up < 0 ? MPI_PROC_NULL : processorData.up;
+    int downProcessorRank = processorData.IsLastProcessor() ? MPI_PROC_NULL : processorData.down;
+    int upProcessorRank = processorData.IsFirstProcessor() ? MPI_PROC_NULL : processorData.up;
 
 #ifdef DEBUG_MODE
     std::cout << "nextProcessorRank = " << downProcessorRank << ", previousProcessorRank = " << upProcessorRank << std::endl;
@@ -125,8 +125,8 @@ void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorD
     std::cout << "RenewBoundCols \n" << values << std::endl;
 #endif
     MPI_Status status;
-    int leftProcessorRank = processorData.left < 0 ? MPI_PROC_NULL : processorData.left;
-    int rightProcessorRank = processorData.right < 0 ? MPI_PROC_NULL : processorData.right;
+    int leftProcessorRank = processorData.IsLeftProcessor() ? MPI_PROC_NULL : processorData.left;
+    int rightProcessorRank = processorData.IsRightProcessor() ? MPI_PROC_NULL : processorData.right;
 
 #ifdef DEBUG_MODE
     std::cout << "leftProcessorRank = " << leftProcessorRank << ", rightProcessorRank = " << rightProcessorRank << std::endl;

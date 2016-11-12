@@ -21,7 +21,7 @@ public:
 
     double CalculateUValue(double x, double y) const
     {
-        return 1 + sin(x * y);
+        return CalculateBoundaryValue(x, y);
     } 
 };
 

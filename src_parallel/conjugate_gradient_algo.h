@@ -9,7 +9,7 @@
 class ConjugateGradientAlgo
 {
 private:
-    const double eps = 10e-4;
+    const double eps = 10e-6;
     const ProcessorsData& processorData;
     const NetModel& netModel;
     const DifferentialEquationModel& diffModel;

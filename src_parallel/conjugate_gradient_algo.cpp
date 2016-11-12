@@ -3,7 +3,7 @@
 #include "conjugate_gradient_algo.h"
 #include "mpi_operations.h"
 
-#define DEBUG_MODE = 1
+//#define DEBUG_MODE = 1
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const DifferentialEquationModel& modelDiff,
                                              const ApproximateOperations& approximateOperations,
@@ -81,6 +81,7 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
     double error = -1.0;
     while (true)
     {
+
 #ifdef DEBUG_MODE
         std::cout << "Process u vals = \n" << uValues << std::endl;
         std::cout << "Process rank = " << processorData.rank << " iteration = " << iteration << std::endl;
@@ -96,13 +97,14 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 
         error = CalculateError(uValues, *p);
 
+        std::cout << "Process iteration = " << iteration << ", error = " << error << std::endl;
+
         // check stop condition
         auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
         if (stopCondition)
         {
             auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
                                              processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
-//            p = std::make_shared<DoubleMatrix>(*pCroppedPtr);
             p.reset();
             p = pCroppedPtr;
 
@@ -151,9 +153,9 @@ double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const Do
 
         ++iteration;        
     }
-#ifdef DEBUG_MODE
+//#ifdef DEBUG_MODE
         std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
-#endif
+//#endif
     return error;
 }
 

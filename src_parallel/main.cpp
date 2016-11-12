@@ -104,7 +104,10 @@ int main(int argc, char *argv[])
 
 #ifdef DEBUG_MAIN
         std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-        auto fileName = "out/out_rank" + std::to_string(rank)  + ".txt";
+        char fileName[25];
+        sprintf(fileName, "out/out_%dx%d_%d__rank%d.txt", N0 - 1, N1 - 1,
+                processorInfoPtr->processorsCount, processorInfoPtr->rank);
+
         std::ofstream out(fileName);
         std::cout.rdbuf(out.rdbuf());
 #endif
@@ -167,16 +170,16 @@ int main(int argc, char *argv[])
         std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
 #endif
 
-#ifdef Print
-        printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
-               "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
-               "My block info: startColIndex = %d, colsCount = %d, startRowIndex = %d, rowsCount = %d.\n",
-               processorInfoPtr->rank, processorInfoPtr->iCartIndex, processorInfoPtr->jCartIndex,
-               processorInfoPtr->n0, processorInfoPtr->n1,
-               processorInfoPtr->left, processorInfoPtr->right, processorInfoPtr->down, processorInfoPtr->up,
-               processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
-               processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
-#endif
+//#ifdef Print
+//        printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
+//               "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
+//               "My block info: startColIndex = %d, colsCount = %d, startRowIndex = %d, rowsCount = %d.\n",
+//               processorInfoPtr->rank, processorInfoPtr->iCartIndex, processorInfoPtr->jCartIndex,
+//               processorInfoPtr->n0, processorInfoPtr->n1,
+//               processorInfoPtr->left, processorInfoPtr->right, processorInfoPtr->down, processorInfoPtr->up,
+//               processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
+//               processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
+//#endif
 #ifdef DEBUG_MAIN
         std::cout << "My Rank in Grid_Comm is " << rank << ". My topological coords is (" <<
                   processorInfoPtr->iCartIndex << "," << processorInfoPtr->jCartIndex << "). Domain size is " <<
@@ -193,21 +196,25 @@ int main(int argc, char *argv[])
         auto uValuesApproximate = optimizationAlgo.Init();
         auto uValues = optimizationAlgo.CalculateU();
 #ifdef DEBUG_MAIN
-        std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
-        std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
-        auto outFileName = "../output/init/init_rank" + std::to_string(rank)  + ".txt";
-        WriteValues(outFileName.c_str(), *uValuesApproximate);
-        outFileName = "../output/true/u_rank" + std::to_string(rank)  + ".txt";
-        WriteValues(outFileName.c_str(), *uValues);
+//        std::cout << "main uValues  = " << std::endl << *uValues << std::endl;
+//        std::cout << "main p = " << std::endl << *uValuesApproximate << std::endl;
 #endif
         double localError = optimizationAlgo.Process(uValuesApproximate, *uValues);
         globalError = GetMaxValueFromAllProcessors(localError);
 
 #ifdef DEBUG_MAIN
         std::cout << "Process finished, error = " << localError << ", global = "
-                  << globalError << ", u!!! = \n" << *uValuesApproximate << std::endl;
-        outFileName = "../output/finish/p_fin_rank" + std::to_string(rank)  + ".txt";
-        WriteValues(outFileName.c_str(), *uValuesApproximate);
+                  << globalError
+//                  << ", u!!! = \n" << *uValuesApproximate
+                  << std::endl;
+        char outFileName[35];
+        sprintf(outFileName, "../output/true/u_%dx%d_%d__rank%d.txt", N0 - 1, N1 - 1,
+                processorInfoPtr->processorsCount, processorInfoPtr->rank);
+        WriteValues(outFileName, *uValues);
+        char outFileNameF[35];
+        sprintf(outFileNameF, "../output/finish/p_%dx%d_%d__rank%d.txt", N0 - 1, N1 - 1,
+                processorInfoPtr->processorsCount, processorInfoPtr->rank);
+        WriteValues(outFileNameF, *uValuesApproximate);
 #endif
 #ifdef DEBUG_MAIN
         std::cout.rdbuf(coutbuf); //reset to standard output again

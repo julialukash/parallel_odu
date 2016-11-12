@@ -21,10 +21,10 @@ public:
     ProcessorsData(int processorsCountValue): processorsCount(processorsCountValue){ }
 
     inline bool IsMainProcessor() const { return rank == mainProcessorRank; }
-    inline bool IsFirstProcessor() const { return up == -1; }
-    inline bool IsLastProcessor() const { return down == -1; }
-    inline bool IsRightProcessor() const { return right == -1; }
-    inline bool IsLeftProcessor() const { return left == -1; }
+    inline bool IsFirstProcessor() const { return up < 0; }
+    inline bool IsLastProcessor() const { return down < 0; }
+    inline bool IsRightProcessor() const { return right < 0; }
+    inline bool IsLeftProcessor() const { return left < 0; }
 
     inline int RowsCount() const { return rowsCountValue; }
     inline int ColsCount() const { return colsCountValue; }
