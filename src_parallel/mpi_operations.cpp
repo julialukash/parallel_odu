@@ -1,25 +1,73 @@
 #include "mpi_operations.h"
 
-#define DEBUG_MODE = 1
-std::shared_ptr<DoubleMatrix> GatherUApproximateValuesMatrix(const ProcessorsData& processorInfoPtr,
-                                           const NetModel &netModelPtr,
-                                           const DoubleMatrix& uValuesApproximate)
+//#define DEBUG_MODE
+
+const int ndims = 2;
+
+int SplitFunction(int N0, int N1, int p)
+// This is the splitting procedure of proc. number p. The integer p0
+// is calculated such that abs(N0/p0 - N1/(p-p0)) --> min.
 {
-    auto globalUValues = std::make_shared<DoubleMatrix>(1,1);
-    if (processorInfoPtr.IsMainProcessor())
+    float n0, n1;
+    int p0, i;
+
+    n0 = (float) N0; n1 = (float) N1;
+    p0 = 0;
+
+    for(i = 0; i < p; i++)
     {
-        globalUValues = std::make_shared<DoubleMatrix>(netModelPtr.yPointsCount, netModelPtr.xPointsCount);
+        if(n0 > n1)
+        {
+            n0 = n0 / 2.0;
+            ++p0;
+        }
+        else
+        {
+            n1 = n1 / 2.0;
+        }
     }
-    int recvcounts[processorInfoPtr.processorsCount], displs[processorInfoPtr.processorsCount];
-    for (auto i = 0; i < processorInfoPtr.processorsCount; ++i)
-    {
-        auto processorParameters = ProcessorsData::GetProcessorParameters(netModelPtr.yPointsCount, i, processorInfoPtr.processorsCount);
-        recvcounts[i] = processorParameters.first * netModelPtr.xPointsCount;
-        displs[i] = processorParameters.second * netModelPtr.xPointsCount;
-    }
-    MPI_Gatherv(&(uValuesApproximate(0, 0)), recvcounts[processorInfoPtr.rank], MPI_DOUBLE,
-                &((*globalUValues)(0, 0)), recvcounts, displs, MPI_DOUBLE, processorInfoPtr.mainProcessorRank, MPI_COMM_WORLD);
-    return globalUValues;
+    return p0;
+}
+
+std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power)
+{
+    MPI_Comm gridComm;             // this is a handler of a new communicator.
+    int Coords[2];
+    int periods[2] = {0,0};         // it is used for creating processes topology.
+    int rank, left, right, up, down;
+
+    int p0 = SplitFunction(N0, N1, power);
+    int p1 = power - p0;
+
+    auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
+    processorInfoPtr->InitCartParameters(p0, p1, N0, N1);
+
+    // the cartesian topology of processes is being created ...
+    MPI_Cart_create(MPI_COMM_WORLD, ndims, processorInfoPtr->dims, periods, true, &gridComm);
+    MPI_Comm_rank(gridComm, &rank);
+    MPI_Cart_coords(gridComm, rank, ndims, Coords);
+
+    MPI_Cart_shift(gridComm, 0, 1, &left, &right);
+    MPI_Cart_shift(gridComm, 1, 1, &down, &up);
+
+    processorInfoPtr->left = left;       processorInfoPtr->up = up;
+    processorInfoPtr->right = right;     processorInfoPtr->down = down;
+
+    // init processors with their part of data
+    processorInfoPtr->rank = rank;
+    processorInfoPtr->gridComm = gridComm;
+    processorInfoPtr->iCartIndex = Coords[0];
+    processorInfoPtr->jCartIndex = Coords[1];
+    processorInfoPtr->InitProcessorRowsParameters();
+    processorInfoPtr->InitProcessorColsParameters();
+    return processorInfoPtr;
+}
+
+std::pair<int, int> GetProcessorCoordsByRank(int rank, MPI_Comm gridComm, int ndims=2)
+{
+    int Coords[2];
+    MPI_Cart_coords(gridComm, rank, ndims, Coords);
+    return std::make_pair(Coords[0], Coords[1]);
 }
 
 double GetMaxValueFromAllProcessors(double localValue)
@@ -49,21 +97,73 @@ void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorD
     std::cout << "RenewBoundRows \n" << values << std::endl;
 #endif
     MPI_Status status;
-    int nextProcessorRank = processorData.IsLastProcessor() ? MPI_PROC_NULL : processorData.rank + 1;
-    int previousProcessorRank = processorData.IsFirstProcessor() ? MPI_PROC_NULL : processorData.rank - 1;
+    int downProcessorRank = processorData.IsLastProcessor() ? MPI_PROC_NULL : processorData.down;
+    int upProcessorRank = processorData.IsFirstProcessor() ? MPI_PROC_NULL : processorData.up;
 
 #ifdef DEBUG_MODE
-    std::cout << "nextProcessorRank = " << nextProcessorRank << ", previousProcessorRank = " << previousProcessorRank << std::endl;
+    std::cout << "nextProcessorRank = " << downProcessorRank << ", previousProcessorRank = " << upProcessorRank << std::endl;
 #endif
 
     // send to next processor last "no border" line
     // receive from prev processor first "border" line
-    MPI_Sendrecv(&(values[processorData.RowsCountWithBorders() - 2]), netModel.xPointsCount, MPI_DOUBLE, nextProcessorRank, UP,
-                 &(values[0]), netModel.xPointsCount, MPI_DOUBLE, previousProcessorRank, UP,
-                 MPI_COMM_WORLD, &status);
+    MPI_Sendrecv(&(values[processorData.LastOwnRowRelativeIndex()]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, UP,
+                 &(values[0]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, UP,
+                 processorData.gridComm, &status);
     // send to prev processor first "no border" line
     // receive from next processor last "border" line
-    MPI_Sendrecv(&(values[1]), netModel.xPointsCount, MPI_DOUBLE, previousProcessorRank, DOWN,
-                 &(values[processorData.RowsCountWithBorders() - 1]), netModel.xPointsCount, MPI_DOUBLE, nextProcessorRank, DOWN,
-                 MPI_COMM_WORLD, &status);
+    MPI_Sendrecv(&(values[processorData.FirstOwnRowRelativeIndex()]), processorData.ColsCountWithBorders(), MPI_DOUBLE, upProcessorRank, DOWN,
+                 &(values[processorData.RowsCountWithBorders() - 1]), processorData.ColsCountWithBorders(), MPI_DOUBLE, downProcessorRank, DOWN,
+                 processorData.gridComm, &status);
+#ifdef DEBUG_MODE
+    std::cout << "RenewBoundRows finished \n" << values << std::endl;
+#endif
+}
+
+void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel)
+{
+#ifdef DEBUG_MODE
+    std::cout << "RenewBoundCols \n" << values << std::endl;
+#endif
+    MPI_Status status;
+    int leftProcessorRank = processorData.IsLeftProcessor() ? MPI_PROC_NULL : processorData.left;
+    int rightProcessorRank = processorData.IsRightProcessor() ? MPI_PROC_NULL : processorData.right;
+
+#ifdef DEBUG_MODE
+    std::cout << "leftProcessorRank = " << leftProcessorRank << ", rightProcessorRank = " << rightProcessorRank << std::endl;
+#endif
+    // tmp vectors for keeping left and right cols
+    auto leftOwn = values.CropMatrix(0, values.rowsCount(), processorData.FirstOwnColRelativeIndex(), 1);
+    auto rightOwn = values.CropMatrix(0, values.rowsCount(), processorData.LastOwnColRelativeIndex(), 1);
+    auto leftBorder = values.CropMatrix(0, values.rowsCount(), 0, 1);
+    auto rightBorder = values.CropMatrix(0, values.rowsCount(), processorData.ColsCountWithBorders() - 1, 1);
+
+#ifdef DEBUG_MODE
+    std::cout << "leftOwn = \n" << *leftOwn << ", rightOwn = \n" << *rightOwn << std::endl;
+    std::cout << "leftBorder = \n" << *leftBorder << ", rightBorder = \n" << *rightBorder << std::endl;
+#endif
+
+    // send to right processor last "no border" line
+    // receive from left processor first "border" line
+    MPI_Sendrecv(&((*rightOwn)[0]), leftOwn->rowsCount(), MPI_DOUBLE, rightProcessorRank, LEFT,
+                 &((*leftBorder)[0]), leftOwn->rowsCount(), MPI_DOUBLE, leftProcessorRank, LEFT,
+                 processorData.gridComm, &status);
+#ifdef DEBUG_MODE
+//    std::cout << "first change status = " << &status << std::endl;
+#endif
+    // send to left processor first "no border" line
+    // receive from next processor last "border" line
+    MPI_Sendrecv(&((*leftOwn)[0]), leftOwn->rowsCount(), MPI_DOUBLE, leftProcessorRank, RIGHT,
+                 &((*rightBorder)[0]), leftOwn->rowsCount(), MPI_DOUBLE, rightProcessorRank, RIGHT,
+                 processorData.gridComm, &status);
+#ifdef DEBUG_MODE
+//    std::cout << "second change status = " << &status << std::endl;
+#endif
+    values.SetNewColumn(*leftBorder, 0);
+    values.SetNewColumn(*rightBorder, processorData.ColsCountWithBorders() - 1);
+#ifdef DEBUG_MODE
+    std::cout << "after change \n" << std::endl;
+    std::cout << "leftOwn = \n" << *leftOwn << ", rightOwn = \n" << *rightOwn << std::endl;
+    std::cout << "leftBorder = \n" << *leftBorder << ", rightBorder = \n" << *rightBorder << std::endl;
+    std::cout << "RenewBoundCols finished \n" << values << std::endl;
+#endif
 }

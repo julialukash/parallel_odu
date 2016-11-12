@@ -8,8 +8,8 @@
 class DoubleMatrix
 {
 private:
-    int rowsCountValue, colsCountValue;
 public:
+    int rowsCountValue, colsCountValue;
     double *matrix;
 
     DoubleMatrix()
@@ -156,18 +156,32 @@ public:
         return colsCountValue;
     }
 
-    std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount) const
+    std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount, int startCol, int colsCount) const
     {
-        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCountValue));
+        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
         for (int i = startRow; i < startRow + rowsCount; i++)
         {
             int iIndex = i - startRow;
-            for (int j = 0; j < colsCountValue; j++)
+            for (int j = startCol; j < startCol + colsCount; j++)
             {
-                (*res)(iIndex, j) = operator ()(i, j);
+                int jIndex = j - startCol;
+                (*res)(iIndex, jIndex) = operator ()(i, j);
             }
         }
         return res;
+    }
+
+    void SetNewColumn(const DoubleMatrix& column, int columnIndex)
+    {
+        if (column.rowsCount() != rowsCount() || column.colsCount() != 1 || columnIndex >= colsCount())
+        {
+            std::cerr << "Incorrect column\n" << std::endl;
+            throw "Incorrect column\n";
+        }
+        for (int i = 0; i < rowsCount(); ++i)
+        {
+            operator() (i, columnIndex) = column(i, 0);
+        }
     }
 
 

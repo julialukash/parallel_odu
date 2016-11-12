@@ -7,3 +7,6 @@
 *.csv
 /makes/
 /main~
+/tmp/
+*~
+/output_lomo/

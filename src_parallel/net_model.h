@@ -2,36 +2,57 @@
 #define NETMODEL_H
 
 #include "interface.h"
+#include <vector>
+
+//#define DEBUG
 
 class NetModel
 {
 private:
-    const double coefficient = 2.0/3.0;
-    double xStepValue, yStepValue;
-    double xAverageStepValue, yAverageStepValue;
-    double xStartStepValue, yStartStepValue;
+    const double q = 2.0/3.0;
 public:
+    std::vector<double> xValues, yValues;
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
     int xPointsCount, yPointsCount;
 
     double xValue(int i) const
     {
-        return xMinBoundary + i * xStepValue;
+        return xValues[i];
     }
 
     double yValue(int i) const
     {
-        return yMinBoundary + i * yStepValue;
+        return yValues[i];
     }
 
-    inline double xStep(int i) const { return xStepValue; }
-    inline double yStep(int i) const { return yStepValue; }
+    inline double xStep(int i) const
+    {
+        return xValues[i + 1] - xValues[i];
+    }
 
-    inline double xAverageStep(int i) const { return xAverageStepValue; }
-    inline double yAverageStep(int i) const { return yAverageStepValue; }
+    inline double yStep(int i) const
+    {
+        return yValues[i + 1] - yValues[i];
+    }
+
+    inline double xAverageStep(int i) const
+    {
+        return 0.5 * (xStep(i) + xStep(i - 1));
+    }
+
+    inline double yAverageStep(int i) const
+    {
+        return 0.5 * (yStep(i) + yStep(i - 1));
+    }
 
     NetModel()
     {
+    }
+
+    ~NetModel()
+    {
+        xValues.clear();
+        yValues.clear();
     }
 
     NetModel(double xMinBoundaryValue, double xMaxBoundaryValue, double yMinBoundaryValue, double yMaxBoundaryValue,
@@ -41,30 +62,26 @@ public:
         xMaxBoundary = xMaxBoundaryValue;
         yMinBoundary = yMinBoundaryValue;
         yMaxBoundary = yMaxBoundaryValue;
-        xPointsCount = xPointsCountValue + 1;
-        yPointsCount = yPointsCountValue + 1;
-        xStepValue = (xMaxBoundary - xMinBoundary) / xPointsCountValue;
-        yStepValue = (yMaxBoundary - yMinBoundary) / yPointsCountValue;
-        xAverageStepValue = xStepValue;
-        yAverageStepValue = yStepValue;
-        double denominator = 0.0;
-        for (int i = 0; i < xPointsCountValue; ++i)
-        {
-            denominator += pow(coefficient, i);
-        }
-        xStartStepValue = (xMaxBoundaryValue - xMinBoundaryValue) / denominator;
-
-        denominator = 0;
-        for (int i = 0; i < yPointsCountValue; ++i)
-        {
-            denominator += pow(coefficient, i);
-        }
-        yStartStepValue = (yMaxBoundaryValue - yMinBoundaryValue) / denominator;
+        xPointsCount = xPointsCountValue;
+        yPointsCount = yPointsCountValue;
     }
 
-    bool IsInnerPoint(int i, int j) const
+    double f(double x)
     {
-        return i == 0 || i == xPointsCount - 1 || j == 0 || j == yPointsCount - 1;
+        return (pow(1.0 + x, q) - 1.0) / (pow(2.0, q) - 1.0);
+    }
+
+    void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
+    {
+        for (int i = firstColIndex - 1; i <= lastColIndex + 1; ++i)
+        {
+            xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1)));
+        }
+
+        for (int i = firstRowIndex - 1; i <= lastRowIndex + 1; ++i)
+        {
+            yValues.push_back(yMaxBoundary * f(1.0 * i / (yPointsCount - 1)));
+        }
     }
 };
 
