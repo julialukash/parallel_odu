@@ -53,14 +53,19 @@ public:
     double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues) const
     {
         double prodValue = 0;
+//        std::cout << "ScalarProduct \n" << currentValues <<
+//                     "*** \n" << otherValues << std::endl;
         for (int i = processorData.FirstInnerRowRelativeIndex(); i <= processorData.LastInnerRowRelativeIndex(); ++i)
         {
             for (int j = processorData.FirstInnerColRelativeIndex(); j <= processorData.LastInnerColRelativeIndex(); ++j)
             {
+//                int iInnerIndex = i == processorData.LastInnerRowRelativeIndex() ? i = i - 1 : i;
+//                int iInnerIndex = i == processorData.LastInnerRowRelativeIndex() ? j = j - 1 : j;
                 prodValue = prodValue + netModel.xAverageStep(j) * netModel.yAverageStep(i) *
                                         currentValues(i, j) * otherValues(i, j);
             }
         }
+//        std::cout << "ScalarProduct prodValue = " << prodValue << std::endl;
         return prodValue;
     }
 
@@ -68,9 +73,9 @@ public:
     double MaxNormValue(const DoubleMatrix& currentValues) const
     {
         double maxNorm = -1;
-        for (int i = 1; i < currentValues.rowsCount() - 1; ++i)
+        for (int i = 0; i < currentValues.rowsCount(); ++i)
         {
-            for (int j = 1; j < currentValues.colsCount() - 1; ++j)
+            for (int j = 0; j < currentValues.colsCount(); ++j)
             {
                 double absValue = fabs(currentValues(i, j));
                 if (absValue > maxNorm)
@@ -79,18 +84,11 @@ public:
                 }
             }
         }
-//        auto minMax = std::minmax_element(&(currentValues(0,0)),
-//                        &(currentValues(0,0)) + currentValues.rowsCount() * currentValues.colsCount());
-//        double min = fabs(*minMax.first);
-//        double max = fabs(*minMax.second);
-
-//        std::cout << "MaxNormValue max = " << maxNorm << std::endl;
 #ifdef DEBUG_MODE
         std::cout << "MaxNormValue min = " << min << ", max = " << max << ", d = "
                   << maxNorm << std::endl;
 #endif
         return maxNorm;
-//        return max > min ? max : min;
     }
 
 };

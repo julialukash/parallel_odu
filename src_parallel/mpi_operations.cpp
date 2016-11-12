@@ -82,12 +82,12 @@ double GetFractionValueFromAllProcessors(double numerator, double denominator)
     double localValue[2] = {numerator, denominator};
     double globalValue[2] = {0, 0};
     MPI_Allreduce(localValue, globalValue, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#ifdef DEBUG_MODE
-    std::cout << "getFractionValueFromAllProcessors num  = " << numerator << ", " << denominator
+//#ifdef DEBUG_MODE
+    std::cout << "GetFractionValueFromAllProcessors num  = " << numerator << ", " << denominator
               << ", local = " << *localValue  << " " << *(localValue + 1)
               << ", global = " << *globalValue << " " <<  *(globalValue + 1) << std::endl;
 //              << "tau = " << globalValue[0] / globalValue[1] << std::endl;
-#endif
+//#endif
     return globalValue[0] / globalValue[1];
 }
 

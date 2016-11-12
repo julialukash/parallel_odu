@@ -73,12 +73,12 @@ public:
 
     void InitModel(int firstRowIndex, int lastRowIndex, int firstColIndex, int lastColIndex)
     {
-        for (int i = firstColIndex - 1; i <= lastColIndex + 1; ++i)
+        for (int i = firstColIndex - 1; i <= lastColIndex + 2; ++i)
         {
             xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1)));
         }
 
-        for (int i = firstRowIndex - 1; i <= lastRowIndex + 1; ++i)
+        for (int i = firstRowIndex - 1; i <= lastRowIndex + 2; ++i)
         {
             yValues.push_back(yMaxBoundary * f(1.0 * i / (yPointsCount - 1)));
         }
