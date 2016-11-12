@@ -169,9 +169,9 @@ double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, c
     double numerator = approximateOperations.ScalarProduct(residuals, grad);
     double denominator = approximateOperations.ScalarProduct(laplassGrad, grad);
     double tauValue = GetFractionValueFromAllProcessors(numerator, denominator);
-#ifdef DEBUG_MODE
+//#ifdef DEBUG_MODE
     std::cout << "CalculateTauValue tauValue = " << tauValue << std::endl;
-#endif
+//#endif
     return tauValue;
 }
 
@@ -185,9 +185,9 @@ double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassRes
     double numerator = approximateOperations.ScalarProduct(laplassResiduals, previousGrad);
     double denominator = approximateOperations.ScalarProduct(laplassPreviousGrad, previousGrad);
     double alphaValue = GetFractionValueFromAllProcessors(numerator, denominator);
-#ifdef DEBUG_MODE
+//#ifdef DEBUG_MODE
     std::cout << "CalculateAlphaValue alphaValue = " << alphaValue << std::endl;
-#endif
+//#endif
     return alphaValue;
 }
 
@@ -303,5 +303,9 @@ bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleM
     bool stop = pDiffNormGlobal < eps;
     std::cout << "CheckStopCondition = " << stop << std::endl;
 #endif
+
+//#ifdef DEBUG_MODE
+    std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;
+//#endif
     return pDiffNormGlobal < eps;
 }
