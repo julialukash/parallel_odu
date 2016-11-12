@@ -21,8 +21,8 @@ enum MessageTag
 double GetMaxValueFromAllProcessors(double localValue);
 double GetFractionValueFromAllProcessors(double numerator, double denominator);
 
-void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
-void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel);
+void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData);
+void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData);
 
 std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power);
 

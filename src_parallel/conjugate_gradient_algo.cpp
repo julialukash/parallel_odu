@@ -69,8 +69,8 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
 
 void ConjugateGradientAlgo::RenewBounds(DoubleMatrix& values)
 {
-    RenewMatrixBoundRows(values, processorData, netModel);
-    RenewMatrixBoundCols(values, processorData, netModel);
+    RenewMatrixBoundRows(values, processorData);
+    RenewMatrixBoundCols(values, processorData);
 }
 
 double ConjugateGradientAlgo::Process(std::shared_ptr<DoubleMatrix>& p, const DoubleMatrix& uValues)

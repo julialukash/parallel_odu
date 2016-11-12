@@ -63,12 +63,6 @@ std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0,
     return processorInfoPtr;
 }
 
-std::pair<int, int> GetProcessorCoordsByRank(int rank, MPI_Comm gridComm, int ndims=2)
-{
-    int Coords[2];
-    MPI_Cart_coords(gridComm, rank, ndims, Coords);
-    return std::make_pair(Coords[0], Coords[1]);
-}
 
 double GetMaxValueFromAllProcessors(double localValue)
 {
@@ -91,7 +85,7 @@ double GetFractionValueFromAllProcessors(double numerator, double denominator)
     return globalValue[0] / globalValue[1];
 }
 
-void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel)
+void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData)
 {
 #ifdef DEBUG_MODE
     std::cout << "RenewBoundRows \n" << values << std::endl;
@@ -119,7 +113,7 @@ void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorD
 #endif
 }
 
-void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData, const NetModel& netModel)
+void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData)
 {
 #ifdef DEBUG_MODE
     std::cout << "RenewBoundCols \n" << values << std::endl;

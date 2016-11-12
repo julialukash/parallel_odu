@@ -121,19 +121,6 @@ int main(int argc, char *argv[])
         auto optimizationAlgo = ConjugateGradientAlgo(netModel, diffEquation,
                                                       approximateOperations, *processorInfoPtr);
 
-#ifdef DEBUG_MAIN
-        std::cout << "XS = \n";
-        for (int i = 0; i < netModel.xValues.size(); ++i)
-        {
-            std::cout << netModel.xValues[i] << " ";
-        }
-        std::cout << "\nYS = \n";
-        for (int i = 0; i < netModel.yValues.size(); ++i)
-        {
-            std::cout << netModel.yValues[i] << " ";
-        }
-        std::cout << std::endl;
-#endif
 
 #ifdef Print
         if(rank == 0)
@@ -158,27 +145,6 @@ int main(int argc, char *argv[])
         }
 #endif
 
-
-#ifdef DEBUG_MAIN
-        std::cout << "Finished" << std::endl;
-        std::cout << "rank = " << processorInfoPtr->rank << ", processorsCount = " << processorInfoPtr->processorsCount << std::endl
-                  << "FirstRowIndex = " << processorInfoPtr->FirstRowIndex()
-                  << ", LastRowIndex = " << processorInfoPtr->LastRowIndex()
-                  << ", rowsCount = " << processorInfoPtr->RowsCount() << std::endl
-                  << ", RowsCountWithBorders = " << processorInfoPtr->RowsCountWithBorders() << std::endl;
-        std::cout << "Creating ConjugateGradientAlgo ..." << std::endl;
-#endif
-
-//#ifdef Print
-//        printf("My Rank in Grid_Comm is %d. My topological coords is (%d,%d). Domain size is %d x %d nodes.\n"
-//               "My neighbours: left = %d, right = %d, down = %d, up = %d.\n"
-//               "My block info: startColIndex = %d, colsCount = %d, startRowIndex = %d, rowsCount = %d.\n",
-//               processorInfoPtr->rank, processorInfoPtr->iCartIndex, processorInfoPtr->jCartIndex,
-//               processorInfoPtr->n0, processorInfoPtr->n1,
-//               processorInfoPtr->left, processorInfoPtr->right, processorInfoPtr->down, processorInfoPtr->up,
-//               processorInfoPtr->startColIndex, processorInfoPtr->colsCountValue,
-//               processorInfoPtr->startRowIndex, processorInfoPtr->rowsCountValue);
-//#endif
 #ifdef DEBUG_MAIN
         std::cout << "My Rank in Grid_Comm is " << rank << ". My topological coords is (" <<
                   processorInfoPtr->iCartIndex << "," << processorInfoPtr->jCartIndex << "). Domain size is " <<
