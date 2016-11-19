@@ -2,7 +2,6 @@
 #include "Point.h"
 #include "MergeSorter.h"
 
-#include <stdlib.h>   
 #include <time.h>
 
 std::vector<Point> read_data_from_file(std::string filename)
@@ -41,17 +40,6 @@ std::vector<Point> read_data_from_file(std::string filename)
 	return input_points;
 }
 
-std::vector<std::shared_ptr<const Point>> delete_from_vector_by_flags(std::vector<std::shared_ptr<const Point>> points, std::vector<bool> flags)
-{
-	std::vector<std::shared_ptr<const Point>> left_points;
-	for (auto i = 0; i < points.size(); ++i)
-	{
-		if (!flags[i])
-			left_points.push_back(points[i]);
-	}
-	return left_points;
-}
-
 std::vector<std::shared_ptr<Point>> delete_convex_hull_from_vector(std::vector<std::shared_ptr<Point>> points)
 {	
 	std::vector<std::shared_ptr<Point>> left_points;
@@ -73,27 +61,27 @@ std::vector<std::shared_ptr<Point>> get_convex_hull(std::vector<std::shared_ptr<
 	}
 	std::vector<std::shared_ptr<Point>> convex_hull(2 * points_count);
 
-	int k = 0;
-	// Build lower hull
+	long convex_hull_index = 0;
+	// lower 
 	for (auto i = 0; i < points_count; ++i)
 	{
-		while (k >= 2 && cross_product(convex_hull[k - 2], convex_hull[k - 1], points_sorted_by_x[i]) < 0)
-			k--;
-		convex_hull[k++] = points_sorted_by_x[i];
+		while (convex_hull_index >= 2 && cross_product(convex_hull[convex_hull_index - 2], convex_hull[convex_hull_index - 1], points_sorted_by_x[i]) < 0)
+			convex_hull_index--;
+		convex_hull[convex_hull_index++] = points_sorted_by_x[i];
 	}
 
-	// Build upper hull
-	for (int i = points_count - 2, t = k + 1; i >= 0; i--)
+	// upper 
+	auto lower_convex_f_idx = convex_hull_index + 1;
+	for (long i = points_count - 2, t = convex_hull_index + 1; i >= 0; i--)
 	{
-		while (k >= t && cross_product(convex_hull[k - 2], convex_hull[k - 1], points_sorted_by_x[i]) < 0)
-			k--;
-		convex_hull[k++] = points_sorted_by_x[i];
+		while (convex_hull_index >= lower_convex_f_idx && cross_product(convex_hull[convex_hull_index - 2], convex_hull[convex_hull_index - 1], points_sorted_by_x[i]) < 0)
+			convex_hull_index--;
+		convex_hull[convex_hull_index++] = points_sorted_by_x[i];
 	}
-	convex_hull.resize(k - 1);
+	convex_hull.resize(convex_hull_index - 1);
+
 	for each (auto point in convex_hull)
-	{
 		point->mark_convex_hull();
-	}
 	return convex_hull;
 }
 
@@ -101,8 +89,6 @@ std::vector<std::shared_ptr<Point>> get_convex_hull(std::vector<std::shared_ptr<
 std::vector<int> get_deep_function(std::vector<Point> input_points)
 {
 	std::vector<int> deep_function_values;
-
-	// Sort points lexicographically
 	std::vector<std::shared_ptr<Point>> points_sorted_by_x(input_points.size());
 	for (size_t i = 0; i < input_points.size(); i++)
 	{
@@ -128,7 +114,7 @@ void print_deep_function(std::vector<int> values)
 {
 	for (auto i = 0; i < values.size(); ++i)
 	{
-		std::cout << i + 1 << "\t" << values[i] << std::endl;
+		std::cout << i << "\t" << values[i] << std::endl;
 	}
 }
 
@@ -145,9 +131,11 @@ int main(int argc, char *argv[])
 	auto deep_function_values = get_deep_function(input_points);
 	auto end = clock();
 	auto time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	std::cout << input_filename << std::endl;
+	std::cout << "Input filename : " << input_filename << std::endl;
+	std::cout << "M(S) = " << deep_function_values.size() - 1 << std::endl;
+	std::cout << "m \tF(m)" << std::endl;
 	print_deep_function(deep_function_values);
-	std::cout << "time spent: " << time_spent << std::endl;
+	std::cout << "Time spent: " << time_spent << std::endl;
     return 0;
 }
 
