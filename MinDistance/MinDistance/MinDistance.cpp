@@ -4,6 +4,7 @@
 #include "MergeSorter.h"
 
 #include <stdlib.h>   
+#include <time.h>
 
 const int number_of_closest_points = 7;
 const double eps = 1e-10;
@@ -201,8 +202,12 @@ int main(int argc, char *argv[])
 	}
 	auto input_filename = argv[1];
 	auto input_points = read_data_from_file(input_filename);
+	auto begin = clock();
 	auto min_dist_points_pair = find_min_distance(input_points);
+	auto end = clock();
+	auto time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	std::cout << input_filename << std::endl;
 	std::cout << min_dist_points_pair << std::endl;
+	std::cout << "time spent: " << time_spent << std::endl;
 	return 0;
 }
