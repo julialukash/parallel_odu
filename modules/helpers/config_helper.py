@@ -63,8 +63,12 @@ class ConfigPaths(object):
             mkdir(self.experiment_path)
 
         self.models_file_name = path.join(self.experiment_path, 'models.txt')
-        # models_file = open(models_file_name, 'a')
 
+        self.models_archive_path = path.join(self.experiment_path, 'archive')
+        if not path.exists(self.models_archive_path):
+            mkdir(self.models_archive_path)
+
+        
     # def __str__(self):
     #     return 'data_folder_path = {}, \ninput_folder_path = {}, \noutput_folder_path = {},\n' + \
     #            'pics_folder_path = {}, \nlog_file_path = {},\nlog_file_name = {}'\
