@@ -1,0 +1,97 @@
+* name = model_no_reg2000_5, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 25, n_top_tokens = 15, p_threshold = 0.25
+
+* name = model_sparse_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 25, n_top_tokens = 15, p_threshold = 0.25
+  name = model_sparse_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+sparse_phi_regularizer, tau = -0.5
+показатели чистоты ядра слегка падают после включения регуляризаторов, спарсе тета становится ок
+темы вроде стали получше 
+
+* name = model_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+sparse_phi_regularizer, tau = -0.5
+фигня какая-то
+
+* name = model_decor_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 0.1
+вроде норм, надо смотреть
+
+* name = model_decor_reg_2, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 1
+= без декоррелирятора
+
+* name = model_decor_reg_3, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 10
+вроде норм, надо смотреть
+
+* name = model_decor_reg_4, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 100
+вроде норм, надо смотреть
+
+* name = model_decor_reg_5, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 100000000.0
+вырожденная фигня
+
+* name = model_decor_reg_6, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 0.01
+вроде норм, надо смотреть
+
+* name = model_decor_reg_7, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 0.001
+вроде норм, надо смотреть
+
+* name = model_decor_reg_8, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 0.0001
+вроде норм, надо смотреть
+
+* name = model_decor_reg_9, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 10000.0
+вырожденная фигня
+
+* name = model_decor_reg_10, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 1000000.0
+вырожденная фигня
+
+* name = model_decor_sparse_t_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+вроде норм, надо смотреть
+__________________________________________
+3500 documents
+увеличение тем - уменьшение размера ядра 
+
+* name = model_decor_sparse_t_reg_2, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+
+* name = model_decor_sparse_t_reg_3, n_topics = 2500, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+topic_12: музыкальный_звук обожествление кодовый_название научный_мышление львов революционный_событие структура_управление моторный_нейрон суровый_условие основной_корпус первоочередной_задача корпус_русский_язык откат удивительный_особенность наполеон_iii
+
+* name = model_decor_sparse_t_reg_4, n_topics = 3000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+темы есть норм, а есть мусор повторяющейся
+topic_109: музыкальный_звук обожествление кодовый_название научный_мышление львов революционный_событие структура_управление моторный_нейрон суровый_условие основной_корпус первоочередной_задача корпус_русский_язык откат удивительный_особенность наполеон_iii
+topic_110: музыкальный_звук обожествление кодовый_название научный_мышление львов революционный_событие структура_управление моторный_нейрон суровый_условие основной_корпус первоочередной_задача корпус_русский_язык откат удивительный_особенность наполеон_iii
+
+* name = model_decor_sparse_t_reg_5, n_topics = 3500, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+темы есть норм, есть очень плохие
+
+* name = model_decor_sparse_t_reg_6, n_topics = 4000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+вырожденная фигня
+
+* name = model_decor_sparse_t_reg_7, n_topics = 4500, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+вырожденная фигня
+
+* name = model_decor_sparse_t_reg_8, n_topics = 5000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 0.1
+вырожденная фигня

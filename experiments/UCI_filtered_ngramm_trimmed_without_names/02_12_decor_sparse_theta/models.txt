@@ -1,0 +1,30 @@
+name = model_theta_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.1
+name = model_theta_reg_2, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -10.0
+name = model_theta_reg_3, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.01
+name = model_theta_reg_4, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.001
+name = model_theta_reg_5, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.5
+name = model_theta_reg_6, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -1
+name = model_decor_sparse_t_reg_1, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.1
+decorrelator_phi_regularizer, tau = 0.1
+name = model_decor_sparse_t_reg_2, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.1
+decorrelator_phi_regularizer, tau = 0.1
+name = model_decor_sparse_t_reg_3, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.01
+decorrelator_phi_regularizer, tau = 0.1
+name = model_decor_sparse_t_reg_3, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = -0.001
+decorrelator_phi_regularizer, tau = 0.1
+name = model_decor_sparse_t_reg_4, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = 0.001
+decorrelator_phi_regularizer, tau = 0.1
+name = model_decor_sparse_t_reg_5, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
+sparse_theta_regularizer, tau = 0.01
+decorrelator_phi_regularizer, tau = 0.1
