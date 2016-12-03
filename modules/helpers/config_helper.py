@@ -49,7 +49,7 @@ class ConfigPaths(object):
         self.output_batches_path = path.join(home_dir, output_batches_rel_dir, self.dataset_folder_name)
         if not path.exists(self.output_batches_path):
             mkdir(self.output_batches_path)
-        self.dictionary_path = path.join(home_dir, output_batches_rel_dir, self.collection_name + '_dictionary')
+        self.dictionary_path = path.join(home_dir, output_batches_rel_dir, self.dataset_folder_name, self.collection_name + '_dictionary')
 
         output_experiments_rel_dir = 'experiments'
         self.experiment_data_path = path.join(home_dir, output_experiments_rel_dir)
