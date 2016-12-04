@@ -57,12 +57,12 @@ decorrelator_phi_regularizer, tau = 1000000.0
 sparse_theta_regularizer, tau = -0.5
 decorrelator_phi_regularizer, tau = 0.1
 вроде норм, надо смотреть
-__________________________________________
-3500 documents
-увеличение тем - уменьшение размера ядра 
 
 * name = model_decor_sparse_t_reg_2, n_topics = 2000, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
 sparse_theta_regularizer, tau = -0.5
+__________________________________________
+3500 documents
+увеличение тем - уменьшение размера ядра 
 
 * name = model_decor_sparse_t_reg_3, n_topics = 2500, n_doc_passes = 5, seed_value = 100, n_iterations = 15, n_top_tokens = 15, p_threshold = 0.25
 sparse_theta_regularizer, tau = -0.5

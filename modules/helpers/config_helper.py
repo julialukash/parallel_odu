@@ -22,6 +22,7 @@ class ConfigPaths(object):
             raise AttributeError('Section <<Paths>> is not found into config file')
 
         home_dir = path_cfg.get('home_dir')
+        self.home_dir = home_dir
         if home_dir is None:
             raise AttributeError('Field <<home_dir>> is not found into <<Paths>> section')
 

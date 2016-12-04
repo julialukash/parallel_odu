@@ -110,9 +110,24 @@ class PlotMaker:
             fig.savefig(model_name + '_ksp', transparent=True, bbox_inches='tight', pad_inches=0)
             plt.close(fig)
 
+    def artm_model_to_str(self, artm_model, n_iterations=-1):
+        str_model = 'n_topics = {}, n_doc_passes = {}, seed_value = {}'\
+                    .format(artm_model.num_topics, artm_model.num_document_passes, artm_model.seed)
+        if artm_model.scores.data.has_key('topic_kernel_score'):
+            str_model += ', p_threshold = {}'.format(artm_model.scores['topic_kernel_score'].probability_mass_threshold)
+        regularizers = ''
+        for key in artm_model.regularizers.data.iterkeys():
+            regularizers += '\n{}, tau = {}'.format(key, artm_model.regularizers.data[key].tau)
+        str_model += regularizers + '\n'
+        return str_model
+
     def make_tm_plots(self, artm_model, model_name=''):
+        title_str = self.artm_model_to_str(artm_model)
         self.make_perplexity_sparsity_plot(artm_model.score_tracker['perplexity_score'].value,
                                       artm_model.score_tracker['sparsity_phi_score'].value,
                                       artm_model.score_tracker['sparsity_theta_score'].value,
+                                      title=title_str,
                                       model_name=model_name)
-        self.make_kernel_size_purity_contrast_plot(artm_model.score_tracker['topic_kernel_score'], model_name=model_name)
+        self.make_kernel_size_purity_contrast_plot(artm_model.score_tracker['topic_kernel_score'],
+                                                   title=title_str,
+                                                   model_name=model_name)
