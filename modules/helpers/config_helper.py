@@ -43,8 +43,6 @@ class ConfigPaths(object):
         if not path.exists(self.dataset_path):
             raise SystemError('Path ' + self.dataset_path + ' not found')
         self.vocabulary_path = path.join(self.dataset_path, 'vocab.' + self.collection_name + '.txt')
-        if not path.isfile(self.vocabulary_path):
-            raise SystemError('Vocabulary file ' + self.vocabulary_path + ' not found')
 
         output_batches_rel_dir = '..\\data\postnauka\\bigARTM_files'
         self.output_batches_path = path.join(home_dir, output_batches_rel_dir, self.dataset_folder_name)
