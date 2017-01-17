@@ -5,8 +5,8 @@ class PrintHelper:
     def artm_model_last_scores_to_str(self, artm_model):
         string = 'last_perplexity_score = {}\nlast_sparsity_phi_score = {}\nlast_sparsity_theta_score = {}\n'\
                  .format(artm_model.score_tracker['perplexity_score'].value[-1],
-                         artm_model.score_tracker['sparsity_phi_score'].value[-1],
-                         artm_model.score_tracker['sparsity_theta_score'].value[-1]) \
+                         artm_model.score_tracker['ss_phi_score'].value[-1],
+                         artm_model.score_tracker['ss_theta_score'].value[-1]) \
                          + 'last_topic_kernel_avgsize = {}\nlast_topic_kernel_purity = {}\nlast_topic_kernel_contrast = {}\n'\
                  .format(artm_model.score_tracker['topic_kernel_score'].average_size[-1],
                          artm_model.score_tracker['topic_kernel_score'].average_purity[-1],
@@ -18,8 +18,8 @@ class PrintHelper:
         string += self.artm_model_last_scores_to_str(artm_model)
         string += 'perplexity_score = {}\nsparsity_phi_score = {}\nsparsity_theta_score = {}\n'\
                  .format(artm_model.score_tracker['perplexity_score'].value,
-                         artm_model.score_tracker['sparsity_phi_score'].value,
-                         artm_model.score_tracker['sparsity_theta_score'].value) \
+                         artm_model.score_tracker['ss_phi_score'].value,
+                         artm_model.score_tracker['ss_theta_score'].value) \
                         + 'topic_kernel_avgsize = {}\ntopic_kernel_purity = {}\ntopic_kernel_contrast = {}\n'\
                  .format(artm_model.score_tracker['topic_kernel_score'].average_size,
                          artm_model.score_tracker['topic_kernel_score'].average_purity,
@@ -31,8 +31,11 @@ class PrintHelper:
         else:
             print string
 
+    def unicode_list_to_str(self, name, list):
+        return name + ': ' + ' '.join(list)
+
     def print_unicode_list(self, name, list, output_file):
-        string = name + ': ' + ' '.join(list)
+        string = self.unicode_list_to_str(name, list)
         if output_file != None:
             string = string + '\n'
             output_file.write(string.encode('UTF-8'))
@@ -79,11 +82,38 @@ class PrintHelper:
 
     def doc_top_topics_to_str(top_topics):
         str = ''
-        for key in top_topics.iterkeys():
-            values = top_topics[key].iloc[top_topics[key].nonzero()[0]]
+        for key, value in top_topics.iterkeys():
+            values = value.iloc[value.nonzero()[0]]
             if len(values):
                 value = ', '.join(['{} : {}'.format(ind, values[ind]) for ind in values.index])
             else:
                 value = 'None'
             str += '{} | {}\n'.format(key, value)
+        return str
+
+    def distances_to_str_row(self, distances, topic, _n_topics):
+        values = distances[topic].sort_values().head(_n_topics)
+        value = ', '.join(['{0} : [{1:0.2f}]'.format(values.index[ind], val) for ind, val in enumerate(values)])
+        str = 'closest by distance to {} | {}\n'.format(topic, value)
+        return str
+
+    def print_optimal_solution(self, _sol, _num_components, _distances=None, _saved_top_tokens=None,  _other_saved_top_tokens=None):
+        sorted_x = sorted(zip(_sol.x, _sol.column_names), reverse=True)[0 : _num_components]
+        if _distances is not None:
+            combination = ', '.join(['{0} : {1:0.2f} [{2:0.2f}]'.format(item[1], item[0], _distances[item[1]][_sol.optimized_column]) for item in sorted_x])
+            combination += '\n' + self.distances_to_str_row(_distances, _sol.optimized_column, _n_topics=_num_components)
+        else:
+            combination = ', '.join(['{0} : {1:0.2f}'.format(item[1], item[0]) for item in sorted_x])
+        print '============================'
+        print 'fun = {}, optimized = {}'.format(_sol.fun, _sol.success)
+        print '{} | {}'.format(_sol.optimized_column, combination)
+        if _saved_top_tokens is not None and _other_saved_top_tokens is not None:
+            topics_str = self.optimal_solution_topics_to_str(_saved_top_tokens, _other_saved_top_tokens, _sol.optimized_column, sorted_x)
+            print topics_str
+        print '============================'
+
+    def optimal_solution_topics_to_str(self, _saved_top_tokens, _other_saved_top_tokens, topic_name, sorted_x):
+        topics = [item[1] for item in sorted_x]
+        str = self.unicode_list_to_str(topic_name, _saved_top_tokens[topic_name]) + '\n'
+        str += '\n'.join([self.unicode_list_to_str(name, _other_saved_top_tokens[name]) for name in topics])
         return str

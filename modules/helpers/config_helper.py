@@ -38,15 +38,11 @@ class ConfigPaths(object):
         if self.experiment_folder_name is None:
             raise AttributeError('Field <<experiment_folder_name>> is  not found into <<Paths>> section')
 
-        datase_rel_path = '..\\data\postnauka\\UCI_collections'
-        self.dataset_path = path.join(home_dir, datase_rel_path, self.dataset_folder_name)
-        if not path.exists(self.dataset_path):
-            raise SystemError('Path ' + self.dataset_path + ' not found')
+        dataset_rel_path = '..\\data\\postnauka\\UCI_collections'
+        self.dataset_path = path.join(home_dir, dataset_rel_path, self.dataset_folder_name)
         self.vocabulary_path = path.join(self.dataset_path, 'vocab.' + self.collection_name + '.txt')
-        if not path.isfile(self.vocabulary_path):
-            raise SystemError('Vocabulary file ' + self.vocabulary_path + ' not found')
 
-        output_batches_rel_dir = '..\\data\postnauka\\bigARTM_files'
+        output_batches_rel_dir = '..\\data\\postnauka\\bigARTM_files'
         self.output_batches_path = path.join(home_dir, output_batches_rel_dir, self.dataset_folder_name)
         if not path.exists(self.output_batches_path):
             mkdir(self.output_batches_path)
@@ -69,11 +65,6 @@ class ConfigPaths(object):
         if not path.exists(self.models_archive_path):
             mkdir(self.models_archive_path)
 
-        
-    # def __str__(self):
-    #     return 'data_folder_path = {}, \ninput_folder_path = {}, \noutput_folder_path = {},\n' + \
-    #            'pics_folder_path = {}, \nlog_file_path = {},\nlog_file_name = {}'\
-    #             .format(self.data_folder_path, self.input_folder_path, self.output_folder_path,
-    #                     self.pics_folder_path, self.log_folder_path, self.log_file_name)
+
 
 

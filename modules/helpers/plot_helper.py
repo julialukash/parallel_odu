@@ -23,9 +23,6 @@ class PlotMaker:
         plt.tick_params(axis='both', labelsize=9)
         plt.grid(axis='y',color='grey', linestyle='--', lw=0.5, alpha=0.5)
         plt.grid(axis='x',color='grey', linestyle='--', lw=0.5, alpha=0.5)
-        # sns.despine(left=True, bottom=True)
-        # plt.xlim(0, 5)
-        # plt.ylim(0, 0.08)
         iterations = range(start_iteration, end_iteration)
         values = perplexity_values[start_iteration : end_iteration]
         plt.plot(iterations, values, 'bo-')
@@ -124,8 +121,8 @@ class PlotMaker:
     def make_tm_plots(self, artm_model, model_name=''):
         title_str = self.artm_model_to_str(artm_model)
         self.make_perplexity_sparsity_plot(artm_model.score_tracker['perplexity_score'].value,
-                                      artm_model.score_tracker['sparsity_phi_score'].value,
-                                      artm_model.score_tracker['sparsity_theta_score'].value,
+                                      artm_model.score_tracker['ss_phi_score'].value,
+                                      artm_model.score_tracker['ss_theta_score'].value,
                                       title=title_str,
                                       model_name=model_name)
         self.make_kernel_size_purity_contrast_plot(artm_model.score_tracker['topic_kernel_score'],

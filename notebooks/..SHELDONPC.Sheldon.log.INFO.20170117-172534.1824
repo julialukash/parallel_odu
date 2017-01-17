@@ -1,0 +1,588 @@
+Log file created at: 2017/01/17 17:25:34
+Running on machine: SHELDONPC
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0117 17:25:34.202806  4936 c_interface.cc:74] Logging enabled to .
+I0117 17:25:34.203807  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:34.203807  4936 c_interface.cc:221] Creating MasterModel (id=1)...
+I0117 17:25:34.204308 13708 processor.cc:646] Processor thread started
+I0117 17:25:34.204308 12396 processor.cc:646] Processor thread started
+I0117 17:25:34.204308 12396 processor.cc:654] Processor thread stopped
+I0117 17:25:34.204308 12396 processor.cc:655] Total number of processed batches: 0
+I0117 17:25:34.204308  9288 processor.cc:646] Processor thread started
+I0117 17:25:34.204308 12252 processor.cc:646] Processor thread started
+I0117 17:25:34.205308 13708 processor.cc:654] Processor thread stopped
+I0117 17:25:34.205308 13708 processor.cc:655] Total number of processed batches: 0
+I0117 17:25:34.206308  9288 processor.cc:654] Processor thread stopped
+I0117 17:25:34.206308  9288 processor.cc:655] Total number of processed batches: 0
+I0117 17:25:34.207310 12252 processor.cc:654] Processor thread stopped
+I0117 17:25:34.207310 12252 processor.cc:655] Total number of processed batches: 0
+I0117 17:25:34.207310  4936 c_interface.cc:283] Disposing MasterComponent (id=1)...
+I0117 17:25:35.950067  4936 c_interface.cc:221] Creating MasterModel (id=2)...
+I0117 17:25:35.951568  4936 c_interface.cc:318] Pass 9a17d9e8-7f20-4ea9-a583-5f7d8c3eb0ec to void (__cdecl artm::core::MasterComponent::*)(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64
+I0117 17:25:35.952569  4936 c_interface.cc:332] Pass GatherDictionaryArgs: dictionary_target_name=9a17d9e8-7f20-4ea9-a583-5f7d8c3eb0ec, data_path=Q:\\topic_modeling\\csi_science_collections.git\..\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names, symmetric_cooc_values=0 to void (__cdecl artm::core::MasterComponent::*)(class artm::GatherDictionaryArgs const & __ptr64) __ptr64
+I0117 17:25:35.953069  4936 dictionary.cc:185] Found 4 batches in 'Q:\\topic_modeling\\csi_science_collections.git\..\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names' folder
+I0117 17:25:36.277783  4936 dictionary.cc:241] Find 19321 unique tokens in 3446 items
+I0117 17:25:36.344328  4936 c_interface.cc:221] Creating MasterModel (id=3)...
+I0117 17:25:36.344328  4936 c_interface.cc:318] Pass d63a6448-cfdc-4e10-a03a-c7e21098743f to void (__cdecl artm::core::MasterComponent::*)(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64
+I0117 17:25:36.344830  4936 dictionary.cc:52] Importing dictionary d63a6448-cfdc-4e10-a03a-c7e21098743f from Q:\\topic_modeling\\csi_science_collections.git\..\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\pn_dictionary.dict
+I0117 17:25:36.412374  4936 master_component.cc:164] Import completed, token_size = 19321
+I0117 17:25:37.481120  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:37.481120  4936 c_interface.cc:221] Creating MasterModel (id=4)...
+I0117 17:25:37.481120  4936 c_interface.cc:318] Pass pwt to void (__cdecl artm::core::MasterComponent::*)(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64
+I0117 17:25:37.481120  4960 processor.cc:646] Processor thread started
+I0117 17:25:37.481618  6948 processor.cc:646] Processor thread started
+I0117 17:25:37.481618  4936 c_interface.cc:318] Pass nwt to void (__cdecl artm::core::MasterComponent::*)(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64
+I0117 17:25:37.481618 12616 processor.cc:646] Processor thread started
+I0117 17:25:37.481618 11752 processor.cc:646] Processor thread started
+I0117 17:25:37.483121  4936 c_interface.cc:332] Pass InitializeModelArgs: model_name=pwt, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f, topic_name_size=100 to void (__cdecl artm::core::MasterComponent::*)(class artm::InitializeModelArgs const & __ptr64) __ptr64
+I0117 17:25:37.483121  4936 master_component.cc:338] InitializeModel() with 100 topics and 19321 tokens
+I0117 17:25:37.518646 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:37.518646 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:37.518646  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:37.528820  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:37.759974  4936 c_interface.cc:332] Pass InitializeModelArgs: model_name=nwt, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f, topic_name_size=100 to void (__cdecl artm::core::MasterComponent::*)(class artm::InitializeModelArgs const & __ptr64) __ptr64
+I0117 17:25:37.759974  4936 master_component.cc:338] InitializeModel() with 100 topics and 19321 tokens
+I0117 17:25:37.988126  4936 phi_matrix_operations.cc:82] RetrieveExternalTopicModel() with 100 topics, 19321 tokens
+I0117 17:25:38.026150  4936 c_interface.cc:180] ArtmCopyRequestedMessage is copying 733857 bytes...
+I0117 17:25:39.103368  4936 c_interface.cc:332] Pass MasterModelConfig: topic_name_size=100, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), score_config_size=0, num_processors=0, pwt_name=pwt, nwt_name=nwt, num_document_passes=5, reuse_theta=no, cache_theta=yes, opt_for_avx=yes, disk_cache_path to void (__cdecl artm::core::MasterComponent::*)(class artm::MasterModelConfig const & __ptr64) __ptr64
+I0117 17:25:39.103868  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:39.106870  4936 c_interface.cc:332] Pass MasterModelConfig: topic_name_size=100, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), score_config_size=1, num_processors=0, pwt_name=pwt, nwt_name=nwt, num_document_passes=5, reuse_theta=no, cache_theta=yes, opt_for_avx=yes, disk_cache_path to void (__cdecl artm::core::MasterComponent::*)(class artm::MasterModelConfig const & __ptr64) __ptr64
+I0117 17:25:39.106870  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:39.106870  4936 perplexity.cc:24] Perplexity score calculator created: model_type=0, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f
+I0117 17:25:39.108369  4936 c_interface.cc:332] Pass MasterModelConfig: topic_name_size=100, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), score_config_size=2, num_processors=0, pwt_name=pwt, nwt_name=nwt, num_document_passes=5, reuse_theta=no, cache_theta=yes, opt_for_avx=yes, disk_cache_path to void (__cdecl artm::core::MasterComponent::*)(class artm::MasterModelConfig const & __ptr64) __ptr64
+I0117 17:25:39.108369  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:39.108369  4936 perplexity.cc:24] Perplexity score calculator created: model_type=0, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f
+I0117 17:25:39.110875  4936 c_interface.cc:332] Pass MasterModelConfig: topic_name_size=100, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), score_config_size=3, num_processors=0, pwt_name=pwt, nwt_name=nwt, num_document_passes=5, reuse_theta=no, cache_theta=yes, opt_for_avx=yes, disk_cache_path to void (__cdecl artm::core::MasterComponent::*)(class artm::MasterModelConfig const & __ptr64) __ptr64
+I0117 17:25:39.110875  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:39.110875  4936 perplexity.cc:24] Perplexity score calculator created: model_type=0, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f
+I0117 17:25:39.113373  4936 c_interface.cc:332] Pass MasterModelConfig: topic_name_size=100, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), score_config_size=4, num_processors=0, pwt_name=pwt, nwt_name=nwt, num_document_passes=5, reuse_theta=no, cache_theta=yes, opt_for_avx=yes, disk_cache_path to void (__cdecl artm::core::MasterComponent::*)(class artm::MasterModelConfig const & __ptr64) __ptr64
+I0117 17:25:39.113373  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:39.113373  4936 perplexity.cc:24] Perplexity score calculator created: model_type=0, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f
+I0117 17:25:39.114872  4936 c_interface.cc:332] Pass MasterModelConfig: topic_name_size=100, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), score_config_size=5, num_processors=0, pwt_name=pwt, nwt_name=nwt, num_document_passes=5, reuse_theta=no, cache_theta=yes, opt_for_avx=yes, disk_cache_path to void (__cdecl artm::core::MasterComponent::*)(class artm::MasterModelConfig const & __ptr64) __ptr64
+I0117 17:25:39.114872  4936 instance.cc:358] MasterModelConfig.processors_count is automatically set to 4
+I0117 17:25:39.114872  4936 perplexity.cc:24] Perplexity score calculator created: model_type=0, dictionary_name=d63a6448-cfdc-4e10-a03a-c7e21098743f
+I0117 17:25:39.116375  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:39.116375  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:39.173411 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:39.173411  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:39.174412 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:39.174412  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:39.196429 12616 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:39.196928 11752 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:39.196928  4960 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:39.199930  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:39.568675  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:39.573179  6948 cuckoo_watch.h:44] 398ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 23ms in LoadMessage; 17ms in InitializeSparseNdw; 200ms in InferThetaAndUpdateNwtSparse; 125ms in CalculateScore(perplexity_score); 25ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:39.595691  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:39.876992 11752 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:39.881489 12616 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:39.882992 11752 cuckoo_watch.h:44] 709ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 22ms in LoadMessage; 21ms in InitializeSparseNdw; 420ms in InferThetaAndUpdateNwtSparse; 210ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:39.888494 12616 cuckoo_watch.h:44] 714ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 20ms in LoadMessage; 21ms in InitializeSparseNdw; 423ms in InferThetaAndUpdateNwtSparse; 211ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:39.905005 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:39.910008 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:39.920017  4960 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:39.924018  4960 cuckoo_watch.h:44] 750ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 21ms in LoadMessage; 28ms in InitializeSparseNdw; 460ms in InferThetaAndUpdateNwtSparse; 214ms in CalculateScore(perplexity_score); 18ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:39.925519  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:39.925519  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:39.947535  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:40.022588  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:40.750066  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:40.750571  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:40.750571  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:40.820616 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:40.821615  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:40.821615 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:40.825616  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:40.839625  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:40.842128 11752 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:40.848131 12616 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:40.848631  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:41.205497  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:41.210999  6948 cuckoo_watch.h:44] 384ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 11ms in InitializeSparseNdw; 215ms in InferThetaAndUpdateNwtSparse; 116ms in CalculateScore(perplexity_score); 21ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:41.233013  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:41.510699  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:41.517201  4960 cuckoo_watch.h:44] 695ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 24ms in LoadMessage; 22ms in InitializeSparseNdw; 396ms in InferThetaAndUpdateNwtSparse; 218ms in CalculateScore(perplexity_score); 22ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:41.521204 12616 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:41.526711 12616 cuckoo_watch.h:44] 705ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 24ms in LoadMessage; 21ms in InitializeSparseNdw; 391ms in InferThetaAndUpdateNwtSparse; 229ms in CalculateScore(perplexity_score); 29ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:41.539722  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:41.542718 11752 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:41.548221 11752 cuckoo_watch.h:44] 727ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 20ms in LoadMessage; 25ms in InitializeSparseNdw; 421ms in InferThetaAndUpdateNwtSparse; 230ms in CalculateScore(perplexity_score); 22ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:41.548722  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:41.548722 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:41.548722  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:41.571236 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:41.631779  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:42.362763  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:42.363263  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:42.363263  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:42.416298  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:42.416298 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:42.416298  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:42.419802 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:42.433310 12616 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:42.438314  6948 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:42.439314  4960 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:42.440315 11752 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:42.775038 12616 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:42.781049 12616 cuckoo_watch.h:44] 361ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 12ms in InitializeSparseNdw; 197ms in InferThetaAndUpdateNwtSparse; 107ms in CalculateScore(perplexity_score); 23ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:42.825068 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:43.177803  4960 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:43.185308  4960 cuckoo_watch.h:44] 769ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 21ms in LoadMessage; 24ms in InitializeSparseNdw; 405ms in InferThetaAndUpdateNwtSparse; 275ms in CalculateScore(perplexity_score); 32ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:43.187808 11752 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:43.194314 11752 cuckoo_watch.h:44] 777ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 22ms in LoadMessage; 26ms in InitializeSparseNdw; 412ms in InferThetaAndUpdateNwtSparse; 277ms in CalculateScore(perplexity_score); 30ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:43.204319  6948 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:43.207823  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:43.209323  6948 cuckoo_watch.h:44] 793ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 20ms in LoadMessage; 21ms in InitializeSparseNdw; 416ms in InferThetaAndUpdateNwtSparse; 295ms in CalculateScore(perplexity_score); 31ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:43.210324  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:43.210324  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:43.215327 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:43.232843  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:43.336407  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:44.185972  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:44.186473  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:44.186473  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:44.238006 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:44.238006  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:44.238006  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:44.238006 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:44.259521  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:44.262022 11752 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:44.274029 12616 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:44.276031  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:44.603750  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:44.608254  6948 cuckoo_watch.h:44] 370ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 19ms in LoadMessage; 11ms in InitializeSparseNdw; 197ms in InferThetaAndUpdateNwtSparse; 112ms in CalculateScore(perplexity_score); 22ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:44.638772  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:44.945475 11752 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:44.946475  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:44.947976 12616 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:44.951979  4960 cuckoo_watch.h:44] 713ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 36ms in LoadMessage; 22ms in InitializeSparseNdw; 396ms in InferThetaAndUpdateNwtSparse; 220ms in CalculateScore(perplexity_score); 30ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:44.952479 11752 cuckoo_watch.h:44] 714ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 22ms in LoadMessage; 24ms in InitializeSparseNdw; 413ms in InferThetaAndUpdateNwtSparse; 218ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:44.953979 12616 cuckoo_watch.h:44] 715ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 34ms in LoadMessage; 21ms in InitializeSparseNdw; 401ms in InferThetaAndUpdateNwtSparse; 224ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:44.955482  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:44.955482  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:44.972997  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:44.972997 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:44.975495 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:45.047041  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:45.691504  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:45.691504  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:45.691504  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:45.739537 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:45.740543  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:45.740543  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:45.742538 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:45.756551 11752 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:45.762552  6948 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:45.762552  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:45.766054 12616 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:46.113790 11752 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:46.117791 11752 cuckoo_watch.h:44] 375ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 10ms in InitializeSparseNdw; 193ms in InferThetaAndUpdateNwtSparse; 125ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:46.144804 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:46.379963  6948 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:46.386466  6948 cuckoo_watch.h:44] 645ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 20ms in LoadMessage; 24ms in InitializeSparseNdw; 393ms in InferThetaAndUpdateNwtSparse; 173ms in CalculateScore(perplexity_score); 25ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:46.395974 12616 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:46.402475 12616 cuckoo_watch.h:44] 662ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 24ms in LoadMessage; 26ms in InitializeSparseNdw; 399ms in InferThetaAndUpdateNwtSparse; 183ms in CalculateScore(perplexity_score); 19ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:46.404978  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:46.408979  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:46.408979  4960 cuckoo_watch.h:44] 668ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 20ms in LoadMessage; 29ms in InitializeSparseNdw; 397ms in InferThetaAndUpdateNwtSparse; 198ms in CalculateScore(perplexity_score); 16ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:46.409482  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:46.409482  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:46.422991 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:46.428998  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:46.485532  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:47.147971  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:47.148470  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:47.148470  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:47.201009 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:47.201009 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:47.201009  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:47.201009  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:47.223522 11752 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:47.224521  4960 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:47.226526  6948 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:47.228024 12616 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:47.599270  4960 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:47.602272  4960 cuckoo_watch.h:44] 401ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 22ms in LoadMessage; 10ms in InitializeSparseNdw; 212ms in InferThetaAndUpdateNwtSparse; 129ms in CalculateScore(perplexity_score); 22ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:47.648802  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:47.906975 12616 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:47.912477 12616 cuckoo_watch.h:44] 711ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 24ms in LoadMessage; 22ms in InitializeSparseNdw; 416ms in InferThetaAndUpdateNwtSparse; 211ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:47.918483 11752 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:47.925487 11752 cuckoo_watch.h:44] 724ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 21ms in LoadMessage; 27ms in InitializeSparseNdw; 426ms in InferThetaAndUpdateNwtSparse; 217ms in CalculateScore(perplexity_score); 24ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:47.937994 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:47.939502  6948 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:47.943498  6948 cuckoo_watch.h:44] 742ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 24ms in LoadMessage; 30ms in InitializeSparseNdw; 448ms in InferThetaAndUpdateNwtSparse; 209ms in CalculateScore(perplexity_score); 23ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:47.944000  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:47.944000  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:47.948000 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:47.964514  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:48.029054  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:48.814575  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:48.815075  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:48.815075  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:48.871112  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:48.871112 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:48.871112 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:48.872113  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:48.885622  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:48.893630  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:48.896631 11752 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:48.897630 12616 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:49.254367  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:49.257370  6948 cuckoo_watch.h:44] 385ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 14ms in InitializeSparseNdw; 218ms in InferThetaAndUpdateNwtSparse; 110ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:49.281384  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:49.567077  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:49.571576  4960 cuckoo_watch.h:44] 700ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 20ms in LoadMessage; 24ms in InitializeSparseNdw; 405ms in InferThetaAndUpdateNwtSparse; 215ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:49.577081 11752 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:49.581584 11752 cuckoo_watch.h:44] 710ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 24ms in LoadMessage; 23ms in InitializeSparseNdw; 408ms in InferThetaAndUpdateNwtSparse; 220ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:49.586086 12616 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:49.592592 12616 cuckoo_watch.h:44] 721ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 22ms in LoadMessage; 27ms in InitializeSparseNdw; 410ms in InferThetaAndUpdateNwtSparse; 222ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:49.594593  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:49.594593  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:49.595093  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:49.603098 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:49.614605 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:49.694159  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:50.453162  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:50.453662  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:50.453662  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:50.520206  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:50.520206 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:50.520206  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:50.521206 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:50.535219 11752 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:50.543222 12616 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:50.544723  6948 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:50.551229  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:50.891955 11752 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:50.894956 11752 cuckoo_watch.h:44] 373ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 13ms in InitializeSparseNdw; 209ms in InferThetaAndUpdateNwtSparse; 115ms in CalculateScore(perplexity_score); 19ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:50.927976 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:51.222672 12616 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:51.226174 12616 cuckoo_watch.h:44] 705ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 21ms in LoadMessage; 27ms in InitializeSparseNdw; 408ms in InferThetaAndUpdateNwtSparse; 216ms in CalculateScore(perplexity_score); 25ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:51.236181  6948 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:51.243687  6948 cuckoo_watch.h:44] 723ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 23ms in LoadMessage; 25ms in InitializeSparseNdw; 437ms in InferThetaAndUpdateNwtSparse; 205ms in CalculateScore(perplexity_score); 22ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:51.244690  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:51.251691  4960 cuckoo_watch.h:44] 730ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 29ms in LoadMessage; 42ms in InitializeSparseNdw; 422ms in InferThetaAndUpdateNwtSparse; 202ms in CalculateScore(perplexity_score); 24ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:51.252192 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:51.252192  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:51.252192  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:51.266203  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:51.271204  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:51.343751  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:52.176304  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:52.176304  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:52.176304  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:52.244855  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:52.247851  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:52.247851 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:52.248353 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:52.264863 11752 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:52.266365  4960 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:52.269866  6948 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:52.276872 12616 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:52.617600 11752 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:52.620599 11752 cuckoo_watch.h:44] 372ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 15ms in LoadMessage; 11ms in InitializeSparseNdw; 198ms in InferThetaAndUpdateNwtSparse; 111ms in CalculateScore(perplexity_score); 31ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:52.657624 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:52.949317  4960 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:52.954320  4960 cuckoo_watch.h:44] 709ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 20ms in LoadMessage; 26ms in InitializeSparseNdw; 395ms in InferThetaAndUpdateNwtSparse; 231ms in CalculateScore(perplexity_score); 29ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:52.957322  6948 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:52.961825  6948 cuckoo_watch.h:44] 713ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 20ms in LoadMessage; 22ms in InitializeSparseNdw; 404ms in InferThetaAndUpdateNwtSparse; 229ms in CalculateScore(perplexity_score); 30ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:52.962826 12616 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:52.969331 12616 cuckoo_watch.h:44] 721ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 27ms in LoadMessage; 21ms in InitializeSparseNdw; 409ms in InferThetaAndUpdateNwtSparse; 226ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:52.970831  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:52.970831  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:52.975334  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:52.984340  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:52.990852 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:53.099417  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:53.892442  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:53.892442  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:53.892442  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:53.942476  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:53.942476  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:53.943476 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:53.943476 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:53.958487 12616 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:53.962491  6948 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:53.962992  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:53.963991 11752 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:54.345823 12616 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:54.349318 12616 cuckoo_watch.h:44] 405ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 13ms in LoadMessage; 11ms in InitializeSparseNdw; 212ms in InferThetaAndUpdateNwtSparse; 142ms in CalculateScore(perplexity_score); 21ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:54.375336 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:54.638011  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:54.644016  4960 cuckoo_watch.h:44] 701ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 19ms in LoadMessage; 21ms in InitializeSparseNdw; 411ms in InferThetaAndUpdateNwtSparse; 213ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:54.656523 11752 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:54.662526 11752 cuckoo_watch.h:44] 719ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 22ms in InitializeSparseNdw; 414ms in InferThetaAndUpdateNwtSparse; 227ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:54.667029  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:54.680539  6948 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:54.684541 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:54.685044  6948 cuckoo_watch.h:44] 742ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 18ms in LoadMessage; 25ms in InitializeSparseNdw; 435ms in InferThetaAndUpdateNwtSparse; 229ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:54.685544  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:54.685544  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:54.707556  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:54.801118  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:55.461056  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:55.461560  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:55.462059  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:55.511090 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:55.511090 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:55.511090  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:55.512590  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:55.526602  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:55.532104 12616 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:55.532104 11752 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:55.535106  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:55.899848  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:55.902348  6948 cuckoo_watch.h:44] 389ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 11ms in LoadMessage; 12ms in InitializeSparseNdw; 198ms in InferThetaAndUpdateNwtSparse; 131ms in CalculateScore(perplexity_score); 32ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:55.934370  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:56.200047 11752 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:56.204550  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:56.205049 11752 cuckoo_watch.h:44] 693ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 21ms in InitializeSparseNdw; 410ms in InferThetaAndUpdateNwtSparse; 212ms in CalculateScore(perplexity_score); 24ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:56.209554  4960 cuckoo_watch.h:44] 698ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 22ms in LoadMessage; 21ms in InitializeSparseNdw; 408ms in InferThetaAndUpdateNwtSparse; 210ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:56.228072 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:56.238571  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:56.260588 12616 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:56.269593 12616 cuckoo_watch.h:44] 758ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 19ms in LoadMessage; 34ms in InitializeSparseNdw; 431ms in InferThetaAndUpdateNwtSparse; 238ms in CalculateScore(perplexity_score); 23ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:56.270593  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:56.270593  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:56.299612 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:56.395175  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:57.150677  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:57.151176  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:57.151176  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:57.199712  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:57.199712 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:57.199712 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:57.199712  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:57.214218  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:57.220724 12616 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:57.225226 11752 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:57.254246  4960 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:57.557446  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:57.561451  6948 cuckoo_watch.h:44] 361ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 15ms in InitializeSparseNdw; 192ms in InferThetaAndUpdateNwtSparse; 109ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:57.625490  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:57.897172 12616 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:57.903676 12616 cuckoo_watch.h:44] 703ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 28ms in InitializeSparseNdw; 407ms in InferThetaAndUpdateNwtSparse; 215ms in CalculateScore(perplexity_score); 23ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:57.904680 11752 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:57.913183 11752 cuckoo_watch.h:44] 713ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 24ms in LoadMessage; 28ms in InitializeSparseNdw; 406ms in InferThetaAndUpdateNwtSparse; 213ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:57.924690  4960 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:57.927691 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:57.929692  4960 cuckoo_watch.h:44] 729ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 53ms in LoadMessage; 24ms in InitializeSparseNdw; 416ms in InferThetaAndUpdateNwtSparse; 203ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:57.930193  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:57.930193  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:57.935200 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:57.954710  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:58.046771  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:25:58.799769  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:25:58.799769  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:25:58.799769  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:25:58.850811  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:58.850811 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:58.850811  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:58.850811 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:25:58.864814 12616 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:58.874821  6948 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:58.874821 11752 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:58.882825  4960 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:59.235561 12616 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:25:59.239063 12616 cuckoo_watch.h:44] 388ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 11ms in InitializeSparseNdw; 204ms in InferThetaAndUpdateNwtSparse; 126ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:59.264077 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:59.614810  6948 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:25:59.619813  6948 cuckoo_watch.h:44] 769ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 22ms in LoadMessage; 23ms in InitializeSparseNdw; 409ms in InferThetaAndUpdateNwtSparse; 253ms in CalculateScore(perplexity_score); 53ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:59.631322 11752 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:25:59.638327 11752 cuckoo_watch.h:44] 787ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 22ms in LoadMessage; 23ms in InitializeSparseNdw; 416ms in InferThetaAndUpdateNwtSparse; 255ms in CalculateScore(perplexity_score); 60ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:59.645330  4960 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:25:59.649333  4960 cuckoo_watch.h:44] 798ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 30ms in LoadMessage; 27ms in InitializeSparseNdw; 412ms in InferThetaAndUpdateNwtSparse; 293ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:25:59.649834  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:25:59.649834  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:25:59.652335  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:59.660341 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:59.672348  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:25:59.800433  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:00.621980  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:00.622479  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:00.622479  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:00.669010  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:00.669010  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:00.669010 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:00.670511 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:00.685020 11752 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:00.688024  6948 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:00.690524  4960 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:00.698030 12616 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:01.015741 11752 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:01.018743 11752 cuckoo_watch.h:44] 348ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 13ms in LoadMessage; 12ms in InitializeSparseNdw; 195ms in InferThetaAndUpdateNwtSparse; 102ms in CalculateScore(perplexity_score); 19ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:01.074780 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:01.382115  6948 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:01.388619  6948 cuckoo_watch.h:44] 719ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 17ms in LoadMessage; 26ms in InitializeSparseNdw; 416ms in InferThetaAndUpdateNwtSparse; 224ms in CalculateScore(perplexity_score); 25ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:01.412134  4960 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:01.413136  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:01.414136 12616 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:01.416638  4960 cuckoo_watch.h:44] 747ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 20ms in LoadMessage; 24ms in InitializeSparseNdw; 440ms in InferThetaAndUpdateNwtSparse; 234ms in CalculateScore(perplexity_score); 20ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:01.420642 12616 cuckoo_watch.h:44] 751ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 27ms in LoadMessage; 29ms in InitializeSparseNdw; 426ms in InferThetaAndUpdateNwtSparse; 239ms in CalculateScore(perplexity_score); 19ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:01.420642  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:01.420642  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:01.440654  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:01.444155 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:01.517205  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:02.319238  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:02.319238  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:02.319737  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:02.376274 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:02.376274  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:02.376274  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:02.377274 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:02.396788 12616 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:02.396788 11752 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:02.398289  6948 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:02.401799  4960 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:02.762529 11752 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:02.767035 11752 cuckoo_watch.h:44] 389ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 18ms in LoadMessage; 12ms in InitializeSparseNdw; 212ms in InferThetaAndUpdateNwtSparse; 116ms in CalculateScore(perplexity_score); 24ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:02.815565 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:03.048719 12616 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:03.051724 12616 cuckoo_watch.h:44] 675ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 19ms in LoadMessage; 27ms in InitializeSparseNdw; 418ms in InferThetaAndUpdateNwtSparse; 186ms in CalculateScore(perplexity_score); 18ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:03.052223  6948 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:03.057729  6948 cuckoo_watch.h:44] 681ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 25ms in InitializeSparseNdw; 406ms in InferThetaAndUpdateNwtSparse; 194ms in CalculateScore(perplexity_score); 26ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:03.073246 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:03.078739  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:03.082742  4960 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:03.086745  4960 cuckoo_watch.h:44] 710ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 24ms in LoadMessage; 30ms in InitializeSparseNdw; 431ms in InferThetaAndUpdateNwtSparse; 201ms in CalculateScore(perplexity_score); 16ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:03.088248  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:03.088248  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:03.108260  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:03.179307  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:03.950817  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:03.950817  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:03.951318  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:04.004853 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:04.005854 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:04.005854  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:04.006855  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:04.021366  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:04.026870  4960 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:04.027370 11752 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:04.032372 12616 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:04.393618  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:04.398118  6948 cuckoo_watch.h:44] 391ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 9ms in InitializeSparseNdw; 210ms in InferThetaAndUpdateNwtSparse; 122ms in CalculateScore(perplexity_score); 29ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:04.462157  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:04.729835  4960 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:04.731835 12616 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:04.736340  4960 cuckoo_watch.h:44] 730ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 25ms in InitializeSparseNdw; 438ms in InferThetaAndUpdateNwtSparse; 206ms in CalculateScore(perplexity_score); 32ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:04.736840 12616 cuckoo_watch.h:44] 730ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 24ms in LoadMessage; 24ms in InitializeSparseNdw; 451ms in InferThetaAndUpdateNwtSparse; 191ms in CalculateScore(perplexity_score); 31ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:04.752349 11752 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:04.756351 11752 cuckoo_watch.h:44] 751ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 21ms in LoadMessage; 26ms in InitializeSparseNdw; 452ms in InferThetaAndUpdateNwtSparse; 218ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:04.756855  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:04.756855  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:04.759855  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:04.759855 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:04.778368 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:04.869926  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:05.629931  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:05.630434  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:05.630434  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:05.697477  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:05.698478 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:05.698478  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:05.709486 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:05.725996  4960 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:05.727497 11752 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:05.728498 12616 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:05.729998  6948 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:06.083735 11752 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:06.088237 11752 cuckoo_watch.h:44] 378ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 16ms in LoadMessage; 10ms in InitializeSparseNdw; 208ms in InferThetaAndUpdateNwtSparse; 118ms in CalculateScore(perplexity_score); 19ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:06.143272 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:06.450976  4960 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:06.457479  4960 cuckoo_watch.h:44] 759ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 20ms in LoadMessage; 23ms in InitializeSparseNdw; 442ms in InferThetaAndUpdateNwtSparse; 228ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:06.458981 12616 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:06.466486 12616 cuckoo_watch.h:44] 768ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 28ms in LoadMessage; 26ms in InitializeSparseNdw; 453ms in InferThetaAndUpdateNwtSparse; 219ms in CalculateScore(perplexity_score); 30ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:06.478996  6948 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:06.480496  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:06.484998  6948 cuckoo_watch.h:44] 787ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 30ms in LoadMessage; 46ms in InitializeSparseNdw; 444ms in InferThetaAndUpdateNwtSparse; 228ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:06.485498  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:06.485498  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:06.489001 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:06.508019  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:06.603076  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:07.273020  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:07.273524  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:07.273524  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:07.328564 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:07.328564  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:07.328564 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:07.328564  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:07.343075  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:07.349071 11752 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:07.350574  4960 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:07.352074 12616 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:07.734833  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:07.738329  6948 cuckoo_watch.h:44] 409ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 11ms in InitializeSparseNdw; 220ms in InferThetaAndUpdateNwtSparse; 125ms in CalculateScore(perplexity_score); 33ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:07.791865  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:08.041533 11752 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:08.047034 11752 cuckoo_watch.h:44] 718ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 27ms in InitializeSparseNdw; 433ms in InferThetaAndUpdateNwtSparse; 203ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:08.064545 12616 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:08.069052  4960 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:08.071055 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:08.071554 12616 cuckoo_watch.h:44] 742ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 22ms in LoadMessage; 25ms in InitializeSparseNdw; 445ms in InferThetaAndUpdateNwtSparse; 213ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:08.075054  4960 cuckoo_watch.h:44] 746ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 20ms in LoadMessage; 23ms in InitializeSparseNdw; 448ms in InferThetaAndUpdateNwtSparse; 219ms in CalculateScore(perplexity_score); 25ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:08.076055  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:08.076055  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:08.094065 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:08.096566  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:08.172617  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:08.892096  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:08.893095  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:08.893095  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:08.945629 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:08.946630 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:08.946630  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:08.947131  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:08.967149 11752 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:08.968647 12616 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:08.972648  6948 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:08.983656  4960 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:09.317878  6948 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:09.320878  6948 cuckoo_watch.h:44] 373ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 24ms in LoadMessage; 9ms in InitializeSparseNdw; 195ms in InferThetaAndUpdateNwtSparse; 105ms in CalculateScore(perplexity_score); 36ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:09.381419  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:09.650099 11752 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:09.654600 12616 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:09.657104 11752 cuckoo_watch.h:44] 711ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 20ms in LoadMessage; 23ms in InitializeSparseNdw; 410ms in InferThetaAndUpdateNwtSparse; 222ms in CalculateScore(perplexity_score); 25ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:09.659603 12616 cuckoo_watch.h:44] 712ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 20ms in LoadMessage; 22ms in InitializeSparseNdw; 416ms in InferThetaAndUpdateNwtSparse; 215ms in CalculateScore(perplexity_score); 30ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:09.663605  4960 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:09.667109  4960 cuckoo_watch.h:44] 720ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 35ms in LoadMessage; 21ms in InitializeSparseNdw; 394ms in InferThetaAndUpdateNwtSparse; 235ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:09.669112  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:09.669112  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:09.679616 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:09.681617 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:09.689626  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:09.763675  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:10.552201  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:10.553197  4936 c_interface.cc:332] Pass FitOfflineMasterModelArgs, batch_filename_size=4, batch_weight_size=4, num_collection_passes=1 to void (__cdecl artm::core::MasterComponent::*)(class artm::FitOfflineMasterModelArgs const & __ptr64) __ptr64
+I0117 17:26:10.553197  4936 master_component.cc:942] ProcessBatchesArgs: nwt_target_name=nwt, batch_filename_size=4, batch_size=0, batch_weight_size=4, pwt_source_name=pwt, num_document_passes=5, class=(category:0), class=(author:0), class=(following_users:0), class=(ngramm:1), class=(author_id:0), class=(projects:0), class=(post_tag:0), reuse_theta=no, opt_for_avx=yes, predict_class_id=
+I0117 17:26:10.598227 11752 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:10.598227 12616 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:10.599726  6948 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:10.599726  4960 processor.cc:669] Processing queue has data, processing started
+I0117 17:26:10.613236  4960 processor.cc:746] Processor: start processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:10.617239 12616 processor.cc:746] Processor: start processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:10.620740  6948 processor.cc:746] Processor: start processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:10.621742 11752 processor.cc:746] Processor: start processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:10.974480  4960 processor.cc:842] Processor: complete processing batch ba01d214-b17b-41c2-978e-d5746a8ff6ac into model nwt
+I0117 17:26:10.985985  4960 cuckoo_watch.h:44] 386ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaad.batch) [including 12ms in LoadMessage; 10ms in InitializeSparseNdw; 207ms in InferThetaAndUpdateNwtSparse; 116ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:11.054028  4960 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:11.321207  6948 processor.cc:842] Processor: complete processing batch a952f0b8-ca0f-409f-900e-e12329f368df into model nwt
+I0117 17:26:11.321705 12616 processor.cc:842] Processor: complete processing batch ce33f4d3-6b44-4fae-bd52-8b4bc648718a into model nwt
+I0117 17:26:11.328712  6948 cuckoo_watch.h:44] 728ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaac.batch) [including 19ms in LoadMessage; 25ms in InitializeSparseNdw; 417ms in InferThetaAndUpdateNwtSparse; 229ms in CalculateScore(perplexity_score); 27ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:11.331212 12616 cuckoo_watch.h:44] 732ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaab.batch) [including 17ms in LoadMessage; 23ms in InitializeSparseNdw; 426ms in InferThetaAndUpdateNwtSparse; 220ms in CalculateScore(perplexity_score); 31ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:11.338716 11752 processor.cc:842] Processor: complete processing batch b532761b-e85b-472e-9efa-d9381818ae51 into model nwt
+I0117 17:26:11.345226 11752 cuckoo_watch.h:44] 746ms in ProcessBatch(Q:\topic_modeling\data\postnauka\bigARTM_files\UCI_filtered_ngramm_trimmed_without_names\aaaaaa.batch) [including 22ms in LoadMessage; 22ms in InitializeSparseNdw; 427ms in InferThetaAndUpdateNwtSparse; 238ms in CalculateScore(perplexity_score); 28ms in CalculateScore(ss_theta_score); ]
+I0117 17:26:11.346722  4936 master_component.cc:991] NormalizeModelArgs: pwt_target_name=pwt, nwt_source_name=nwt, rwt_source_name=
+I0117 17:26:11.346722  4936 master_component.cc:617] MasterComponent: start normalizing model nwt
+I0117 17:26:11.350724  6948 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:11.353226 12616 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:11.367736 11752 processor.cc:662] No data in processing queue, waiting...
+I0117 17:26:11.461298  4936 master_component.cc:639] MasterComponent: complete normalizing model nwt
+I0117 17:26:12.314364  4936 master_component.cc:1015] DisposeModel rwt
+I0117 17:26:12.315865  4936 c_interface.cc:180] ArtmCopyRequestedMessage is copying 1060 bytes...
+I0117 17:27:14.844589  4936 c_interface.cc:318] Pass 9a17d9e8-7f20-4ea9-a583-5f7d8c3eb0ec to void (__cdecl artm::core::MasterComponent::*)(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64
+I0117 17:27:14.849591  4936 c_interface.cc:283] Disposing MasterComponent (id=2)...
+I0117 17:27:14.849591  4936 c_interface.cc:318] Pass d63a6448-cfdc-4e10-a03a-c7e21098743f to void (__cdecl artm::core::MasterComponent::*)(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64
+I0117 17:27:14.856597  4936 c_interface.cc:283] Disposing MasterComponent (id=3)...
