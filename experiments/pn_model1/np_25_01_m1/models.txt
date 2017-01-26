@@ -1,0 +1,19 @@
+name = model_20_m1, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+name = model_50_m2, n_topics = 50, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+name = model_50_m3, n_topics = 100, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+name = model_20_m4, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -1
+decorrelator_phi_regularizer, tau = 100
+ss_phi_regularizer, tau = -1
+name = model_20_m5, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -1.5
+decorrelator_phi_regularizer, tau = 100
+ss_phi_regularizer, tau = -2
+name = model_20_m6, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -2.5
+decorrelator_phi_regularizer, tau = 100
+ss_phi_regularizer, tau = -3
+name = model_20_m7, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -4
+decorrelator_phi_regularizer, tau = 1000
+ss_phi_regularizer, tau = -4
