@@ -1,29 +1,13 @@
+import artm
+
 class PrintHelper:
     def __init__(self):
         pass
-
-    def artm_model_last_scores_to_str(self, artm_model):
-        string = 'last_perplexity_score = {}\nlast_sparsity_phi_score = {}\nlast_sparsity_theta_score = {}\n'\
-                 .format(artm_model.score_tracker['perplexity_score'].value[-1],
-                         artm_model.score_tracker['ss_phi_score'].value[-1],
-                         artm_model.score_tracker['ss_theta_score'].value[-1]) \
-                         + 'last_topic_kernel_avgsize = {}\nlast_topic_kernel_purity = {}\nlast_topic_kernel_contrast = {}\n'\
-                 .format(artm_model.score_tracker['topic_kernel_score'].average_size[-1],
-                         artm_model.score_tracker['topic_kernel_score'].average_purity[-1],
-                         artm_model.score_tracker['topic_kernel_score'].average_contrast[-1])
-        return string
-
+    
     def print_scores(self, artm_model, model_name, n_iterations, output_file_name):
         string = self.artm_model_to_str(artm_model, model_name, n_iterations)
         string += self.artm_model_last_scores_to_str(artm_model)
-        string += 'perplexity_score = {}\nsparsity_phi_score = {}\nsparsity_theta_score = {}\n'\
-                 .format(artm_model.score_tracker['perplexity_score'].value,
-                         artm_model.score_tracker['ss_phi_score'].value,
-                         artm_model.score_tracker['ss_theta_score'].value) \
-                        + 'topic_kernel_avgsize = {}\ntopic_kernel_purity = {}\ntopic_kernel_contrast = {}\n'\
-                 .format(artm_model.score_tracker['topic_kernel_score'].average_size,
-                         artm_model.score_tracker['topic_kernel_score'].average_purity,
-                         artm_model.score_tracker['topic_kernel_score'].average_contrast)
+        string += self.artm_model_scores_to_str(artm_model)               
         if output_file_name != '':
             output_file = open(output_file_name, 'a')
             output_file.write(string)
@@ -41,15 +25,18 @@ class PrintHelper:
             output_file.write(string.encode('UTF-8'))
         else:
             print string
+    
+    def print_top_tokens_list(self, saved_top_tokens, output_file):
+        for topic_name, value in saved_top_tokens.iteritems():
+            self.print_unicode_list(topic_name, value, output_file)
 
-
-    def print_top_tokens(self, artm_model, output_file_name=''):
-        saved_top_tokens = artm_model.score_tracker['top_tokens_score'].last_tokens
+    def print_top_tokens(self, artm_model, output_file_name=''):          
         output_file = None
         if output_file_name != '':
             output_file = open(output_file_name, 'a')
-        for topic_name in artm_model.topic_names:
-            self.print_unicode_list(topic_name, saved_top_tokens[topic_name], output_file)
+        for name, score in sorted(artm_model.score_tracker.iteritems()):
+            if type(score) is artm.score_tracker.TopTokensScoreTracker:
+                self.print_top_tokens_list(score.last_tokens, output_file)
         if output_file != None:
             output_file.close()
 
@@ -58,17 +45,47 @@ class PrintHelper:
                     .format(model_name, artm_model.num_topics, artm_model.num_document_passes, artm_model.seed)
         if n_iterations != -1:
             str_model += ', n_iterations = {}'.format(n_iterations)
-        if artm_model.scores.data.has_key('top_tokens_score'):
-            str_model += ', n_top_tokens = {}'.format(artm_model.scores['top_tokens_score'].num_tokens)
-        if artm_model.scores.data.has_key('topic_kernel_score'):
-            str_model += ', p_threshold = {}'.format(artm_model.scores['topic_kernel_score'].probability_mass_threshold)
+        for score, val in sorted(artm_model.scores.data.iteritems()):
+            if type(val) is artm.scores.TopTokensScore:
+                str_model += ', {} = {}'.format(score, val.num_tokens)
+            if type(val) is artm.scores.TopicKernelScore:
+                str_model += ', {} = {}'.format(score, val.probability_mass_threshold)
         regularizers = ''
         for key in artm_model.regularizers.data.iterkeys():
             regularizers += '\n{}, tau = {}'.format(key, artm_model.regularizers.data[key].tau)
         str_model += regularizers + '\n'
         return str_model
+
+    def artm_model_last_scores_to_str(self, artm_model):
+        str_scores = ''
+        for name, score in sorted(artm_model.score_tracker.iteritems()):
+            if type(score) is artm.score_tracker.PerplexityScoreTracker or \
+                type(score) is artm.score_tracker.SparsityPhiScoreTracker or \
+                type(score) is artm.score_tracker.SparsityThetaScoreTracker: 
+                str_scores += 'last_{} = {}\n'.format(name, score.value[-1])
+            if type(score) is artm.score_tracker.TopicKernelScoreTracker:
+                str_scores += '{}: \n\t last_topic_kernel_avgsize = {}\n\tlast_topic_kernel_purity = {}\n\tlast_topic_kernel_contrast = {}\n'.format(
+                           name, 
+                           score.average_size[-1],
+                           score.average_purity[-1],
+                           score.average_contrast[-1])
+        return str_scores
     
-            
+    def artm_model_scores_to_str(self, artm_model):
+        str_scores = ''
+        for name, score in sorted(artm_model.score_tracker.iteritems()):
+            if type(score) is artm.score_tracker.PerplexityScoreTracker or \
+                type(score) is artm.score_tracker.SparsityPhiScoreTracker or \
+                type(score) is artm.score_tracker.SparsityThetaScoreTracker: 
+                str_scores += '{} = {}\n'.format(name, score.value)
+            if type(score) is artm.score_tracker.TopicKernelScoreTracker:
+                str_scores += '{}: \n\t last_topic_kernel_avgsize = {}\n\tlast_topic_kernel_purity = {}\n\tlast_topic_kernel_contrast = {}\n'.format(
+                           name, 
+                           score.average_size,
+                           score.average_purity,
+                           score.average_contrast)
+        return str_scores
+        
     def print_artm_model(self, artm_model, model_name, n_iterations=-1, output_file=None):
         str_model = self.artm_model_to_str(artm_model, model_name, n_iterations)
         if output_file != None:

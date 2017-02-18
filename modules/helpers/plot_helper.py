@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import artm 
 
 class PlotMaker:
     def __init__(self, show_plots=False):
@@ -31,7 +32,7 @@ class PlotMaker:
 
 
     def make_perplexity_sparsity_plot(self, perplexity_values, sparse_phi_values, sparse_theta_values=[],
-                                      model_name='', title='',
+                                      model_name='', title='', filename_ending='',
                                       start_iteration=0, end_iteration=-1):
         x_fig_size = 4
         y_fig_size = 2
@@ -66,10 +67,10 @@ class PlotMaker:
         if self.show_plots:
             plt.show()
         if model_name != '':
-            fig.savefig(model_name + '_pv', transparent=True, bbox_inches='tight', pad_inches=0)
+            fig.savefig(model_name + '_pv' + filename_ending, transparent=True, bbox_inches='tight', pad_inches=0)
             plt.close(fig)
 
-    def make_kernel_size_purity_contrast_plot(self, topic_kernel_score, model_name='', title='',
+    def make_kernel_size_purity_contrast_plot(self, topic_kernel_score, model_name='', title='', filename_ending = '',
                                               start_iteration=0, end_iteration=-1):
         x_fig_size = 4
         y_fig_size = 2
@@ -104,20 +105,25 @@ class PlotMaker:
         if self.show_plots:
             plt.show()
         if model_name != '':
-            fig.savefig(model_name + '_ksp', transparent=True, bbox_inches='tight', pad_inches=0)
+            fig.savefig(model_name + '_ksp' + filename_ending, transparent=True, bbox_inches='tight', pad_inches=0)
             plt.close(fig)
 
     def artm_model_to_str(self, artm_model, n_iterations=-1):
         str_model = 'n_topics = {}, n_doc_passes = {}, seed_value = {}'\
                     .format(artm_model.num_topics, artm_model.num_document_passes, artm_model.seed)
-        if artm_model.scores.data.has_key('topic_kernel_score'):
-            str_model += ', p_threshold = {}'.format(artm_model.scores['topic_kernel_score'].probability_mass_threshold)
+        if n_iterations != -1:
+            str_model += ', n_iterations = {}'.format(n_iterations)
+        for score, val in sorted(artm_model.scores.data.iteritems()):
+            if type(val) is artm.scores.TopTokensScore:
+                str_model += ', {} = {}'.format(score, val.num_tokens)
+            if type(val) is artm.scores.TopicKernelScore:
+                str_model += ', {} = {}'.format(score, val.probability_mass_threshold)
         regularizers = ''
         for key in artm_model.regularizers.data.iterkeys():
             regularizers += '\n{}, tau = {}'.format(key, artm_model.regularizers.data[key].tau)
         str_model += regularizers + '\n'
         return str_model
-
+    
     def make_tm_plots(self, artm_model, model_name=''):
         title_str = self.artm_model_to_str(artm_model)
         self.make_perplexity_sparsity_plot(artm_model.score_tracker['perplexity_score'].value,
@@ -127,4 +133,25 @@ class PlotMaker:
                                       model_name=model_name)
         self.make_kernel_size_purity_contrast_plot(artm_model.score_tracker['topic_kernel_score'],
                                                    title=title_str,
+                                                   model_name=model_name)
+    
+    def make_tm_plots_complex(self, artm_model, model_name=''):
+        title_str = self.artm_model_to_str(artm_model)
+        # common topics
+        self.make_perplexity_sparsity_plot(artm_model.score_tracker['perplexity_score_common'].value,
+                                      artm_model.score_tracker['ss_phi_score_common'].value,
+                                      artm_model.score_tracker['ss_theta_score_common'].value,
+                                      title=title_str, filename_ending = '_common',
+                                      model_name=model_name)
+        self.make_kernel_size_purity_contrast_plot(artm_model.score_tracker['topic_kernel_score_common'],
+                                                   title=title_str, filename_ending = '_common',
+                                                   model_name=model_name)
+        # subject topics
+        self.make_perplexity_sparsity_plot(artm_model.score_tracker['perplexity_score_subject'].value,
+                                      artm_model.score_tracker['ss_phi_score_subject'].value,
+                                      artm_model.score_tracker['ss_theta_score_subject'].value,
+                                      title=title_str, filename_ending = '_subject',
+                                      model_name=model_name)
+        self.make_kernel_size_purity_contrast_plot(artm_model.score_tracker['topic_kernel_score_subject'],
+                                                   title=title_str, filename_ending = '_subject',
                                                    model_name=model_name)
