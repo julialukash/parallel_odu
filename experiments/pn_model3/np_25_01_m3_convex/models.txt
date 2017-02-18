@@ -1,6 +1,0 @@
-name = model_20_m1, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
-name = model_100_m3, n_topics = 100, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
-name = model_20_m14, n_topics = 20, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
-ss_theta_regularizer, tau = -5
-decorrelator_phi_regularizer, tau = 300
-ss_phi_regularizer, tau = -20
