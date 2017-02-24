@@ -1,4 +1,0 @@
-Log file created at: 2017/02/18 15:44:52
-Running on machine: SHELDONPC
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-I0218 15:44:52.412744  8244 c_interface.cc:74] Logging enabled to .
