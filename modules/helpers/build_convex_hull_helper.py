@@ -8,6 +8,82 @@ from datetime import datetime
 from scipy.optimize import minimize
 from os import path, mkdir
 
+
+
+EPS = 1e-30
+INF = 1e+10
+PERPLEXITY_EPS = 1.0
+
+import time
+import numpy.matlib as npm
+
+def __init_matrix(height, width):
+    result = np.random.rand(height, width)
+    return result / np.sum(result, 0)
+
+def count_perplexity(n_dw, Phi, Theta):
+    value = 0.0
+    for w in xrange(n_dw.shape[0]):
+        p_wd = np.dot(Phi[w, :], Theta)
+        value += np.sum(np.multiply(n_dw[w, :], np.nan_to_num(np.log(p_wd))))
+    return np.exp(-1.0 / np.sum(np.sum(n_dw)) * value)
+
+def plsa_em_vectorized_fixed_phi(n_dw, num_topics, Phi_init, max_iter=25, Theta_init=None, avoid_print=False):
+    num_tokens, num_docs = n_dw.shape
+    Phi = Phi_init
+    Theta = Theta_init if not Theta_init is None else __init_matrix(num_topics, num_docs)
+
+    old_perplexity_value = INF
+
+    for i in xrange(max_iter):
+        time_start = time.time()
+        n_wt = np.zeros([num_tokens, num_topics]);
+        Theta_new = np.copy(Theta)
+        Z = np.dot(Phi, Theta)
+        Z[Z == 0.0] = INF
+        n_d = np.sum(n_dw, 0)
+        n_d[n_d == 0.0] = INF
+        Theta_new = np.divide(np.multiply(Theta, np.dot(np.transpose(Phi), np.divide(n_dw, Z))), npm.repmat(n_d, num_topics, 1))
+        Theta = Theta_new
+
+        perplexity_value = count_perplexity(n_dw, Phi, Theta)
+        if not avoid_print:
+            print 'Iter# {}, perplexity value: {}, elapsed time: {}'.format(i, perplexity_value,
+                                                                            time.time() - time_start)
+        if abs(perplexity_value - old_perplexity_value) < PERPLEXITY_EPS or i == (max_iter - 1):
+            return Phi, Theta
+        else:
+            old_perplexity_value = perplexity_value
+
+def get_em_result(dist_fn, jac_dist_fn, phi, phi_other, distances, n_closest_topics,  _debug_print=False):
+# def get_em_result(dist_fn, phi, phi_other, _debug_print=False):
+    phi_1, x_values = plsa_em_vectorized_fixed_phi(phi.values, num_topics=phi_other.shape[1], max_iter=40,
+                                                  Phi_init=phi_other.values, Theta_init=None, avoid_print=True)
+    X_restated = phi_other.values.dot(x_values)
+    if _debug_print: # or not np.all(abs(X_restated - phi) < 1e-2):
+        print 'phi close {}, is nan {}, restated close {}, restated diff = {} '.format(np.all(abs(phi_1 - phi_other) < 1e-4), 
+                                            np.any(np.isnan(x_values)), 
+                                            np.all(abs(X_restated - phi) < 1e-2), \
+                                            np.sum(np.sum(abs(X_restated - phi))))
+    res = {col: {'optimized_column': col, 'column_names': phi_other.columns,
+                 'fun': dist_fn(phi[col], phi_other.dot(x_values[:, idx])), 
+                 'x': x_values[:, idx]} for idx, col in enumerate(phi.columns)}
+    return res
+
+#def get_em_result_one_matrix(dist_fn, phi, _debug_print=False):
+def get_em_result_one_matrix(dist_fn, jac_dist_fn, phi, distances, n_closest_topics, _debug_print=False):
+    opt_results = {}
+    for col_idx, col_name in enumerate(phi.columns):
+        if _debug_print and col_idx % 20 == 0:
+            print '[{}] get_optimization_result for column {} / {}'.format(datetime.now(), col_idx, len(phi.columns))
+        column = phi[col_name].to_frame()
+        # delete col from phi
+        phi_cut = phi.drop(col_name, axis=1)
+        opt_results[col_name] = get_em_result(dist_fn, jac_dist_fn, column, phi_cut, distances, n_closest_topics,
+                                              _debug_print).values()[0]
+    return opt_results
+
+
 def calculate_distances(dist_fun, _phi, _phi_other, _debug_print=False):
     if _debug_print:
         print '[{}] take_distances between {} columns and {} columns'.format(datetime.now(), len(_phi.columns), len(_phi_other.columns))
@@ -42,7 +118,9 @@ def get_optimization_result(dist_fn, jac_dist_fn, phi, phi_other, distances, n_c
                                                            n_closest_topics)
     return opt_results
 
-def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, distances, n_closest_topics, max_iter=7, verbose=False):
+
+def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, distances, n_closest_topics, max_iter=25, 
+                               max_runs_count = 7, verbose=False):
     max_iter = 50
     phi_columns = phi.columns
     # cut distances by phi columns 
@@ -60,7 +138,7 @@ def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, d
     
     is_optimized = False
     it = 0
-    while (not is_optimized) and it != max_iter:
+    while (not is_optimized) and it != max_runs_count:
         it += 1
         init_x = np.random.uniform(0, 1, (1, n_columns))
         init_x /= np.sum(init_x)
@@ -78,16 +156,15 @@ def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, d
     return res
 
 
-
-
-def filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn, n_closest_topics_count, opt_fun_threshold, max_iteration):
-    distances_model_iter = calculate_distances(dh.hellinger_dist, phi_convex_hull, phi_convex_hull)
+def filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn, dist_fn, get_result_one_matrix_fn,
+                       n_closest_topics_count, opt_fun_threshold, max_iteration):
+    distances_model_iter = calculate_distances(dist_fn, phi_convex_hull, phi_convex_hull)
     iterations_info = []
     for n_iteration in range(max_iteration):
         print('[{}] filtering iteration = {} / {}'.format(datetime.now(), n_iteration + 1, max_iteration))
         # get new opts results
-        opt_res_convex_hull_inter = get_optimization_result_one_matrix(dh.hellinger_dist, None, 
-                                                                       phi_convex_hull, distances_model_iter, n_closest_topics_count)
+        opt_res_convex_hull_inter = get_result_one_matrix_fn(dist_fn, None, 
+                                                             phi_convex_hull, distances_model_iter, n_closest_topics_count)
         # get topics to remove
         topics_to_remove, not_removed_topics_count = get_topics_to_remove_fn(opt_res_convex_hull_inter, distances_model_iter, 
                                                                              n_closest_topics_count, opt_fun_threshold)
@@ -108,8 +185,9 @@ def filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn, n_closest_topic
             break
     return phi_convex_hull, iterations_info
 
-def build_convex_hull_with_filtering(create_model_fn, get_topics_to_remove_fn, words,
-                                     init_convex_hull, start_iteration, n_closest_topics_count, opt_fun_threshold,
+def build_convex_hull_with_filtering(create_model_fn, get_topics_to_remove_fn, dist_fn, get_result_one_matrix_fn, 
+                                     words, init_convex_hull, 
+                                     start_iteration, n_closest_topics_count, opt_fun_threshold,
                                      max_iteration):
     # init phi of convex hull
     phi_convex_hull = init_convex_hull
@@ -126,8 +204,9 @@ def build_convex_hull_with_filtering(create_model_fn, get_topics_to_remove_fn, w
         # add to convex hull
         phi_convex_hull_expanded = pd.concat([phi_convex_hull, phi], axis=1)
         # filter topics 
-        phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull_expanded, get_topics_to_remove_fn,
-                                                                     n_closest_topics_count, opt_fun_threshold, max_iteration=35)
+        phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull_expanded, get_topics_to_remove_fn, dist_fn, 
+                                                                     get_result_one_matrix_fn,
+                                                                     n_closest_topics_count, opt_fun_threshold, max_iteration=50)
         iterations_info.append({'it': n_iteration,
                                 'phi_convex_hull_shape': phi_convex_hull.shape,
                                 'phi_convex_hull_columns': phi_convex_hull.columns,
@@ -138,8 +217,9 @@ def build_convex_hull_with_filtering(create_model_fn, get_topics_to_remove_fn, w
                iterations_info[-1]['phi_convex_hull_shape']))
     return phi_convex_hull, iterations_info, []
 
-def build_convex_hull_with_filtering_keep_topics(create_model_fn, get_topics_to_remove_fn, words,
-                                                 init_convex_hull, start_iteration, n_closest_topics_count,
+def build_convex_hull_with_filtering_keep_topics(create_model_fn, get_topics_to_remove_fn, dist_fn, get_result_one_matrix_fn, 
+                                                 words, init_convex_hull, 
+                                                 start_iteration, n_closest_topics_count,
                                                  opt_fun_threshold, max_iteration):
     # init phi of convex hull
     phi_convex_hull = init_convex_hull
@@ -159,7 +239,8 @@ def build_convex_hull_with_filtering_keep_topics(create_model_fn, get_topics_to_
         # add to convex hull
         phi_convex_hull_expanded = pd.concat([phi_convex_hull_expanded, phi], axis=1)
         # filter topics 
-        phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull_expanded, get_topics_to_remove_fn,
+        phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull_expanded, get_topics_to_remove_fn, dist_fn,
+                                                                     get_result_one_matrix_fn,
                                                                      n_closest_topics_count, opt_fun_threshold, max_iteration=50)
         iterations_info.append({'it': n_iteration,
                                 'phi_convex_hull_shape': phi_convex_hull.shape,
@@ -171,8 +252,8 @@ def build_convex_hull_with_filtering_keep_topics(create_model_fn, get_topics_to_
                iterations_info[-1]['phi_convex_hull_shape']))
     return phi_convex_hull, iterations_info, []
 
-def build_convex_hull_delayed_filtering(create_model_fn, get_topics_to_remove_fn, words,
-                                        init_convex_hull, start_iteration, n_closest_topics_count,
+def build_convex_hull_delayed_filtering(create_model_fn, get_topics_to_remove_fn, dist_fn, get_result_one_matrix_fn, 
+                                        words, init_convex_hull, start_iteration, n_closest_topics_count,
                                         opt_fun_threshold, max_iteration, filtering_iteration):
     # init phi of convex hull
     phi_convex_hull = init_convex_hull
@@ -194,7 +275,8 @@ def build_convex_hull_delayed_filtering(create_model_fn, get_topics_to_remove_fn
         print('[{}] current convex_hull shape = {}'.format(datetime.now(), 
                iterations_info[-1]['phi_convex_hull_shape']))
         if ((n_iteration + 1) % filtering_iteration == 0) or (n_iteration + 1 == start_iteration + max_iteration): 
-            phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn,
+            phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn, dist_fn,
+                                                                         get_result_one_matrix_fn,
                                                                          n_closest_topics_count, opt_fun_threshold,
                                                                          max_iteration=150)
             iterations_info_filter_list.append(iterations_info_filter)
@@ -208,7 +290,7 @@ def get_topics_to_remove_by_opt_fun_and_distance(opt_res, distances, n_closest, 
     topics_to_remove = []
     not_removed_count = 0 
     for opt_res in sorted_by_fun:
-        topic_name = opt_res.optimized_column
+        topic_name = opt_res['optimized_column']
         # check not close to current topics to remove
         is_close_fn = lambda topic, other_topic: other_topic in distances[topic].sort_values().head(n_closest).index
         is_close_to_topics_to_remove = [is_close_fn(topic_name, t) for t in topics_to_remove]
