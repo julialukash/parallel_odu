@@ -55,23 +55,34 @@ def plsa_em_vectorized_fixed_phi(n_dw, num_topics, Phi_init, max_iter=25, Theta_
         else:
             old_perplexity_value = perplexity_value
 
-def get_em_result(dist_fn, jac_dist_fn, phi, phi_other, distances, n_closest_topics,  _debug_print=False):
+def get_em_result(dist_fn, jac_dist_fn, phi, phi_other, distances, previous_opt_result, 
+                  n_closest_topics, _debug_print=False):
 # def get_em_result(dist_fn, phi, phi_other, _debug_print=False):
-    phi_1, x_values = plsa_em_vectorized_fixed_phi(phi.values, num_topics=phi_other.shape[1], max_iter=40,
-                                                  Phi_init=phi_other.values, Theta_init=None, avoid_print=True)
-    X_restated = phi_other.values.dot(x_values)
+    phi_other_columns = phi_other.columns
+    # cut distances by phi columns 
+    cut_distances = distances[phi_other_columns]
+    # get n closest topics
+    closest_column_names = cut_distances.loc[column_name].sort_values().head(n_closest_topics).index.values
+    res = extract_previous_opt_result(previous_opt_result, column_name, closest_column_names)
+    if res != None:
+        return res
+    phi_closest = phi_other[closest_column_names]
+    phi_1, x_values = plsa_em_vectorized_fixed_phi(phi.values, num_topics=phi_closest.shape[1], max_iter=40,
+                                                   Phi_init=phi_closest.values, Theta_init=None, avoid_print=True)
+    X_restated = phi_closest.values.dot(x_values)
     if _debug_print: # or not np.all(abs(X_restated - phi) < 1e-2):
-        print 'phi close {}, is nan {}, restated close {}, restated diff = {} '.format(np.all(abs(phi_1 - phi_other) < 1e-4), 
+        print 'phi close {}, is nan {}, restated close {}, restated diff = {} '.format(np.all(abs(phi_1 - phi_closest) < 1e-4), 
                                             np.any(np.isnan(x_values)), 
                                             np.all(abs(X_restated - phi) < 1e-2), \
                                             np.sum(np.sum(abs(X_restated - phi))))
-    res = {col: {'optimized_column': col, 'column_names': phi_other.columns,
-                 'fun': dist_fn(phi[col], phi_other.dot(x_values[:, idx])), 
+    res = {col: {'optimized_column': col, 'column_names': phi_closest.columns,
+                 'fun': dist_fn(phi[col], phi_closest.dot(x_values[:, idx])), 
                  'x': x_values[:, idx]} for idx, col in enumerate(phi.columns)}
     return res
 
 #def get_em_result_one_matrix(dist_fn, phi, _debug_print=False):
-def get_em_result_one_matrix(dist_fn, jac_dist_fn, phi, distances, n_closest_topics, _debug_print=False):
+def get_em_result_one_matrix(dist_fn, jac_dist_fn, phi, distances, 
+                             previous_opt_result, n_closest_topics, _debug_print=False):
     opt_results = {}
     for col_idx, col_name in enumerate(phi.columns):
         if _debug_print and col_idx % 20 == 0:
@@ -96,7 +107,8 @@ def calculate_distances(dist_fun, _phi, _phi_other, _debug_print=False):
             distances.iloc[idx, idx_other] = distance
     return distances
 
-def get_optimization_result_one_matrix(dist_fn, jac_dist_fn, phi, distances, n_closest_topics, _debug_print=False):
+def get_optimization_result_one_matrix(dist_fn, jac_dist_fn, phi, distances,
+                                       previous_opt_result, n_closest_topics, _debug_print=False):
     opt_results = {}
     for col_idx, col_name in enumerate(phi.columns):
         if _debug_print and col_idx % 20 == 0:
@@ -105,28 +117,43 @@ def get_optimization_result_one_matrix(dist_fn, jac_dist_fn, phi, distances, n_c
         # delete col from phi
         phi_cut = phi.drop(col_name, axis=1)
         opt_results[col_name] = solve_optimization_problem(dist_fn, jac_dist_fn, column, col_name, phi_cut, distances, 
-                                                           n_closest_topics)
+                                                           previous_opt_result, n_closest_topics)
     return opt_results
 
-def get_optimization_result(dist_fn, jac_dist_fn, phi, phi_other, distances, n_closest_topics,  _debug_print=False):
+def get_optimization_result(dist_fn, jac_dist_fn, phi, phi_other, distances, n_closest_topics, 
+                            previous_opt_result=[], _debug_print=False):
     opt_results = {}
     for col_idx, col_name in enumerate(phi.columns):
         if _debug_print and col_idx % 20 == 0:
             print '[{}] get_optimization_result for column {} / {}'.format(datetime.now(), col_idx, len(phi.columns))        
         column = phi[col_name]
         opt_results[col_name] = solve_optimization_problem(dist_fn, jac_dist_fn, column, col_name, phi_other, distances,
+                                                           previous_opt_result,
                                                            n_closest_topics)
     return opt_results
 
+def extract_previous_opt_result(previous_opt_result, column, closest_column_names):
+    res = None
+    if len(previous_opt_result) == 0:
+        return res
+    closest_column_names = set(closest_column_names)
+    # previous_opt_result - list of dict-opts from filter one matrix     
+    previous_opt_result = [dic[column] for dic in previous_opt_result if column in dic.keys() and set(dic[column]['column_names']) == closest_column_names]
+    if len(previous_opt_result):
+        res = previous_opt_result[0]
+    return res
 
-def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, distances, n_closest_topics, max_iter=25, 
-                               max_runs_count = 7, verbose=False):
-    max_iter = 50
+def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, distances, 
+                               previous_opt_result,
+                               n_closest_topics, max_iter=50, max_runs_count=7, verbose=False):
     phi_columns = phi.columns
     # cut distances by phi columns 
     cut_distances = distances[phi_columns]
     # get n closest topics
     closest_column_names = cut_distances.loc[column_name].sort_values().head(n_closest_topics).index.values
+    res = extract_previous_opt_result(previous_opt_result, column_name, closest_column_names)
+    if res != None:
+        return res
     phi_closest = phi[closest_column_names]
     
     # opt solver
@@ -157,14 +184,23 @@ def solve_optimization_problem(dist_fn, jac_dist_fn, column, column_name, phi, d
 
 
 def filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn, dist_fn, get_result_one_matrix_fn,
-                       n_closest_topics_count, opt_fun_threshold, max_iteration):
+                       n_closest_topics_count, opt_fun_threshold, max_iteration, 
+                       previous_iterations_info_list=[], use_previous_iterations=False):
+    if use_previous_iterations:
+        previous_runs_opt_res = [val['opt_res'] for tmp in previous_iterations_info_list for val in tmp['iterations_info_filter']]    
+    else:
+        previous_runs_opt_res = []
     distances_model_iter = calculate_distances(dist_fn, phi_convex_hull, phi_convex_hull)
     iterations_info = []
     for n_iteration in range(max_iteration):
         print('[{}] filtering iteration = {} / {}'.format(datetime.now(), n_iteration + 1, max_iteration))
         # get new opts results
+        if len(iterations_info) and use_previous_iterations:
+            previous_runs_opt_res.append(iterations_info[-1]['opt_res'])
         opt_res_convex_hull_inter = get_result_one_matrix_fn(dist_fn, None, 
-                                                             phi_convex_hull, distances_model_iter, n_closest_topics_count)
+                                                             phi_convex_hull, distances_model_iter,
+                                                             previous_runs_opt_res,
+                                                             n_closest_topics_count)
         # get topics to remove
         topics_to_remove, not_removed_topics_count = get_topics_to_remove_fn(opt_res_convex_hull_inter, distances_model_iter, 
                                                                              n_closest_topics_count, opt_fun_threshold)
@@ -188,7 +224,7 @@ def filter_convex_hull(phi_convex_hull, get_topics_to_remove_fn, dist_fn, get_re
 def build_convex_hull_with_filtering(create_model_fn, get_topics_to_remove_fn, dist_fn, get_result_one_matrix_fn, 
                                      words, init_convex_hull, 
                                      start_iteration, n_closest_topics_count, opt_fun_threshold,
-                                     max_iteration):
+                                     max_iteration, use_previous_iterations):
     # init phi of convex hull
     phi_convex_hull = init_convex_hull
     if len(phi_convex_hull) == 0:
@@ -206,7 +242,9 @@ def build_convex_hull_with_filtering(create_model_fn, get_topics_to_remove_fn, d
         # filter topics 
         phi_convex_hull, iterations_info_filter = filter_convex_hull(phi_convex_hull_expanded, get_topics_to_remove_fn, dist_fn, 
                                                                      get_result_one_matrix_fn,
-                                                                     n_closest_topics_count, opt_fun_threshold, max_iteration=50)
+                                                                     n_closest_topics_count, opt_fun_threshold, max_iteration=50,
+                                                                     previous_iterations_info_list=iterations_info,
+                                                                     use_previous_iterations=use_previous_iterations)
         iterations_info.append({'it': n_iteration,
                                 'phi_convex_hull_shape': phi_convex_hull.shape,
                                 'phi_convex_hull_columns': phi_convex_hull.columns,
