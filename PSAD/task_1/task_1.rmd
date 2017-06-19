@@ -1,0 +1,128 @@
+---
+title: "Статистический анализ данных (задание 1)."
+subtitle: "Критерий Фишера для проверки равенства дисперсий, нарушение предположения о нормальности."
+author: "Юлия Лукашкина, 417 группа"
+output: html_document
+---
+Требуется исследовать поведение указанного критерия в условиях нарушения лежащих в его основе предположений. Оценить мощность и достигаемый уровень значимости критерия при различных значениях параметров, сделать выводы об устойчивости.
+
+Генерация данных:
+Ниже под обозначением $X^n$, $X_i \sim p\cdot N(\mu,\sigma^2)+ \left(1-p\right)\cdot F$ понимается выборка объёма $n$ из смеси нормального распределения $N(\mu,\sigma^2)$ и распределения $F$ с весами $p$ и $1-p$ соответственно (при генерации каждой выборки используется случайный датчик — если его значение не превосходит $p$, то добавляем в выборку элемент, взятый из нормального распределения, иначе — элемент, взятый из распределения $F$).
+
+\[X_1^{n_1}, \;\; X_{1} \sim p_1\cdot N(0,\sigma_1^2)+ \left(1-p_1\right)\cdot F_1,\]
+\[X_2^{n_2},\;\; X_{2} \sim p_2\cdot N(0,\sigma_2^2)+ \left(1-p_2\right)\cdot F_2;\]
+\[F_1 = U\left[-\frac1{\sqrt{3}}, \frac1{\sqrt{3}}\right],\]
+\[F_2 = U\left[-\frac{\sigma}{\sqrt{3}}, \frac{\sigma}{\sqrt{3}}\right]\]
+Установим необходимые параметры эксперимента и создадим нужные переменные для сохранения достигаемых уровней значимости и оценок мощностей при различных значениях параметров:
+
+```{r}
+sigmas        <- seq(0.2, 2, by = 0.01)
+n_sample      <- 50
+probabilities <- seq(0, 1, by = 0.01)
+N             <- length(probabilities)
+M             <- length(sigmas)
+grid          <- expand.grid(x = probabilities, y = sigmas)
+n_iterations  <- 1
+PV_F          <- matrix(rep(0, N * M), nrow = N, ncol = M)
+```
+
+Запустим алгоритм, который позволит вычислить все необходимые значения:
+
+```{r}
+for (iter in 1 : n_iterations) {
+    for (i in 1 : N) {
+      p = probabilities[i]
+      for (j in 1 : M) {
+        sigma <- sigmas[j]
+        X1    <- rnorm(n_sample, mean = 0, sd = 1)
+        TMP   <- runif(n_sample)
+        uniform_dist <- runif(n_sample, min = -1 / sqrt(3), max = 1 / sqrt(3))
+        X1[TMP > p]  <- uniform_dist[TMP > p]      
+        
+        X2  <- rnorm(n_sample, mean = 0, sd = sigma)
+        TMP <- runif(n_sample)
+        uniform_dist <- runif(n_sample, min = -sigma / sqrt(3), max = sigma / sqrt(3))
+        X2[TMP > p]  <- uniform_dist[TMP > p]
+        PV_F[i, j]   <- var.test(X1, X2)$p.value
+      }
+    }
+}
+PV_F <- matrix(PV_F / n_iterations, nrow = N, ncol = M)
+```
+
+```{r, message=F, warning=F}
+library(fields)
+image.plot(matrix(grid$x, nrow=N, ncol=M), matrix(grid$y, nrow=N, ncol=M), PV_F, 
+           col = colorRampPalette(c("blue", "cyan", "yellow", "red"))(1024), 
+           main="Fisher Test p-values", xlab=expression(p), ylab=expression(sigma))
+```
+
+
+Однократная генерация пары выборок не позволяет точно оценить границы области, где нулевая гипотеза отклоняется, поэтому необходимо усреднение по большому числу экспериментов. Возьмём 1000 повторений:
+           
+```{r}           
+n_iterations  <- 1000
+PV_F          <- matrix(rep(0, N * M), nrow = N, ncol = M)
+Pow_F         <- matrix(rep(0, N * M), nrow = N, ncol = M)
+
+for (iter in 1 : n_iterations) {
+    for (i in 1 : N) {
+      p = probabilities[i]
+      for (j in 1 : M) {
+        sigma <- sigmas[j]
+        X1    <- rnorm(n_sample, mean = 0, sd = 1)
+        TMP   <- runif(n_sample)
+        uniform_dist <- runif(n_sample, min = -1 / sqrt(3), max = 1 / sqrt(3))
+        X1[TMP > p]  <- uniform_dist[TMP > p]      
+        
+        X2  <- rnorm(n_sample, mean = 0, sd = sigma)
+        TMP <- runif(n_sample)
+        uniform_dist <- runif(n_sample, min = -sigma / sqrt(3), max = sigma / sqrt(3))
+        X2[TMP > p]  <- uniform_dist[TMP > p]
+        TMP          <- var.test(X1, X2)$p.value
+        PV_F[i, j]   <- PV_F[i, j] + TMP
+        Pow_F[i, j]  <- Pow_F[i, j] + (TMP <= 0.05)
+      }
+    }
+}
+PV_F   <- matrix(PV_F  / n_iterations, nrow = N, ncol = M)
+Pow_F  <- matrix(Pow_F / n_iterations, nrow = N, ncol = M)
+```
+
+Посмотрим сначала на средние достигаемые уровни значимости и мощности критериев при $p = 1$, когда обе выборки $X1,\;X2$ из нормальных распределений:
+
+```{r}
+par(mfrow=c(1,2))
+plot(sigmas, PV_F[101,], col="red", type="l", xlab=expression(sigma), ylab="Average p-value", main="")
+lines(sigmas, rep(0.05, M), col="green")
+plot(sigmas, Pow_F[101,], col="blue", type="l", xlab=expression(sigma), ylab="Estimated power", main="")
+``` 
+
+При $\sigma \to 1.0$ мы наблюдаем высокие  достигаемые уровни значимости, p-value $> 0.05$ при $\sigma_2 \in [0.7, 1.5]$. При $n = 50$ мощность критерия Фишера достигает 80%, если отношение большей дисперсии к меньшей равно примерно 1.5, и 100%, если это отношение около 2. 
+
+Средние достигаемые уровни значимости и оценки мощности критериев при различных значениях параметров $p$ и $\sigma$:
+
+```{r}
+par(mfrow=c(1,2))
+image.plot(matrix(grid$x, nrow=N, ncol=M), matrix(grid$y, nrow=N, ncol=M), PV_F, 
+           col = colorRampPalette(c("blue", "cyan", "yellow", "red"))(1024), 
+           main="Fisher Test p-values", xlab=expression(p), ylab=expression(sigma))
+
+image.plot(matrix(grid$x, nrow=N, ncol=M), matrix(grid$y, nrow=N, ncol=M), Pow_F, 
+           col = colorRampPalette(c("blue", "cyan", "yellow", "red"))(1024), 
+           main="Fisher Test power", xlab=expression(p), ylab=expression(sigma))
+```
+
+Видно, что нарушение предположения о нормальности существенно влияет на критерий Фишера. При $p \to 1$ средние достигаемые уровни значимости  начинают расти.
+
+Чтобы оценить корректность критерия, посмотрим отдельно, как часто гипотеза о равенстве дисперсий отвергается при $\sigma = 1$ (то есть, на частоту ошибок первого рода) при различных $p$.
+
+```{r}
+sigma <- 1 
+index <- which(sigmas == sigma)
+T1_F  <- Pow_F[, index]
+par(mfrow=c(1,1))
+plot(probabilities, T1_F, col="red", type="l", xlab=expression(p), ylab="Type I error frequency", main="")
+```
+
+Видно, что критерий Фишера чувствителен к нормальности выборки, при $p \to 1$ частота ошибок первого рода критерия Фишера стремится к уровню значимости 0.05, как и должно быть в случаях, когда критерий корректен. При $p \to 0$ (случай сравнения дисперсий двух равномерных распределений) частота ошибок первого рода падает до нуля. Это нежелательное поведение; при построении критерия мы хотим, чтобы вероятность ошибки первого рода была как можно ближе к уровню значимости.
