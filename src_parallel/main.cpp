@@ -13,7 +13,6 @@ const double xMaxBoundary = 2;
 const double yMinBoundary = 0;
 const double yMaxBoundary = 2;
 
-//#define DEBUG_MAIN
 #define Print
 
 void WriteValues(const char* filename, const DoubleMatrix& values)
@@ -100,16 +99,6 @@ int main(int argc, char *argv[])
 
     ProcessorsData* processorInfoPtr = CreateProcessorData(processorsCount, N0, N1, power);
 
-#ifdef DEBUG_MAIN
-    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-    char fileName[25];
-    sprintf(fileName, "out/out_%dx%d_%d__rank%d.txt", N0 - 1, N1 - 1,
-            processorInfoPtr->processorsCount, processorInfoPtr->rank);
-
-    std::ofstream out(fileName);
-    std::cout.rdbuf(out.rdbuf());
-#endif
-
     NetModel netModel = NetModel(xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary, N0, N1);
     netModel.InitModel(processorInfoPtr->FirstRowIndex(), processorInfoPtr->LastRowIndex(),
                        processorInfoPtr->FirstColIndex(), processorInfoPtr->LastColIndex());
@@ -146,9 +135,6 @@ int main(int argc, char *argv[])
     DoubleMatrix* uValues = optimizationAlgo.CalculateU();
     DoubleMatrix* uValuesApproximate = optimizationAlgo.Process(&globalError, *uValues);
 
-#ifdef DEBUG_MAIN
-    std::cout << "Process finished, global error = " << globalError << std::endl;   
-#endif
     char outFileName[35];
     sprintf(outFileName, "../output/true/u_%dx%d_%d__rank%d.txt", N0 - 1, N1 - 1,
             processorInfoPtr->processorsCount, processorInfoPtr->rank);
@@ -160,10 +146,7 @@ int main(int argc, char *argv[])
 
     delete uValues;
     delete uValuesApproximate;
-#ifdef DEBUG_MAIN
-    std::cout.rdbuf(coutbuf); //reset to standard output again
-    out.close();
-#endif
+
     if (processorInfoPtr->IsMainProcessor())
     {
         finishTime = MPI_Wtime();

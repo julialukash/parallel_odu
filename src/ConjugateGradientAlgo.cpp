@@ -157,13 +157,6 @@ DoubleMatrix ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
             {
                 residuals(i, j) = laplassP(i, j) - diffModel->CalculateFunctionValue(netModel->xValue(i), netModel->yValue(j));
             }
-
-//#ifdef DEBUG_MODE
-//        std::cout << "i = " << i << ", j = " << j << " " << netModel->IsInnerPoint(i, j)
-//                  << ", laplassP(i, j) = " << laplassP(i, j)
-//                  << ", value = " << diffModel->CalculateFunctionValue(netModel->xValue(j), netModel->yValue(i))
-//                  << ", residuals(i, j) = " << residuals(i, j) << std::endl;
-//#endif
         }
     }
 
