@@ -1,0 +1,53 @@
+name = model_no_reg_500, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 25, n_top_tokens = 15, p_threshold = 0.25
+name = model_decor_1, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 0.1
+name = model_decor_2, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 10
+name = model_decor_3, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 100
+name = model_decor_4, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 1000
+name = model_decor_5, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+decorrelator_phi_regularizer, tau = 10000
+name = model_sst_1, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.1
+name = model_sst_2, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.5
+name = model_sst_3, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -1
+name = model_ssphi_1, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_phi_regularizer, tau = -0.0001
+name = model_ssphi_2, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_phi_regularizer, tau = -0.01
+name = model_ssphi_3, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_phi_regularizer, tau = -0.1
+name = model_ssphi_4, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_phi_regularizer, tau = 0.1
+name = model_ssphi_5, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_phi_regularizer, tau = 0.5
+name = model_decor_sst_1, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 1000
+name = model_decor_sst_2, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 100
+name = model_decor_sst_ssphi_1, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 100
+ss_phi_regularizer, tau = -0.01
+name = model_decor_sst_ssphi_2, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 1000
+ss_phi_regularizer, tau = -0.01
+name = model_decor_sst_ssphi_3, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.5
+decorrelator_phi_regularizer, tau = 1000
+ss_phi_regularizer, tau = -0.1
+name = model_decor_sst_ssphi_4, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.1
+decorrelator_phi_regularizer, tau = 1000
+ss_phi_regularizer, tau = -0.05
+name = model_decor_sst_ssphi_5, n_topics = 500, n_doc_passes = 5, seed_value = 100, n_iterations = 20, n_top_tokens = 15, p_threshold = 0.25
+ss_theta_regularizer, tau = -0.1
+decorrelator_phi_regularizer, tau = 100
+ss_phi_regularizer, tau = -0.05

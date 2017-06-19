@@ -1,0 +1,7 @@
+/.idea/
+*.pyc
+notebooks/.ipynb_checkpoints
+
+/experiments_work/
+*.7z
+/np_*/
