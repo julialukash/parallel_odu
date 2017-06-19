@@ -6,7 +6,7 @@
 #include "interface.h"
 #include "processors_data.h"
 
-//#define DEBUG_MODE = 1
+#define PARALLEL_O
 
 class ApproximateOperations
 {
@@ -20,15 +20,11 @@ public:
     }
 
     // note: calculates -laplass(currentValues)
-    std::shared_ptr<DoubleMatrix> CalculateLaplass(const DoubleMatrix& currentValues) const
-    {        
-#ifdef DEBUG_MODE
-        std::cout <<"ApproximateOperations.CalculateLaplass currentValues = \n" << currentValues << std::endl;
-        std::cout <<"ApproximateOperations.CalculateLaplass startIndex = " << startIndex << ", endIndex = " << endIndex << std::endl;
-#endif
-        auto laplassValues = std::make_shared<DoubleMatrix>(processorData.RowsCountWithBorders(), processorData.ColsCountWithBorders());
-#ifdef DEBUG_MODE
-        std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
+    DoubleMatrix* CalculateLaplass(const DoubleMatrix& currentValues) const
+    {
+        DoubleMatrix* laplassValues = new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCountWithBorders());
+#ifdef PARALLEL_O
+        #pragma omp parallel for
 #endif
         for (int i = processorData.FirstInnerRowRelativeIndex(); i <= processorData.LastInnerRowRelativeIndex(); ++i)
         {
@@ -39,33 +35,25 @@ public:
                 double yPart = (currentValues(i, j) - currentValues(i - 1, j)) / netModel.yStep(i - 1) -
                              (currentValues(i + 1, j) - currentValues(i, j)) / netModel.yStep(i);
                 (*laplassValues)(i, j) = xPart / netModel.xAverageStep(j) + yPart / netModel.yAverageStep(i);
-#ifdef DEBUG_MODE
-                std::cout <<"ApproximateOperations.CalculateLaplass i = " << i << ", iNetIndex = " << iNetIndex << ", j = " << j << ", value = " << laplassValues(i, j) << std::endl;
-#endif
             }
         }
-#ifdef DEBUG_MODE
-        std::cout <<"ApproximateOperations.CalculateLaplass laplassValues = \n" << laplassValues << std::endl;
-#endif
         return laplassValues;
     }
 
     double ScalarProduct(const DoubleMatrix& currentValues, const DoubleMatrix& otherValues) const
     {
         double prodValue = 0;
-//        std::cout << "ScalarProduct \n" << currentValues <<
-//                     "*** \n" << otherValues << std::endl;
+#ifdef PARALLEL_O
+        #pragma omp parallel for reduction(+:prodValue)
+#endif
         for (int i = processorData.FirstInnerRowRelativeIndex(); i <= processorData.LastInnerRowRelativeIndex(); ++i)
         {
             for (int j = processorData.FirstInnerColRelativeIndex(); j <= processorData.LastInnerColRelativeIndex(); ++j)
             {
-//                int iInnerIndex = i == processorData.LastInnerRowRelativeIndex() ? i = i - 1 : i;
-//                int iInnerIndex = i == processorData.LastInnerRowRelativeIndex() ? j = j - 1 : j;
-                prodValue = prodValue + netModel.xAverageStep(j) * netModel.yAverageStep(i) *
-                                        currentValues(i, j) * otherValues(i, j);
+                prodValue += netModel.xAverageStep(j) * netModel.yAverageStep(i) *
+                                      currentValues(i, j) * otherValues(i, j);
             }
         }
-//        std::cout << "ScalarProduct prodValue = " << prodValue << std::endl;
         return prodValue;
     }
 
@@ -73,24 +61,34 @@ public:
     double MaxNormValue(const DoubleMatrix& currentValues) const
     {
         double maxNorm = -1;
-        for (int i = 0; i < currentValues.rowsCount(); ++i)
+#ifdef PARALLEL_O
+        #pragma omp parallel
+#endif
         {
-            for (int j = 0; j < currentValues.colsCount(); ++j)
+            double localMax = -1;
+#ifdef PARALLEL_O
+            #pragma omp for nowait
+#endif
+            for (int i = 1; i < currentValues.rowsCount() - 1; ++i)
             {
-                double absValue = fabs(currentValues(i, j));
-                if (absValue > maxNorm)
+                for (int j = 1; j < currentValues.colsCount() - 1; ++j)
                 {
-                    maxNorm = absValue;
+                    double absValue = fabs(currentValues(i, j));
+                    if (absValue > localMax)
+                    {
+                        localMax = absValue;
+                    }
                 }
             }
-        }
-#ifdef DEBUG_MODE
-        std::cout << "MaxNormValue min = " << min << ", max = " << max << ", d = "
-                  << maxNorm << std::endl;
+#ifdef PARALLEL_O
+            #pragma omp critical
 #endif
+            {
+                maxNorm = std::max(maxNorm, localMax);
+            }
+        }
         return maxNorm;
     }
-
 };
 
 #endif // DERIVATOR_H

@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MPIOPERATIONS_H
 #define MPIOPERATIONS_H
 
@@ -24,6 +23,6 @@ double GetFractionValueFromAllProcessors(double numerator, double denominator);
 void RenewMatrixBoundRows(DoubleMatrix& values, const ProcessorsData& processorData);
 void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorData);
 
-std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power);
+ProcessorsData* CreateProcessorData(int processorsCount, int N0, int N1, int power);
 
 #endif // MPIOPERATIONS_H

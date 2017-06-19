@@ -5,19 +5,14 @@
 #include <iostream>
 #include <memory.h>
 
+#define PARALLEL_M
+
 class DoubleMatrix
 {
 private:
 public:
     int rowsCountValue, colsCountValue;
     double *matrix;
-
-    DoubleMatrix()
-    {
-        matrix = NULL;
-        rowsCountValue = 0;
-        colsCountValue = 0;
-    }
 
     ~DoubleMatrix()
     {
@@ -26,11 +21,13 @@ public:
 
     DoubleMatrix(const int rowCount, const int colCount)
     {
-      matrix = NULL;
       rowsCountValue = rowCount;
       colsCountValue = colCount;
 
       matrix = new double[rowsCountValue * colsCountValue];
+#ifdef PARALLEL_M
+      #pragma omp parallel for
+#endif
       for (int i = 0; i < rowsCountValue; i++)
       {
           for (int j = 0; j < colsCountValue; j++)
@@ -42,30 +39,17 @@ public:
 
     DoubleMatrix(const DoubleMatrix& otherMatrix)
     {
-//        std::cout << "BITCH, I AM COPYING " << std::endl;
         rowsCountValue = otherMatrix.rowsCountValue;
         colsCountValue = otherMatrix.colsCountValue;
         matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
+#ifdef PARALLEL_M
+      #pragma omp parallel for
+#endif
         for (int i = 0; i < rowsCountValue; i++)
         {
             for (int j = 0; j < colsCountValue; j++)
             {
                 operator() (i, j) = otherMatrix(i, j);
-            }
-        }
-     }
-
-
-    DoubleMatrix(double* otherMatrix, int rowsCount, int colsCount)
-    {
-        rowsCountValue = rowsCount;
-        colsCountValue = colsCount;
-        matrix = new double[rowsCount * colsCount];
-        for (int i = 0; i < rowsCountValue; i++)
-        {
-            for (int j = 0; j < colsCountValue; j++)
-            {
-                operator() (i, j) = otherMatrix[i * colsCount + j];
             }
         }
      }
@@ -94,30 +78,15 @@ public:
         }
     }
 
-
-    // assignment operator
-    DoubleMatrix& operator= (const DoubleMatrix& otherMatrix)
-    {
-        rowsCountValue = otherMatrix.rowsCountValue;
-        colsCountValue = otherMatrix.colsCountValue;
-        matrix = new double[otherMatrix.rowsCountValue * otherMatrix.colsCountValue];
-        for (int i = 0; i < rowsCountValue; i++)
-        {
-            for (int j = 0; j < colsCountValue; j++)
-            {
-                operator() (i, j) = otherMatrix(i, j);
-            }
-        }
-        return *this;
-    }
-
-
-    friend std::shared_ptr<DoubleMatrix> operator-(const DoubleMatrix& a, const DoubleMatrix& b)
+    friend DoubleMatrix* operator-(const DoubleMatrix& a, const DoubleMatrix& b)
     {
         if (a.rowsCountValue == b.rowsCountValue && a.colsCountValue == b.colsCountValue)
         {
-            auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(a.rowsCountValue, a.colsCountValue));
+            DoubleMatrix* res = new DoubleMatrix(a.rowsCountValue, a.colsCountValue);
 
+#ifdef PARALLEL_M
+      #pragma omp parallel for
+#endif
             for (int i = 0; i < a.rowsCountValue; i++)
             {
                 for (int j = 0; j < a.colsCountValue; j++)
@@ -133,9 +102,12 @@ public:
         }
     }
 
-    friend std::shared_ptr<DoubleMatrix> operator* (const double b, const DoubleMatrix & a)
+    friend DoubleMatrix* operator* (const double b, const DoubleMatrix & a)
     {
-        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(a.rowsCount(), a.colsCount()));
+        DoubleMatrix* res = new DoubleMatrix(a.rowsCount(), a.colsCount());
+#ifdef PARALLEL_M
+      #pragma omp parallel for
+#endif
         for (int i = 0; i < res->rowsCount(); i++)
         {
             for (int j = 0; j < res->colsCount(); j++)
@@ -156,9 +128,12 @@ public:
         return colsCountValue;
     }
 
-    std::shared_ptr<DoubleMatrix> CropMatrix(int startRow, int rowsCount, int startCol, int colsCount) const
+    DoubleMatrix* CropMatrix(int startRow, int rowsCount, int startCol, int colsCount) const
     {
-        auto res = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(rowsCount, colsCount));
+        DoubleMatrix* res = new DoubleMatrix(rowsCount, colsCount);
+#ifdef PARALLEL_M
+      #pragma omp parallel for
+#endif
         for (int i = startRow; i < startRow + rowsCount; i++)
         {
             int iIndex = i - startRow;
@@ -178,6 +153,9 @@ public:
             std::cerr << "Incorrect column\n" << std::endl;
             throw "Incorrect column\n";
         }
+#ifdef PARALLEL_M
+      #pragma omp parallel for
+#endif
         for (int i = 0; i < rowsCount(); ++i)
         {
             operator() (i, columnIndex) = column(i, 0);

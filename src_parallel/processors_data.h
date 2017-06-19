@@ -8,7 +8,6 @@ class ProcessorsData
 {
 private:
 public:
-    const int mainProcessorRank = 0;
     int rank, processorsCount;
     int iCartIndex, jCartIndex;
     int startRowIndex, endRowIndex, rowsCountValue;
@@ -20,7 +19,7 @@ public:
 
     ProcessorsData(int processorsCountValue): processorsCount(processorsCountValue){ }
 
-    inline bool IsMainProcessor() const { return rank == mainProcessorRank; }
+    inline bool IsMainProcessor() const { return rank == 0; }
     inline bool IsFirstProcessor() const { return up < 0; }
     inline bool IsLastProcessor() const { return down < 0; }
     inline bool IsRightProcessor() const { return right < 0; }
@@ -81,7 +80,7 @@ public:
             rowsCountValue = n1 + 1;
         }
         // reverse, as we want matrix to start in left up corner
-        auto lastRowIndex = startRowIndex  + rowsCountValue - 1;
+        int lastRowIndex = startRowIndex  + rowsCountValue - 1;
         startRowIndex = N1 - lastRowIndex - 1;
         return;
     }

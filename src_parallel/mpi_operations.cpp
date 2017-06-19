@@ -29,7 +29,7 @@ int SplitFunction(int N0, int N1, int p)
     return p0;
 }
 
-std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0, int N1, int power)
+ProcessorsData* CreateProcessorData(int processorsCount, int N0, int N1, int power)
 {
     MPI_Comm gridComm;             // this is a handler of a new communicator.
     int Coords[2];
@@ -39,7 +39,7 @@ std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0,
     int p0 = SplitFunction(N0, N1, power);
     int p1 = power - p0;
 
-    auto processorInfoPtr = std::shared_ptr<ProcessorsData>(new ProcessorsData(processorsCount));
+    ProcessorsData* processorInfoPtr = new ProcessorsData(processorsCount);
     processorInfoPtr->InitCartParameters(p0, p1, N0, N1);
 
     // the cartesian topology of processes is being created ...
@@ -62,7 +62,6 @@ std::shared_ptr<ProcessorsData> CreateProcessorData(int processorsCount, int N0,
     processorInfoPtr->InitProcessorColsParameters();
     return processorInfoPtr;
 }
-
 
 double GetMaxValueFromAllProcessors(double localValue)
 {
@@ -126,10 +125,10 @@ void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorD
     std::cout << "leftProcessorRank = " << leftProcessorRank << ", rightProcessorRank = " << rightProcessorRank << std::endl;
 #endif
     // tmp vectors for keeping left and right cols
-    auto leftOwn = values.CropMatrix(0, values.rowsCount(), processorData.FirstOwnColRelativeIndex(), 1);
-    auto rightOwn = values.CropMatrix(0, values.rowsCount(), processorData.LastOwnColRelativeIndex(), 1);
-    auto leftBorder = values.CropMatrix(0, values.rowsCount(), 0, 1);
-    auto rightBorder = values.CropMatrix(0, values.rowsCount(), processorData.ColsCountWithBorders() - 1, 1);
+    DoubleMatrix* leftOwn = values.CropMatrix(0, values.rowsCount(), processorData.FirstOwnColRelativeIndex(), 1);
+    DoubleMatrix* rightOwn = values.CropMatrix(0, values.rowsCount(), processorData.LastOwnColRelativeIndex(), 1);
+    DoubleMatrix* leftBorder = values.CropMatrix(0, values.rowsCount(), 0, 1);
+    DoubleMatrix* rightBorder = values.CropMatrix(0, values.rowsCount(), processorData.ColsCountWithBorders() - 1, 1);
 
 #ifdef DEBUG_MODE
     std::cout << "leftOwn = \n" << *leftOwn << ", rightOwn = \n" << *rightOwn << std::endl;
@@ -160,4 +159,8 @@ void RenewMatrixBoundCols(DoubleMatrix& values, const ProcessorsData& processorD
     std::cout << "leftBorder = \n" << *leftBorder << ", rightBorder = \n" << *rightBorder << std::endl;
     std::cout << "RenewBoundCols finished \n" << values << std::endl;
 #endif
+    delete leftBorder;
+    delete rightBorder;
+    delete leftOwn;
+    delete rightOwn;
 }

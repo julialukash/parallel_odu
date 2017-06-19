@@ -9,7 +9,6 @@
 class NetModel
 {
 private:
-    const double q = 2.0/3.0;
 public:
     std::vector<double> xValues, yValues;
     double xMinBoundary, xMaxBoundary, yMinBoundary, yMaxBoundary;
@@ -66,7 +65,7 @@ public:
         yPointsCount = yPointsCountValue;
     }
 
-    double f(double x)
+    double f(double x, double q)
     {
         return (pow(1.0 + x, q) - 1.0) / (pow(2.0, q) - 1.0);
     }
@@ -75,12 +74,12 @@ public:
     {
         for (int i = firstColIndex - 1; i <= lastColIndex + 2; ++i)
         {
-            xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1)));
+            xValues.push_back(xMaxBoundary * f(1.0 * i / (xPointsCount - 1), 2.0 / 3.0));
         }
 
         for (int i = firstRowIndex - 1; i <= lastRowIndex + 2; ++i)
         {
-            yValues.push_back(yMaxBoundary * f(1.0 * i / (yPointsCount - 1)));
+            yValues.push_back(yMaxBoundary * f(1.0 * i / (yPointsCount - 1), 2.0 / 3.0));
         }
     }
 };

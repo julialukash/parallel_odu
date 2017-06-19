@@ -3,7 +3,9 @@
 #include "conjugate_gradient_algo.h"
 #include "mpi_operations.h"
 
-//#define DEBUG_MODE = 1
+#define PARALLEL = 1
+
+const double eps = 1e-4;
 
 ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const DifferentialEquationModel& modelDiff,
                                              const ApproximateOperations& approximateOperations,
@@ -13,21 +15,16 @@ ConjugateGradientAlgo::ConjugateGradientAlgo(const NetModel& modelNet, const Dif
 {
 }
 
-std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
+DoubleMatrix* ConjugateGradientAlgo::CalculateU()
 {
-    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCount(), processorData.ColsCount()));
-#ifdef DEBUG_MODE
-        std::cout << "rc = " << values->rowsCountValue << ", cc = " <<
-                     values->colsCountValue <<", val = \n" << *values <<
-                     std::endl;
+    DoubleMatrix* values = new DoubleMatrix(processorData.RowsCount(), processorData.ColsCount());
+#ifdef PARALLEL
+    #pragma omp parallel for
 #endif
     for (int i = 0; i < values->rowsCount(); ++i)
     {
         for (int j = 0; j < values->colsCount(); ++j)
         {
-#ifdef DEBUG_MODE
-//        std::cout << "i = " << i << ", j = " << j << std::endl;
-#endif
             // +1 as bound rows go first (0)
             (*values)(i, j) = diffModel.CalculateUValue(netModel.xValue(j + 1), netModel.yValue(i + 1));
         }
@@ -35,9 +32,12 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateU()
     return values;
 }
 
-std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
+DoubleMatrix* ConjugateGradientAlgo::Init()
 {
-    auto values = std::shared_ptr<DoubleMatrix>(new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCountWithBorders()));
+    DoubleMatrix* values = new DoubleMatrix(processorData.RowsCountWithBorders(), processorData.ColsCountWithBorders());
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (int i = processorData.FirstOwnRowRelativeIndex(); i <= processorData.LastOwnRowRelativeIndex(); ++i)
     {
         for (int j = processorData.FirstOwnColRelativeIndex(); j <= processorData.LastOwnColRelativeIndex(); ++j)
@@ -45,25 +45,14 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Init()
             bool isInnerPoint = processorData.IsInnerIndices(i, j);
             if (isInnerPoint)
             {
-
-#ifdef DEBUG_MODE
-//        std::cout << "i = " << i << ", yVal = " <<  netModel.yValue(i) <<
-//                     ", j = " << j << ", xVal = " << netModel.xValue(j) <<
-//                     ", val = " << diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i)) << std::endl;
-#endif
-                // i - 1 for y grid as startIndex is from 1
                 (*values)(i, j) = diffModel.CalculateBoundaryValue(netModel.xValue(j), netModel.yValue(i));
             }
             else
             {
-                (*values)(i, j) = 0.05;
+                (*values)(i, j) = 0.0;
             }
         }
     }
-
-#ifdef DEBUG_MODE
-        std::cout << "init \n" << *values << std::endl;
-#endif
     return values;
 }
 
@@ -73,136 +62,90 @@ void ConjugateGradientAlgo::RenewBounds(DoubleMatrix& values)
     RenewMatrixBoundCols(values, processorData);
 }
 
-std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::Process(double* error, const DoubleMatrix& uValues)
+DoubleMatrix* ConjugateGradientAlgo::Process(double* error, const DoubleMatrix& uValues)
 {
-    std::shared_ptr<DoubleMatrix> p = Init();
-    std::shared_ptr<DoubleMatrix> previousP, grad, laplassGrad, laplassPreviousGrad;
-    previousP = p; laplassGrad = p; laplassPreviousGrad = p; grad = p;
+
+    DoubleMatrix* p = Init();
+    DoubleMatrix* previousP = NULL;
+    DoubleMatrix* grad = NULL;
+    DoubleMatrix* laplassGrad = NULL;
+    DoubleMatrix* laplassPreviousGrad = NULL;
     int iteration = 0;
     double errorValue = -1.0;
     while (true)
     {
-
-#ifdef DEBUG_MODE
-        std::cout << "Process u vals = \n" << uValues << std::endl;
-        std::cout << "Process rank = " << processorData.rank << " iteration = " << iteration << std::endl;
-        std::cout << "===================================================================" << std::endl;
-        std::cout << "Process iteration = " << iteration << ", error = " << error << std::endl;
-        std::cout << "Process p = " << *p << std::endl;
-#endif
-
         RenewBounds(*p);
-#ifdef DEBUG_MODE
-        std::cout << "Process renewed p = \n" << *p << std::endl;
-#endif
-
         errorValue = CalculateError(uValues, *p);
-
-        std::cout << "Process iteration = " << iteration << ", error = " << errorValue << std::endl;
-
         // check stop condition
-        auto stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
+        bool stopCondition = iteration != 0 && IsStopCondition(*p, *previousP);
         if (stopCondition)
         {
-            auto pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
+            DoubleMatrix* pCroppedPtr = p->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
                                              processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
-            p.reset();
+            delete p;
             p = pCroppedPtr;
-
-#ifdef DEBUG_MODE
-//            std::cout << "Process! break p  = \n" << *p << std::endl;
-#endif
             break;
         }
-        laplassPreviousGrad.swap(laplassGrad);
 
-#ifdef DEBUG_MODE
-        std::cout << "Process laplassPreviousGrad = \n" << *laplassPreviousGrad << std::endl;
-#endif
+        delete laplassPreviousGrad;
+        laplassPreviousGrad = laplassGrad;
 
-        auto residuals = CalculateResidual(*p);
+        DoubleMatrix* residuals = CalculateResidual(*p);
         RenewBounds(*residuals);
-#ifdef DEBUG_MODE
-        std::cout << "Process Residuals = \n" << *residuals << std::endl;
-#endif
-        auto laplassResiduals = approximateOperations.CalculateLaplass(*residuals);
+
+        DoubleMatrix* laplassResiduals = approximateOperations.CalculateLaplass(*residuals);
         RenewBounds(*laplassResiduals);
 
-#ifdef DEBUG_MODE
-        std::cout << "Process Laplass Residuals = " << *laplassResiduals << std::endl;
-        std::cout << "Process grad = " << *grad << std::endl;
-        std::cout << "Process laplassPreviousGrad = " << *laplassPreviousGrad << std::endl;
-#endif
+        DoubleMatrix* previousGrad = grad;
+        grad = CalculateGradient(*residuals, *laplassResiduals, *previousGrad, *laplassPreviousGrad, iteration);
+        delete previousGrad;
+        delete laplassResiduals;
 
-        grad = CalculateGradient(residuals, *laplassResiduals, *grad, *laplassPreviousGrad, iteration);
-
-#ifdef DEBUG_MODE
-        std::cout << "Process CalculateGradient finished" << std::endl;
-#endif
         laplassGrad = approximateOperations.CalculateLaplass(*grad);
-
-#ifdef DEBUG_MODE
-        std::cout << "Process CalculateLaplass finished" << std::endl;
-#endif
         RenewBounds(*laplassGrad);
-#ifdef DEBUG_MODE
-    std::cout << "Process RenewBoundRows finished" << std::endl;
-#endif
-        auto tau = CalculateTauValue(*residuals, *grad, *laplassGrad);
-        previousP.swap(p);
-        p = CalculateNewP(*previousP, *grad, tau);
 
-        ++iteration;        
+        double tau = CalculateTauValue(*residuals, *grad, *laplassGrad);
+        delete residuals;
+        delete previousP;
+        previousP = p;
+        p = CalculateNewP(*previousP, *grad, tau);
+        ++iteration;
     }
-//#ifdef DEBUG_MODE
-        std::cout << "**************** last iteration = " << iteration << ", error = " << error << std::endl;
-//#endif
+    if (processorData.IsMainProcessor())
+    {
+        std::cout << "**************** last iteration = " << iteration << ", error = " << errorValue << std::endl;
+    }
+    delete grad;
+    delete previousP;
+    delete laplassGrad;
+    delete laplassPreviousGrad;
     *error = errorValue;
     return p;
 }
 
 double ConjugateGradientAlgo::CalculateTauValue(const DoubleMatrix& residuals, const DoubleMatrix& grad, const DoubleMatrix& laplassGrad)
-{    
-#ifdef DEBUG_MODE
-    std::cout << "CalculateTauValue residuals\n " << residuals << std::endl;
-    std::cout << "CalculateTauValue laplassGrad\n " << laplassGrad << std::endl;
-    std::cout << "CalculateTauValue grad\n " << grad << std::endl;
-#endif
+{
     double numerator = approximateOperations.ScalarProduct(residuals, grad);
     double denominator = approximateOperations.ScalarProduct(laplassGrad, grad);
     double tauValue = GetFractionValueFromAllProcessors(numerator, denominator);
-//#ifdef DEBUG_MODE
-    std::cout << "CalculateTauValue tauValue = " << tauValue << std::endl;
-//#endif
     return tauValue;
 }
 
 double ConjugateGradientAlgo::CalculateAlphaValue(const DoubleMatrix& laplassResiduals, const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad)
 {
-#ifdef DEBUG_MODE
-    std::cout << "CalculateAlphaValue laplassResiduals\n " << laplassResiduals << std::endl;
-    std::cout << "CalculateAlphaValue laplassPreviousGrad\n " << laplassPreviousGrad << std::endl;
-    std::cout << "CalculateAlphaValue previousGrad\n " << previousGrad << std::endl;
-#endif
     double numerator = approximateOperations.ScalarProduct(laplassResiduals, previousGrad);
     double denominator = approximateOperations.ScalarProduct(laplassPreviousGrad, previousGrad);
     double alphaValue = GetFractionValueFromAllProcessors(numerator, denominator);
-//#ifdef DEBUG_MODE
-    std::cout << "CalculateAlphaValue alphaValue = " << alphaValue << std::endl;
-//#endif
     return alphaValue;
 }
 
-std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
+DoubleMatrix* ConjugateGradientAlgo::CalculateResidual(const DoubleMatrix& p)
 {
-#ifdef DEBUG_MODE
-        std::cout << "CalculateResidual ..." << std::endl;
+    DoubleMatrix* laplassP = approximateOperations.CalculateLaplass(p);
+    DoubleMatrix* residuals = new DoubleMatrix(laplassP->rowsCount(), laplassP->colsCount());
+#ifdef PARALLEL
+    #pragma omp parallel for
 #endif
-    auto laplassP = approximateOperations.CalculateLaplass(p);
-#ifdef DEBUG_MODE
-        std::cout << "CalculateResidual laplassP \n" << *laplassP << std::endl;
-#endif
-    auto residuals = std::make_shared<DoubleMatrix>(laplassP->rowsCount(), laplassP->colsCount());
     for (int i = processorData.FirstOwnRowRelativeIndex(); i <= processorData.LastOwnRowRelativeIndex(); ++i)
     {
         for (int j = processorData.FirstOwnColRelativeIndex(); j <= processorData.LastOwnColRelativeIndex(); ++j)
@@ -218,96 +161,57 @@ std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateResidual(const Dou
             }
         }
     }
+    delete laplassP;
     return residuals;
 }
 
-std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateGradient(std::shared_ptr<DoubleMatrix> residuals, const DoubleMatrix& laplassResiduals,
+DoubleMatrix* ConjugateGradientAlgo::CalculateGradient(const DoubleMatrix& residuals, const DoubleMatrix& laplassResiduals,
                                 const DoubleMatrix& previousGrad, const DoubleMatrix& laplassPreviousGrad,
                                 int k)
 {
-#ifdef DEBUG_MODE
-        std::cout << "CalculateGradient = \n" << *residuals << std::endl;
-#endif
-    std::shared_ptr<DoubleMatrix> gradient;
+    DoubleMatrix* gradient;
     if (k == 0)
     {
-        gradient = residuals;
+        gradient = new DoubleMatrix(residuals);
     }
     else
     {
         double alpha = CalculateAlphaValue(laplassResiduals, previousGrad, laplassPreviousGrad);
-#ifdef DEBUG_MODE
-        std::cout << "Alpha = " << alpha << std::endl;
-#endif
-        gradient = *residuals - *(alpha * previousGrad);
+        DoubleMatrix* tmp = alpha * previousGrad;
+        gradient = residuals - *tmp;
+        delete tmp;
     }
     return gradient;
 }
 
-std::shared_ptr<DoubleMatrix> ConjugateGradientAlgo::CalculateNewP(const DoubleMatrix& p, const DoubleMatrix& grad, double tau)
+DoubleMatrix* ConjugateGradientAlgo::CalculateNewP(const DoubleMatrix& p, const DoubleMatrix& grad, double tau)
 {
-#ifdef DEBUG_MODE
-    std::cout << "CalculateNewP p = \n" << p << std::endl;
-    std::cout << "CalculateNewP grad = \n" << grad << std::endl;
-    std::cout << "CalculateNewP tau = " << tau << std::endl;
-#endif
-    return p - *(tau * grad);
+    DoubleMatrix* tmp = tau * grad;
+    DoubleMatrix* newValues = p - *tmp;
+    delete tmp;
+    return newValues;
 }
 
 double ConjugateGradientAlgo::CalculateError(const DoubleMatrix& uValues, const DoubleMatrix& p)
 {
-#ifdef DEBUG_MODE
-    std::cout << "CalculateError..." << std::endl;
-    std::cout << "p = \n" << p << std::endl;
-#endif
-    auto pCropped = p.CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
+    DoubleMatrix* pCropped = p.CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
                                  processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
-#ifdef DEBUG_MODE
-    std::cout << "uValues = \n" << uValues << std::endl;
-    std::cout << "pCropped = \n" << *pCropped << std::endl;
-#endif
-    auto psi = uValues - *pCropped;
-
-#ifdef DEBUG_MODE
-    std::cout << "psi = \n" << *psi << std::endl;
-#endif
+    DoubleMatrix* psi = uValues - *pCropped;
     double error = approximateOperations.MaxNormValue(*psi);
     double globalError = GetMaxValueFromAllProcessors(error);
-
-#ifdef DEBUG_MODE
-    std::cout << "error = " << error << ", global = " << globalError << std::endl;
-#endif
+    delete pCropped;
+    delete psi;
     return globalError;
 }
 
 bool ConjugateGradientAlgo::IsStopCondition(const DoubleMatrix& p, const DoubleMatrix& previousP)
 {
-#ifdef DEBUG_MODE
-    std::cout << "IsStopCondition p = \n" << p << std::endl;
-    std::cout << "IsStopCondition previousP = \n" << previousP << std::endl;
-#endif
-
-    auto pDiff = p - previousP;
-
-    auto pDiffCropped = pDiff->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
+    DoubleMatrix* pDiff = p - previousP;
+    DoubleMatrix* pDiffCropped = pDiff->CropMatrix(processorData.FirstOwnRowRelativeIndex(), processorData.RowsCount(),
                                           processorData.FirstOwnColRelativeIndex(), processorData.ColsCount());
-#ifdef DEBUG_MODE
-    std::cout << "IsStopCondition pDiff = \n" << *pDiff << std::endl;
-    std::cout << "IsStopCondition pDiffCropped = \n" << *pDiffCropped << std::endl;
-#endif
-    double pDiffNormLocal, pDiffNormGlobal;
-    pDiffNormLocal = approximateOperations.MaxNormValue(*pDiffCropped);
-    pDiffNormGlobal = GetMaxValueFromAllProcessors(pDiffNormLocal);
-
-#ifdef DEBUG_MODE
-    std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;
-
-    bool stop = pDiffNormGlobal < eps;
-    std::cout << "CheckStopCondition = " << stop << std::endl;
-#endif
-
-//#ifdef DEBUG_MODE
-    std::cout << "pDiffNormLocal = " << pDiffNormLocal << ", pDiffNormGlobal = " << pDiffNormGlobal << std::endl;
-//#endif
+    double pDiffNormLocal = approximateOperations.MaxNormValue(*pDiffCropped);
+    double pDiffNormGlobal = GetMaxValueFromAllProcessors(pDiffNormLocal);
+    delete pDiff;
+    delete pDiffCropped;
     return pDiffNormGlobal < eps;
 }
